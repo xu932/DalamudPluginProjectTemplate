@@ -19,7 +19,7 @@ namespace DalamudPluginProjectTemplate
         private readonly Configuration config;
         private readonly WindowSystem windowSystem;
 
-        public string Name => "Your Plugin's Display Name";
+        public string Name => "Cotton Collector";
 
         public Plugin(
             DalamudPluginInterface pi,
@@ -59,6 +59,18 @@ namespace DalamudPluginProjectTemplate
             var world = this.clientState.LocalPlayer?.CurrentWorld.GameData;
             this.chat.Print($"Hello, {world?.Name}!");
             PluginLog.Log("Message sent successfully.");
+        }
+
+        [Command("/example2")]
+        [HelpMessage("Example help message.")]
+        public void ExampleCommand2(string command, string args)
+        {
+            var character = this.clientState.LocalPlayer;
+            var pos = character?.Position;
+            var rot = character?.Rotation;
+            this.chat.Print($"Hello, {character?.Name}");
+            this.chat.Print($"X: {pos?.X} Y: {pos?.Y} Z: {pos?.Z}");
+            this.chat.Print($"Rot: {rot}pi");
         }
 
         #region IDisposable Support
