@@ -6,7 +6,8 @@ using Dalamud.Game.Gui;
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using CottonCollector.Attributes;
+
+using CottonCollector.Config;
 using System;
 
 namespace CottonCollector
@@ -28,13 +29,13 @@ namespace CottonCollector
         [PluginService]
         internal static ChatGui chatGui { get; private set; }
 
-        internal static Configuration config { get; set; }
+        internal static CottonCollectorConfig config { get; set; }
 
         public string Name => "Cotton Collector";
 
         public CottonCollectorPlugin()
         {
-            config = DalamudPluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+            config = DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
         }
 
         public void Dispose()

@@ -2,18 +2,12 @@
 using Dalamud.Configuration;
 using Dalamud.Plugin;
 
-namespace CottonCollector
+namespace CottonCollector.Config
 {
-    public class Configuration : IPluginConfiguration
+    public class CottonCollectorConfig : IPluginConfiguration
     {
-        [PluginService]
-        internal static DalamudPluginInterface DalamudPluginInterface { get; private set; }
-
         int IPluginConfiguration.Version { get; set; }
 
-        public void Save()
-        {
-            DalamudPluginInterface.SavePluginConfig(this);
-        }
+        public bool ShowName = false;
     }
 }
