@@ -8,7 +8,7 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 
 using CottonCollector.Config;
-using System;
+using CottonCollector.Interface;
 
 namespace CottonCollector
 {
@@ -30,12 +30,16 @@ namespace CottonCollector
         internal static ChatGui chatGui { get; private set; }
 
         internal static CottonCollectorConfig config { get; set; }
+        private static ConfigWindow ConfigWindow;
 
         public string Name => "Cotton Collector";
 
         public CottonCollectorPlugin()
         {
             config = DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
+            ConfigWindow = new ConfigWindow();
+            DalamudPluginInterface.UiBuilder.Draw += ConfigWindow.Draw;
+            DalamudPluginInterface.UiBuilder.OpenConfigUi += ConfigWindow.Open;
         }
 
         public void Dispose()

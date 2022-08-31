@@ -36,6 +36,7 @@ namespace CottonCollector.Interface
                     PluginLog.Log("Cotton Collector config saved.");
                 }
             }
+            ImGui.End();
         }
 
         public void Open()
