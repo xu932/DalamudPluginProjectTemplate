@@ -14,9 +14,9 @@ namespace CottonCollector
         private readonly (string, CommandInfo)[] pluginCommands;
         private readonly THost host;
 
-        public PluginCommandManager(THost host, CommandManager commandManager)
+        public PluginCommandManager(THost host)
         {
-            this.commandManager = commandManager;
+            this.commandManager = CottonCollectorPlugin.CommandManager;
             this.host = host;
 
             this.pluginCommands = host.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)

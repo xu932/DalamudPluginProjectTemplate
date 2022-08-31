@@ -1,6 +1,5 @@
-﻿using Dalamud.IoC;
-using Dalamud.Configuration;
-using Dalamud.Plugin;
+﻿using Dalamud.Configuration;
+using Dalamud.Game.ClientState.Objects.Enums;
 
 namespace CottonCollector.Config
 {
@@ -8,6 +7,9 @@ namespace CottonCollector.Config
     {
         int IPluginConfiguration.Version { get; set; }
 
-        public bool ShowName = false;
+        public bool showName = false;
+        public bool showTime = false;
+        public bool showObjects = false;
+        public ObjectKind currKind = ObjectKind.None;
     }
 }
