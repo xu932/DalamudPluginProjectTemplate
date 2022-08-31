@@ -1,26 +1,19 @@
-﻿using Dalamud.Configuration;
+﻿using Dalamud.IoC;
+using Dalamud.Configuration;
 using Dalamud.Plugin;
 
 namespace CottonCollector
 {
     public class Configuration : IPluginConfiguration
     {
+        [PluginService]
+        internal static DalamudPluginInterface DalamudPluginInterface { get; private set; }
+
         int IPluginConfiguration.Version { get; set; }
-
-        #region Saved configuration values
-        public string CoolText { get; set; }
-        #endregion
-
-        private readonly DalamudPluginInterface pluginInterface;
-
-        public Configuration(DalamudPluginInterface pi)
-        {
-            this.pluginInterface = pi;
-        }
 
         public void Save()
         {
-            this.pluginInterface.SavePluginConfig(this);
+            DalamudPluginInterface.SavePluginConfig(this);
         }
     }
 }
