@@ -4,10 +4,10 @@ using Dalamud.Game.Gui;
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using Dalamud.Plugin;
-using DalamudPluginProjectTemplate.Attributes;
+using CottonCollector.Attributes;
 using System;
 
-namespace DalamudPluginProjectTemplate
+namespace CottonCollector
 {
     public class Plugin : IDalamudPlugin
     {

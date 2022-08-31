@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DalamudPluginProjectTemplate
+namespace CottonCollector
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class DoNotShowInHelpAttribute : Attribute

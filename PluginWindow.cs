@@ -2,7 +2,7 @@
 using ImGuiNET;
 using System.Numerics;
 
-namespace DalamudPluginProjectTemplate
+namespace CottonCollector
 {
     public class PluginWindow : Window
     {
