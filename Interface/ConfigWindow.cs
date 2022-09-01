@@ -89,26 +89,34 @@ namespace CottonCollector.Interface
         private void ObjectTable()
         {
             if (ImGui.BeginTable($"Object Kind: {config.currKind.ToString()}", 3)) {
-                // Table header
-                ImGui.TableSetColumnIndex(0);
-                ImGui.TableSetupColumn("Name");
-                ImGui.TableSetColumnIndex(1);
-                ImGui.TableSetupColumn("DataId");
-                ImGui.TableSetColumnIndex(2);
-                ImGui.TableSetupColumn("Pos");
-                ImGui.TableHeadersRow();
-
-                // Object table
-                foreach (GameObject obj in CottonCollectorPlugin.ObjectTable)
+                try
                 {
-                    if (obj.ObjectKind != config.currKind) continue;
-                    ImGui.TableNextRow();
+                    // Table header
                     ImGui.TableSetColumnIndex(0);
-                    ImGui.Text($"{obj.Name}");
+                    ImGui.TableSetupColumn("Name");
                     ImGui.TableSetColumnIndex(1);
-                    ImGui.Text($"{obj.DataId}");
+                    ImGui.TableSetupColumn("DataId");
                     ImGui.TableSetColumnIndex(2);
-                    ImGui.Text($"X:{obj.Position.X}, Y:{obj.Position.Y}, Z:{obj.Position.Z}");
+                    ImGui.TableSetupColumn("Pos");
+                    ImGui.TableHeadersRow();
+
+                    // Object table
+                    foreach (GameObject obj in CottonCollectorPlugin.ObjectTable)
+                    {
+                        if (obj.ObjectKind != config.currKind) continue;
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        ImGui.Text($"{obj.Name}");
+                        ImGui.TableSetColumnIndex(1);
+                        ImGui.Text($"{obj.DataId}");
+                        ImGui.TableSetColumnIndex(2);
+                        ImGui.Text($"X:{obj.Position.X}, Y:{obj.Position.Y}, Z:{obj.Position.Z}");
+                    }
+                } 
+                catch (Exception e)
+                {
+                    PluginLog.Error($"{e.Message}");
+                    PluginLog.Error($"{e.StackTrace}");
                 }
                 ImGui.EndTable();
             }
