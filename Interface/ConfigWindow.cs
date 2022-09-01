@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
+using System.Collections.Generic;
 using ImGuiNET;
 
 using Dalamud.Logging;
@@ -24,41 +26,42 @@ namespace CottonCollector.Interface
         {
             if (!IsOpen) return;
 
-            ImGui.SetNextWindowSize(new Vector2(750, 250));
             var imGuiReady = ImGui.Begin("Cotton Collector Configuration", ref IsOpen, ImGuiWindowFlags.None);
 
             if (imGuiReady)
             {
-                ImGui.Checkbox("Show Name", ref config.showName);
-                if (config.showName)
-                    ImGui.Text($"{CottonCollectorPlugin.ClientState.LocalPlayer.Name}");
-                ImGui.Separator();
-
-                ImGui.Checkbox("Show Time", ref config.showTime);
-                if (config.showTime)
-                    ImGui.Text($"{DateTime.Now}");
-                ImGui.Separator();
-
-                ImGui.Checkbox("Show Objects", ref config.showObjects);
-                if (config.showObjects)
+                if (ImGui.BeginTabBar("", ImGuiTabBarFlags.None))
                 {
-                    if (ImGui.BeginListBox(config.currKind.ToString()))
+                    if (ImGui.BeginTabItem("Settings"))
                     {
-                        foreach (ObjectKind kind in Enum.GetValues(typeof(ObjectKind)))
+                        ImGui.Checkbox("Show Name", ref config.showName);
+                        ImGui.Checkbox("Show Time", ref config.showTime);
+                        ImGui.Checkbox("Show Objects", ref config.showObjects);
+                        ImGui.EndTabItem();
+                    }
+                    if (ImGui.BeginTabItem("Info"))
+                    {
+                        if (config.showName)
+                            ImGui.Text($"{CottonCollectorPlugin.ClientState.LocalPlayer.Name}");
+                        if (config.showTime)
+                            ImGui.Text($"{DateTime.Now}");
+                        ImGui.EndTabItem();
+                    }
+                    if (config.showObjects)
+                    {
+                        if (ImGui.BeginTabItem("Object Table"))
                         {
-                            bool isSelected = false;
-                            ImGui.Selectable(kind.ToString(), ref isSelected);
-                            if (isSelected) {
-                                config.currKind = kind;
+                            ObjectKindSelector();
+                            if (ImGui.BeginChild("ObjDataTable"))
+                            {
+                                ObjectTable();
+                                ImGui.EndChild();
                             }
+
+                            ImGui.EndTabItem();
                         }
-                        ImGui.EndListBox();
                     }
-                    foreach (GameObject obj in CottonCollectorPlugin.ObjectTable)
-                    {
-                        if (obj.ObjectKind == config.currKind)
-                            ImGui.Text($"{obj.Name}:{obj.ObjectId}");
-                    }
+                    ImGui.EndTabBar();  
                 }
 
                 if (ImGui.Button("Save and Close"))
@@ -70,6 +73,45 @@ namespace CottonCollector.Interface
                 }
             }
             ImGui.End();
+        }
+
+        private void ObjectKindSelector()
+        {
+            List<ObjectKind> objKindList = Enum.GetValues(typeof(ObjectKind)).Cast<ObjectKind>().ToList();
+            int selectedIndex = objKindList.IndexOf(config.currKind);
+            ImGui.Text($"kind size: {objKindList.Count}");
+            if (ImGui.Combo("ObjectKindSelector", ref selectedIndex, Enum.GetNames(typeof(ObjectKind)), objKindList.Count))
+            {
+                config.currKind = objKindList[selectedIndex];
+            }
+        }
+
+        private void ObjectTable()
+        {
+            if (ImGui.BeginTable($"Object Kind: {config.currKind.ToString()}", 3)) {
+                // Table header
+                ImGui.TableSetColumnIndex(0);
+                ImGui.TableSetupColumn("Name");
+                ImGui.TableSetColumnIndex(1);
+                ImGui.TableSetupColumn("DataId");
+                ImGui.TableSetColumnIndex(2);
+                ImGui.TableSetupColumn("Pos");
+                ImGui.TableHeadersRow();
+
+                // Object table
+                foreach (GameObject obj in CottonCollectorPlugin.ObjectTable)
+                {
+                    if (obj.ObjectKind != config.currKind) continue;
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.Text($"{obj.Name}");
+                    ImGui.TableSetColumnIndex(1);
+                    ImGui.Text($"{obj.DataId}");
+                    ImGui.TableSetColumnIndex(2);
+                    ImGui.Text($"X:{obj.Position.X}, Y:{obj.Position.Y}, Z:{obj.Position.Z}");
+                }
+                ImGui.EndTable();
+            }
         }
 
         public void Open()
