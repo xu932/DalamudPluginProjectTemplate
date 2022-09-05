@@ -4,10 +4,9 @@ using Dalamud.Data;
 using Dalamud.IoC;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
-using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Game.ClientState.Objects;
 
@@ -39,6 +38,9 @@ namespace CottonCollector
 
         [PluginService]
         internal static ObjectTable ObjectTable { get; private set; }
+
+        [PluginService]
+        internal static KeyState KeyState { get; private set; }
 
         internal static CottonCollectorConfig config { get; set; }
         private static ConfigWindow configWindow;

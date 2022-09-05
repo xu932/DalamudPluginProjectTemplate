@@ -1,12 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
-using System.Collections.Generic;
-using ImGuiNET;
+﻿using ImGuiNET;
 
 using Dalamud.Logging;
-using Dalamud.Game.ClientState.Objects.Types;
-using Dalamud.Game.ClientState.Objects.Enums;
 
 using CottonCollector.Config;
 
@@ -17,11 +11,16 @@ namespace CottonCollector.Interface
         private bool IsOpen = false;
         private CottonCollectorConfig config;
 
+        private SettingsTab settingsTab;
         private ObjectTableTab objectTableTab;
+        private CharacterControlTab characterControlTab;
 
         public ConfigWindow()
         {
             config = CottonCollectorPlugin.DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
+            settingsTab = new SettingsTab();
+            objectTableTab = new ObjectTableTab();
+            characterControlTab = new CharacterControlTab();
         }
 
         public void Draw()
@@ -34,22 +33,10 @@ namespace CottonCollector.Interface
             {
                 if (ImGui.BeginTabBar("", ImGuiTabBarFlags.None))
                 {
-                    if (ImGui.BeginTabItem("Settings"))
-                    {
-                        ImGui.Checkbox("Show Name", ref config.showName);
-                        ImGui.Checkbox("Show Time", ref config.showTime);
-                        ImGui.Checkbox("Show Objects", ref config.showObjects);
-                        ImGui.EndTabItem();
-                    }
-                    if (ImGui.BeginTabItem("Info"))
-                    {
-                        if (config.showName)
-                            ImGui.Text($"{CottonCollectorPlugin.ClientState.LocalPlayer.Name}");
-                        if (config.showTime)
-                            ImGui.Text($"{DateTime.Now}");
-                        ImGui.EndTabItem();
-                    }
+                    settingsTab.Draw();
                     objectTableTab.Draw(config.showObjects);
+                    characterControlTab.Draw(config.showCharacterControl);
+
                     ImGui.EndTabBar();  
                 }
 

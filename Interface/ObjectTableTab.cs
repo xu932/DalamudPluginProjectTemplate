@@ -17,16 +17,11 @@ namespace CottonCollector.Interface
         public override void TabContent()
         {
             CottonCollectorConfig config = CottonCollectorPlugin.DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
-            if (ImGui.BeginTabItem("Object Table"))
+            ObjectKindSelector(config);
+            if (ImGui.BeginChild("ObjDataTable"))
             {
-                ObjectKindSelector(config);
-                if (ImGui.BeginChild("ObjDataTable"))
-                {
-                    ObjectTable(config);
-                    ImGui.EndChild();
-                }
-
-                ImGui.EndTabItem();
+                ObjectTable(config);
+                ImGui.EndChild();
             }
         }
 

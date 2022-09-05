@@ -7,9 +7,8 @@ namespace CottonCollector.Config
     {
         int IPluginConfiguration.Version { get; set; }
 
-        public bool showName = false;
-        public bool showTime = false;
         public bool showObjects = false;
+        public bool showCharacterControl = false;
         public ObjectKind currKind = ObjectKind.None;
     }
 }

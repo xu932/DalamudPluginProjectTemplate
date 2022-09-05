@@ -16,7 +16,7 @@ namespace CottonCollector.Interface
             this.name = name;
         }
 
-        public void Draw(bool shouldShow)
+        public void Draw(bool shouldShow = true)
         {
             if (!shouldShow) return;
             try
