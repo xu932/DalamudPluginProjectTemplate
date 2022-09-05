@@ -88,9 +88,10 @@ namespace CottonCollector.Interface
 
         private void ObjectTable()
         {
-            if (ImGui.BeginTable("Objects", 3)) {
+            if (ImGui.BeginTable("Objects", 4)) {
                 // Table header
                 ImGui.TableSetupColumn("Name");
+                ImGui.TableSetupColumn("ObjectId");
                 ImGui.TableSetupColumn("DataId");
                 ImGui.TableSetupColumn("Pos");
                 ImGui.TableHeadersRow();
@@ -103,8 +104,10 @@ namespace CottonCollector.Interface
                     ImGui.TableSetColumnIndex(0);
                     ImGui.Text($"{obj.Name}");
                     ImGui.TableSetColumnIndex(1);
-                    ImGui.Text($"{obj.DataId}");
+                    ImGui.Text($"{obj.ObjectId}");
                     ImGui.TableSetColumnIndex(2);
+                    ImGui.Text($"{obj.DataId}");
+                    ImGui.TableSetColumnIndex(3);
                     ImGui.Text($"X:{obj.Position.X}, Y:{obj.Position.Y}, Z:{obj.Position.Z}");
                 }
                 ImGui.EndTable();
