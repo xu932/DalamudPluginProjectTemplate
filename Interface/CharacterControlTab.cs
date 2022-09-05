@@ -4,11 +4,13 @@ using ImGuiNET;
 
 using Dalamud.Game.ClientState.Keys;
 
+using CottonCollector.Config;
+
 namespace CottonCollector.Interface
 {
     internal class CharacterControlTab : ConfigTab
     {
-        public CharacterControlTab() : base("Character Control") { }
+        public CharacterControlTab(ref CottonCollectorConfig config) : base("Character Control", ref config) { }
 
         public override void TabContent()
         {

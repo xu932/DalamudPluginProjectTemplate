@@ -18,9 +18,9 @@ namespace CottonCollector.Interface
         public ConfigWindow()
         {
             config = CottonCollectorPlugin.DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
-            settingsTab = new SettingsTab();
-            objectTableTab = new ObjectTableTab();
-            characterControlTab = new CharacterControlTab();
+            settingsTab = new SettingsTab(ref config);
+            objectTableTab = new ObjectTableTab(ref config);
+            characterControlTab = new CharacterControlTab(ref config);
         }
 
         public void Draw()
@@ -40,13 +40,12 @@ namespace CottonCollector.Interface
                     ImGui.EndTabBar();  
                 }
 
-                if (ImGui.Button("Save and Close"))
-                {
-                    this.Close();
-                    CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
-                    CottonCollectorPlugin.config = this.config;
-                    PluginLog.Log("Cotton Collector config saved.");
-                }
+            }
+
+            if (ImGui.Button("Close"))
+            {
+                CottonCollectorPlugin.config = this.config;
+                this.Close();
             }
             ImGui.End();
         }

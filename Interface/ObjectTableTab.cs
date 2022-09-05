@@ -12,11 +12,10 @@ namespace CottonCollector.Interface
 {
     internal class ObjectTableTab : ConfigTab
     {
-        public ObjectTableTab() : base("ObjectTable") { }
+        public ObjectTableTab(ref CottonCollectorConfig config) : base("ObjectTable", ref config) { }
 
         public override void TabContent()
         {
-            CottonCollectorConfig config = CottonCollectorPlugin.DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
             ObjectKindSelector(config);
             if (ImGui.BeginChild("ObjDataTable"))
             {

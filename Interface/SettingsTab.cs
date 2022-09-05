@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ImGuiNET;
+﻿using ImGuiNET;
+
+using Dalamud.Logging;
 
 using CottonCollector.Config;
 
@@ -11,13 +8,17 @@ namespace CottonCollector.Interface
 {
     internal class SettingsTab : ConfigTab
     {
-        public SettingsTab() : base("Settings") { }
+        public SettingsTab(ref CottonCollectorConfig config) : base("Settings", ref config) { }
 
         public override void TabContent()
         {
-            CottonCollectorConfig config = CottonCollectorPlugin.DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
             ImGui.Checkbox("Show Objects", ref config.showObjects);
             ImGui.Checkbox("Show Character Control", ref config.showCharacterControl);
+            if (ImGui.Button("Save"))
+            {
+                CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
+                PluginLog.Log("Cotton Collector config saved.");
+            }
         }
 
     }
