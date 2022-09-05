@@ -17,6 +17,8 @@ namespace CottonCollector.Interface
         private bool IsOpen = false;
         private CottonCollectorConfig config;
 
+        private ObjectTableTab objectTableTab;
+
         public ConfigWindow()
         {
             config = CottonCollectorPlugin.DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
@@ -47,20 +49,7 @@ namespace CottonCollector.Interface
                             ImGui.Text($"{DateTime.Now}");
                         ImGui.EndTabItem();
                     }
-                    if (config.showObjects)
-                    {
-                        if (ImGui.BeginTabItem("Object Table"))
-                        {
-                            ObjectKindSelector();
-                            if (ImGui.BeginChild("ObjDataTable"))
-                            {
-                                ObjectTable();
-                                ImGui.EndChild();
-                            }
-
-                            ImGui.EndTabItem();
-                        }
-                    }
+                    objectTableTab.Draw(config.showObjects);
                     ImGui.EndTabBar();  
                 }
 
@@ -73,45 +62,6 @@ namespace CottonCollector.Interface
                 }
             }
             ImGui.End();
-        }
-
-        private void ObjectKindSelector()
-        {
-            List<ObjectKind> objKindList = Enum.GetValues(typeof(ObjectKind)).Cast<ObjectKind>().ToList();
-            int selectedIndex = objKindList.IndexOf(config.currKind);
-            ImGui.Text($"kind size: {objKindList.Count}");
-            if (ImGui.Combo("ObjectKindSelector", ref selectedIndex, Enum.GetNames(typeof(ObjectKind)), objKindList.Count))
-            {
-                config.currKind = objKindList[selectedIndex];
-            }
-        }
-
-        private void ObjectTable()
-        {
-            if (ImGui.BeginTable("Objects", 4)) {
-                // Table header
-                ImGui.TableSetupColumn("Name");
-                ImGui.TableSetupColumn("ObjectId");
-                ImGui.TableSetupColumn("DataId");
-                ImGui.TableSetupColumn("Pos");
-                ImGui.TableHeadersRow();
-
-                // Object table
-                foreach (GameObject obj in CottonCollectorPlugin.ObjectTable)
-                {
-                    if (obj.ObjectKind != config.currKind) continue;
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.Text($"{obj.Name}");
-                    ImGui.TableSetColumnIndex(1);
-                    ImGui.Text($"{obj.ObjectId}");
-                    ImGui.TableSetColumnIndex(2);
-                    ImGui.Text($"{obj.DataId}");
-                    ImGui.TableSetColumnIndex(3);
-                    ImGui.Text($"X:{obj.Position.X}, Y:{obj.Position.Y}, Z:{obj.Position.Z}");
-                }
-                ImGui.EndTable();
-            }
         }
 
         public void Open()
