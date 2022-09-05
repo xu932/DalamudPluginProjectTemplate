@@ -14,11 +14,6 @@ namespace CottonCollector.Interface
         {
             ImGui.Checkbox("Show Objects", ref config.showObjects);
             ImGui.Checkbox("Show Character Control", ref config.showCharacterControl);
-            if (ImGui.Button("Save"))
-            {
-                CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
-                PluginLog.Log("Cotton Collector config saved.");
-            }
         }
 
     }

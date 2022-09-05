@@ -1,4 +1,8 @@
-﻿using Dalamud.Configuration;
+﻿using System;
+using System.Collections.Generic;
+
+using Dalamud.Configuration;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.ClientState.Objects.Enums;
 
 namespace CottonCollector.Config

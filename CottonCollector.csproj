@@ -14,7 +14,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DalamudPackager" Version="2.1.6" />
+		<PackageReference Include="DalamudPackager" Version="2.1.8" />
+		<PackageReference Include="InputSimulator" Version="1.0.4" />
 		<PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" />
 	</ItemGroup>
 

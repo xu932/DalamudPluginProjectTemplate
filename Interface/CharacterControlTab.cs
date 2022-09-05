@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using ImGuiNET;
 
@@ -10,11 +11,26 @@ namespace CottonCollector.Interface
 {
     internal class CharacterControlTab : ConfigTab
     {
-        public CharacterControlTab(ref CottonCollectorConfig config) : base("Character Control", ref config) { }
+        private CharacterControl.Commands commands;
+
+        public CharacterControlTab(ref CottonCollectorConfig config, ref CharacterControl.Commands commands) : base("Character Control", ref config) {
+            this.commands = commands;
+        }
 
         public override void TabContent()
         {
             KeyState keyState = CottonCollectorPlugin.KeyState;
+
+            if (ImGui.Button("Press W for 1 sec"))
+            {
+                commands.commands.Enqueue(new Tuple<VirtualKey, int>(VirtualKey.W, 1000));
+            }
+
+            if (ImGui.Button("Press W for 1 sec then Press D for 1 sec"))
+            {
+                commands.commands.Enqueue(new Tuple<VirtualKey, int>(VirtualKey.W, 1000));
+                commands.commands.Enqueue(new Tuple<VirtualKey, int>(VirtualKey.D, 1000));
+            }
 
             if (keyState[VirtualKey.W]) {
                 ImGui.Text("W");
