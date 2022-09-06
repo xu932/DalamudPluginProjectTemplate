@@ -14,6 +14,7 @@ namespace CottonCollector.Interface
         {
             ImGui.Checkbox("Show Objects", ref config.showObjects);
             ImGui.Checkbox("Show Character Control", ref config.showCharacterControl);
+            ImGui.Checkbox("Show Camera Info", ref config.showCameraInfo);
         }
 
     }

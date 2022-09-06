@@ -9,19 +9,20 @@ using Dalamud.IoC;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Keys;
+using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.Plugin;
 using Dalamud.Logging;
-using Dalamud.Game.ClientState.Objects;
 
 using CottonCollector.Attributes;
+using CottonCollector.CameraManager;
 using CottonCollector.Config;
 using CottonCollector.Interface;
 
 namespace CottonCollector
 {
-    internal class CottonCollectorPlugin : IDalamudPlugin
+    internal unsafe class CottonCollectorPlugin : IDalamudPlugin
     {
         [PluginService]
         internal static DalamudPluginInterface DalamudPluginInterface { get; private set; }
@@ -51,6 +52,7 @@ namespace CottonCollector
         private readonly ConfigWindow configWindow;
         private readonly PluginCommandManager<CottonCollectorPlugin> pluginCommandManager;
 
+
         public CharacterControl.Commands Commands;
 
         public string Name => "Cotton Collector";
@@ -63,8 +65,12 @@ namespace CottonCollector
 
         public CottonCollectorPlugin()
         {
+            // Ini CameraHelpers
+            CameraHelpers.Initialize();
+
             // Ini commands manager
             Commands = new CharacterControl.Commands();
+
 
             // Load config window
             config = DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
@@ -75,7 +81,6 @@ namespace CottonCollector
 
             // Load all commands
             pluginCommandManager = new PluginCommandManager<CottonCollectorPlugin>(this);
-
         }
 
         [Command("/cottoncollectormonitor")]
