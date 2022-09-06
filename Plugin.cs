@@ -92,28 +92,7 @@ namespace CottonCollector
 
         private void Update(Framework framework)
         {
-            if (done && Commands.commands.Count != 0)
-            {
-                PluginLog.Log("Exectuing Command");
-                command = Commands.commands.Dequeue();
-                done = false;
-                timer.Start();
-                
-                sim.Keyboard.KeyDown((VirtualKeyCode)((int)command.Item1));
-            }
-
-            //PluginLog.Log($"{(DateTime.UtcNow - timestamp).Milliseconds}");
-
-            if (!done && command != null) {
-                if (timer.ElapsedMilliseconds > command.Item2)
-                {
-                    sim.Keyboard.KeyUp((VirtualKeyCode)((int)command.Item1));
-                    PluginLog.Log($"Command Finished, time elapsed: {timer.Elapsed}");
-                    timer.Stop();
-                    timer.Reset();
-                    done = true;
-                }
-            }
+            Commands.Update();
         }
 
         public void Dispose()

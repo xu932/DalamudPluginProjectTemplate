@@ -6,14 +6,15 @@ using ImGuiNET;
 using Dalamud.Game.ClientState.Keys;
 
 using CottonCollector.Config;
+using CottonCollector.CharacterControl;
 
 namespace CottonCollector.Interface
 {
     internal class CharacterControlTab : ConfigTab
     {
-        private CharacterControl.Commands commands;
+        private Commands commands;
 
-        public CharacterControlTab(ref CottonCollectorConfig config, ref CharacterControl.Commands commands) : base("Character Control", ref config) {
+        public CharacterControlTab(ref CottonCollectorConfig config, ref Commands commands) : base("Character Control", ref config) {
             this.commands = commands;
         }
 
@@ -23,13 +24,16 @@ namespace CottonCollector.Interface
 
             if (ImGui.Button("Press W for 1 sec"))
             {
-                commands.commands.Enqueue(new Tuple<VirtualKey, int>(VirtualKey.W, 1000));
+                commands.commands.Enqueue(new TimedCommand(Commands.Type.KEY_DOWN, VirtualKey.W, 1000));
+                commands.commands.Enqueue(new TimedCommand(Commands.Type.KEY_UP, VirtualKey.W, 100));
             }
 
             if (ImGui.Button("Press W for 1 sec then Press D for 1 sec"))
             {
-                commands.commands.Enqueue(new Tuple<VirtualKey, int>(VirtualKey.W, 1000));
-                commands.commands.Enqueue(new Tuple<VirtualKey, int>(VirtualKey.D, 1000));
+                commands.commands.Enqueue(new TimedCommand(Commands.Type.KEY_DOWN, VirtualKey.W, 1000));
+                commands.commands.Enqueue(new TimedCommand(Commands.Type.KEY_UP, VirtualKey.W, 100));
+                commands.commands.Enqueue(new TimedCommand(Commands.Type.KEY_DOWN, VirtualKey.D, 1000));
+                commands.commands.Enqueue(new TimedCommand(Commands.Type.KEY_UP, VirtualKey.D, 100));
             }
 
             if (keyState[VirtualKey.W]) {

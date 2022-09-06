@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using ImGuiNET;
+﻿using ImGuiNET;
 
 using CottonCollector.CameraManager;
 using CottonCollector.Config;
@@ -13,10 +7,7 @@ namespace CottonCollector.Interface
 {
     internal unsafe class CameraInfoTab : ConfigTab
     {
-        public CameraInfoTab(ref CottonCollectorConfig config) : base ("Camera Info", ref config)
-        {
-
-        }
+        public CameraInfoTab(ref CottonCollectorConfig config) : base ("Camera Info", ref config) { }
 
         public override void TabContent()
         {
