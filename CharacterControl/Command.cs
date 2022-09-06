@@ -23,11 +23,13 @@ namespace CottonCollector.CharacterControl
         {
             this.type = type;
             this.vk = vk;
+            this.mili = mili;
             this.isFinished = isFinished;
         }
 
         public void OnStart()
         {
+            timer.Reset();
             timer.Start(); 
         }
 
@@ -35,21 +37,22 @@ namespace CottonCollector.CharacterControl
         {
             // These are more than likely useless but for completeness.
             timer.Stop();
-            timer.Reset();
         }
 
         public bool IsFinished()
         {
-            if (timer.ElapsedMilliseconds < mili)
-            {
-                return false;
-            }
-
+            bool finished = true;
+            finished = finished && timer.ElapsedMilliseconds >= mili;
             if (isFinished != null)
             {
-                return isFinished();
+                finished = finished && isFinished();
             }
-            return true;
+
+            if (finished)
+            {
+                OnFinish();
+            }
+            return finished;
         }
 
         public void Execute()

@@ -44,7 +44,6 @@ namespace CottonCollector.CharacterControl
             {
                 done = true;
                 PluginLog.Log("Finished Command");
-                currCommand.OnFinish();
             }
         }
     }

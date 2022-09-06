@@ -22,6 +22,11 @@ namespace CottonCollector.Interface
             this.commands = commands;
         }
 
+        private Vector2 ToVector2(Vector3 v3)
+        {
+            return new Vector2(v3.X, v3.Z);
+        }
+
         public override void TabContent()
         {
             KeyState keyState = CottonCollectorPlugin.KeyState;
@@ -52,8 +57,8 @@ namespace CottonCollector.Interface
             {
                 commands.commands.Enqueue(new Command(Commands.Type.KEY_DOWN, VirtualKey.LEFT, 0, () =>
                 {
-                    var playerPos = CottonCollectorPlugin.ClientState.LocalPlayer.Position;
-                    var cameraPos = new Vector3(CameraHelpers.collection->WorldCamera->X, CameraHelpers.collection->WorldCamera->Z,
+                    var playerPos = ToVector2(CottonCollectorPlugin.ClientState.LocalPlayer.Position);
+                    var cameraPos = new Vector2(CameraHelpers.collection->WorldCamera->X,
                         CameraHelpers.collection->WorldCamera->Y);
 
                     GameObject aetheryte = null;
@@ -63,17 +68,14 @@ namespace CottonCollector.Interface
                     }
 
                     if (aetheryte == null) return true;
-                    var aetheratePos = aetheryte.Position;
+                    var aetheratePos = ToVector2(aetheryte.Position);
 
-                    var v1 = Vector3.Normalize(cameraPos - playerPos);
-                    var v2 = Vector3.Normalize(aetheratePos - playerPos);
+                    var v1 = Vector2.Normalize(cameraPos - playerPos);
+                    var v2 = Vector2.Normalize(aetheratePos - playerPos);
                     PluginLog.Log($"v1:{v1}");
                     PluginLog.Log($"v2:{v2}");
 
-                    var cross = v1.X * v2.Z - v1.Z * v2.X;
-                    PluginLog.Log($"cross:{cross:000.00}");
-
-                    return cross < 1e-2;
+                    return (v1 + v2).LengthSquared() < 1e-2f;
                 }));
                 commands.commands.Enqueue(new Command(Commands.Type.KEY_UP, VirtualKey.LEFT));
             }
