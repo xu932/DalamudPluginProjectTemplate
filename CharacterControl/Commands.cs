@@ -17,6 +17,7 @@ namespace CottonCollector.CharacterControl
             MOUSE_RBTN_DOWN = 6,
             MOUSE_RBTN_UP = 7,
             MOUSE_RBTN_CLICK = 8,
+            MOUSE_MOVE = 9,
         }
 
         private bool done = true;

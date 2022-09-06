@@ -8,6 +8,7 @@ using Dalamud.Data;
 using Dalamud.IoC;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
+using Dalamud.Game.ClientState.Aetherytes;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.Command;
@@ -48,6 +49,9 @@ namespace CottonCollector
         [PluginService]
         internal static KeyState KeyState { get; private set; }
 
+        [PluginService]
+        internal static AetheryteList AetheryteList { get; private set; }
+
         internal static CottonCollectorConfig config { get; set; }
         private readonly ConfigWindow configWindow;
         private readonly PluginCommandManager<CottonCollectorPlugin> pluginCommandManager;
@@ -56,12 +60,6 @@ namespace CottonCollector
         public CharacterControl.Commands Commands;
 
         public string Name => "Cotton Collector";
-
-        // Temporary
-        private Tuple<VirtualKey, int> command;
-        private bool done = true;
-        private Stopwatch timer = new Stopwatch();
-        private InputSimulator sim = new InputSimulator();
 
         public CottonCollectorPlugin()
         {

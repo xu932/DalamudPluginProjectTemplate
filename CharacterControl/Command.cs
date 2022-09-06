@@ -1,28 +1,56 @@
 ﻿using System;
 
 using WindowsInput;
+using System.Diagnostics;
+
 using WindowsInput.Native;
 
 using Dalamud.Game.ClientState.Keys;
 
 namespace CottonCollector.CharacterControl
 {
-    internal abstract class Command
+    internal class Command
     {
-
         private Commands.Type type;
-        private VirtualKey vk;
-        private InputSimulator sim = new InputSimulator();
+        private readonly VirtualKey vk;
+        private readonly int mili;
 
-        public Command(Commands.Type type, VirtualKey vk)
+        private Stopwatch timer = new Stopwatch();
+        private InputSimulator sim = new InputSimulator();
+        protected Func<bool> isFinished;
+
+        public Command(Commands.Type type, VirtualKey vk, int mili = 100, Func<bool> isFinished = null)
         {
             this.type = type;
             this.vk = vk;
+            this.isFinished = isFinished;
         }
 
-        public abstract bool IsFinished();
-        public abstract void OnStart();
-        public abstract void OnFinish();
+        public void OnStart()
+        {
+            timer.Start(); 
+        }
+
+        public void OnFinish()
+        {
+            // These are more than likely useless but for completeness.
+            timer.Stop();
+            timer.Reset();
+        }
+
+        public bool IsFinished()
+        {
+            if (timer.ElapsedMilliseconds < mili)
+            {
+                return false;
+            }
+
+            if (isFinished != null)
+            {
+                return isFinished();
+            }
+            return true;
+        }
 
         public void Execute()
         {
