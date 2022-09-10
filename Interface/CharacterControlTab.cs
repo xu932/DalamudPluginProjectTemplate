@@ -53,7 +53,7 @@ namespace CottonCollector.Interface
                 commands.commands.Enqueue(new Command(Commands.Type.KEY_PRESS, VirtualKey.T, 500));
             }
 
-            if (ImGui.Button("Look to Atheryte"))
+            if (ImGui.Button("face camera at target"))
             {
                 commands.commands.Enqueue(new Command(Commands.Type.KEY_DOWN, VirtualKey.LEFT, 0, () =>
                 {
@@ -61,21 +61,17 @@ namespace CottonCollector.Interface
                     var cameraPos = new Vector2(CameraHelpers.collection->WorldCamera->X,
                         CameraHelpers.collection->WorldCamera->Y);
 
-                    GameObject aetheryte = null;
-                    foreach (GameObject obj in CottonCollectorPlugin.ObjectTable)
-                    {
-                        if (obj.ObjectKind == ObjectKind.Aetheryte) aetheryte = obj;
-                    }
-
-                    if (aetheryte == null) return true;
-                    var aetheratePos = ToVector2(aetheryte.Position);
+                    GameObject target = CottonCollectorPlugin.ClientState.LocalPlayer.TargetObject;
+                    if (target == null) return true;
+                    var targetPos = ToVector2(target.Position);
 
                     var v1 = Vector2.Normalize(cameraPos - playerPos);
-                    var v2 = Vector2.Normalize(aetheratePos - playerPos);
+                    var v2 = Vector2.Normalize(targetPos - playerPos);
                     PluginLog.Log($"v1:{v1}");
                     PluginLog.Log($"v2:{v2}");
+                    PluginLog.Log($"diff:{(v1 + v2).LengthSquared()}");
 
-                    return (v1 + v2).LengthSquared() < 1e-2f;
+                    return (v1 + v2).LengthSquared() < 1e-3f;
                 }));
                 commands.commands.Enqueue(new Command(Commands.Type.KEY_UP, VirtualKey.LEFT));
             }
