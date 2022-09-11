@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Numerics;
 using System.Collections.Generic;
 
 using Dalamud.Logging;
 
+using Dalamud.Game.ClientState.Keys;
+
+using CottonCollector.CameraManager;
+
 namespace CottonCollector.CharacterControl
 {
-    internal class Commands
+    internal unsafe class Commands
     {
         public enum Type {
             KEY_DOWN = 0,
@@ -61,6 +66,44 @@ namespace CottonCollector.CharacterControl
         public void KillSwitch()
         {
             commands.Clear();
+        }
+
+        public static Queue<Command> FaceCameraCommands(Vector3 targetPos3)
+        {
+            var cmdQueue = new Queue<Command>();
+
+            var playerPos3 = CottonCollectorPlugin.ClientState.LocalPlayer.Position;
+            var playerPos = new Vector2(playerPos3.X, playerPos3.Z);
+            var cameraPos = new Vector2(CameraHelpers.collection->WorldCamera->X,
+                CameraHelpers.collection->WorldCamera->Y);
+            var targetPos = new Vector2(targetPos3.X, targetPos3.Z);
+            var v = Vector2.Normalize(cameraPos - playerPos);
+            var u = Vector2.Normalize(targetPos - playerPos);
+            var camera_on_left = (v.X * u.Y - u.X * v.Y) < 0;
+
+            cmdQueue.Enqueue(new Command(Commands.Type.KEY_DOWN, camera_on_left ? VirtualKey.RIGHT : VirtualKey.LEFT, 0, () =>
+            { 
+                var playerPos3 = CottonCollectorPlugin.ClientState.LocalPlayer.Position;
+                var playerPos = new Vector2(playerPos3.X, playerPos3.Z);
+                var cameraPos = new Vector2(CameraHelpers.collection->WorldCamera->X,
+                    CameraHelpers.collection->WorldCamera->Y);
+                var v = Vector2.Normalize(cameraPos - playerPos);
+                var u = Vector2.Normalize(targetPos - playerPos);
+                return (v + u).LengthSquared() < 1e-3f;
+            }));
+            cmdQueue.Enqueue(new Command(Commands.Type.KEY_UP, camera_on_left ? VirtualKey.RIGHT : VirtualKey.LEFT));
+
+            return cmdQueue;
+        }
+
+        public static Queue<Command> MoveToCommands(Vector3 targetPos3)
+        {
+            var cmdQueue = new Queue<Command>();
+            cmdQueue.Enqueue(new Command(Commands.Type.KEY_DOWN, VirtualKey.W, isFinished: () => {
+                return Vector3.Distance(targetPos3, CottonCollectorPlugin.ClientState.LocalPlayer.Position) < 3;
+            }));
+            cmdQueue.Enqueue(new Command(Commands.Type.KEY_UP, VirtualKey.W));
+            return cmdQueue;
         }
     }
 }
