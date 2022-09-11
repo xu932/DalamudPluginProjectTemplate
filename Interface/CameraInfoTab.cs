@@ -6,6 +6,7 @@ using CottonCollector.CameraManager;
 using CottonCollector.Config;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Objects.Enums;
+using System;
 
 namespace CottonCollector.Interface
 {
@@ -42,11 +43,15 @@ namespace CottonCollector.Interface
             var cameraPos = new Vector2(CameraHelpers.collection->WorldCamera->X,
                 CameraHelpers.collection->WorldCamera->Y);
             var aetherytePos = new Vector2(target.Position.X, target.Position.Z);
-            var v1 = Vector2.Normalize(cameraPos - playerPos2);
-            var v2 = Vector2.Normalize(aetherytePos - playerPos2);
-            ImGui.Text($"camera to player:{v1}");
-            ImGui.Text($"target to player:{v2}");
-            ImGui.Text($"diff:{(v1 + v2).LengthSquared()}");
+            var v = Vector2.Normalize(cameraPos - playerPos2);
+            var u = Vector2.Normalize(aetherytePos - playerPos2);
+            var is_right = (v.X * u.Y - u.X * v.Y) < 0;
+
+
+            ImGui.Text($"player to camera:{v}");
+            ImGui.Text($"player to traget:{u}");
+            ImGui.Text($"diff:{(v + u).LengthSquared()}");
+            ImGui.Text(is_right ? "left" : "right");
         }
     }
 }

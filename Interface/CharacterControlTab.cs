@@ -55,25 +55,29 @@ namespace CottonCollector.Interface
 
             if (ImGui.Button("face camera at target"))
             {
-                commands.commands.Enqueue(new Command(Commands.Type.KEY_DOWN, VirtualKey.LEFT, 0, () =>
+
+                GameObject target = CottonCollectorPlugin.ClientState.LocalPlayer.TargetObject;
+                if (target != null)
                 {
                     var playerPos = ToVector2(CottonCollectorPlugin.ClientState.LocalPlayer.Position);
                     var cameraPos = new Vector2(CameraHelpers.collection->WorldCamera->X,
                         CameraHelpers.collection->WorldCamera->Y);
-
-                    GameObject target = CottonCollectorPlugin.ClientState.LocalPlayer.TargetObject;
-                    if (target == null) return true;
                     var targetPos = ToVector2(target.Position);
-
-                    var v1 = Vector2.Normalize(cameraPos - playerPos);
-                    var v2 = Vector2.Normalize(targetPos - playerPos);
-                    PluginLog.Log($"v1:{v1}");
-                    PluginLog.Log($"v2:{v2}");
-                    PluginLog.Log($"diff:{(v1 + v2).LengthSquared()}");
-
-                    return (v1 + v2).LengthSquared() < 1e-3f;
-                }));
-                commands.commands.Enqueue(new Command(Commands.Type.KEY_UP, VirtualKey.LEFT));
+                    var v = Vector2.Normalize(cameraPos - playerPos);
+                    var u = Vector2.Normalize(targetPos - playerPos);
+                    var camera_on_left = (v.X * u.Y - u.X * v.Y) < 0;
+                    commands.commands.Enqueue(new Command(Commands.Type.KEY_DOWN, camera_on_left ? VirtualKey.RIGHT : VirtualKey.LEFT, 0, () =>
+                    { 
+                        var playerPos = ToVector2(CottonCollectorPlugin.ClientState.LocalPlayer.Position);
+                        var cameraPos = new Vector2(CameraHelpers.collection->WorldCamera->X,
+                            CameraHelpers.collection->WorldCamera->Y);
+                        var targetPos = ToVector2(target.Position);
+                        var v = Vector2.Normalize(cameraPos - playerPos);
+                        var u = Vector2.Normalize(targetPos - playerPos);
+                        return (v + u).LengthSquared() < 1e-3f;
+                    }));
+                    commands.commands.Enqueue(new Command(Commands.Type.KEY_UP, camera_on_left ? VirtualKey.RIGHT : VirtualKey.LEFT));
+                }
             }
 
             if (keyState[VirtualKey.W]) {
