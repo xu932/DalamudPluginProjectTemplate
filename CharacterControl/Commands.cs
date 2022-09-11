@@ -22,22 +22,33 @@ namespace CottonCollector.CharacterControl
 
         private bool done = true;
         private Command currCommand;
+        private Queue<Command> currCommandQueue = null; // A atomic list of commands.
 
-        public Queue<Command> commands;
+        public Queue<Queue<Command>> commands;
 
         public Commands ()
         {
-            commands = new Queue<Command>();
+            commands = new Queue<Queue<Command>>();
         }
 
         public void Update()
         {
-            if (done && commands.Count != 0)
+            if (done)
             {
-                done = false;
-                PluginLog.Log("Exectuing Command");
-                currCommand = commands.Dequeue();
-                currCommand.Execute();
+                if (currCommandQueue == null || currCommandQueue.Count == 0)
+                {
+                    if (commands.Count != 0) {
+                        currCommandQueue = commands.Dequeue();
+                    }
+                }
+
+                if (currCommandQueue != null && currCommandQueue.Count != 0)
+                {
+                    done = false;
+                    PluginLog.Log("Exectuing Command");
+                    currCommand = currCommandQueue.Dequeue();
+                    currCommand.Execute();
+                }
             }
 
             if (!done && currCommand != null && currCommand.IsFinished())
@@ -45,6 +56,11 @@ namespace CottonCollector.CharacterControl
                 done = true;
                 PluginLog.Log("Finished Command");
             }
+        }
+
+        public void KillSwitch()
+        {
+            commands.Clear();
         }
     }
 }
