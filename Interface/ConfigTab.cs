@@ -1,4 +1,6 @@
-﻿using ImGuiNET;
+﻿using System;
+
+using ImGuiNET;
 
 using Dalamud.Logging;
 
@@ -27,9 +29,11 @@ namespace CottonCollector.Interface
                     ImGui.EndTabItem();
                 }
             }
-            catch
+            catch (Exception e)
             {
                 PluginLog.Error($"{name} failed to render.");
+                PluginLog.Error(e.Message);
+                PluginLog.Error(e.StackTrace);
             }
         }
 

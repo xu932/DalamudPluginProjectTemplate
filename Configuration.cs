@@ -15,5 +15,7 @@ namespace CottonCollector.Config
         public bool showCharacterControl = false;
         public ObjectKind currKind = ObjectKind.None;
         public bool showCameraInfo = false;
+
+        public List<string> presets = new List<string>(); 
     }
 }

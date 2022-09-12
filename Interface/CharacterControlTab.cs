@@ -84,7 +84,7 @@ namespace CottonCollector.Interface
 
                     var select_and_collect = new Queue<Command>();
                     select_and_collect.Enqueue(new Command(Commands.Type.KEY_PRESS, VirtualKey.OEM_MINUS, 1000));
-                    select_and_collect.Enqueue(new Command(Commands.Type.KEY_PRESS, VirtualKey.OEM_MINUS));
+                    select_and_collect.Enqueue(new Command(Commands.Type.KEY_PRESS, VirtualKey.OEM_MINUS, 1500));
                     commands.commands.Enqueue(select_and_collect);
                 }
             }

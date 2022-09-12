@@ -37,7 +37,8 @@ namespace CottonCollector.Interface
 
         private void ObjectTable(CottonCollectorConfig config)
         {
-            if (ImGui.BeginTable("Objects", 4)) {
+            if (ImGui.BeginTable("Objects", 4))
+            {
                 // Table header
                 ImGui.TableSetupColumn("Name");
                 ImGui.TableSetupColumn("ObjectId");
