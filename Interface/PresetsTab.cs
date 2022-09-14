@@ -22,12 +22,8 @@ namespace CottonCollector.Interface
         internal static string filterString = "";
         internal static string newPresetName = "";
         internal static int selectedNewCommandIndex = 0;
-
-        // temp
-        internal static double X = 0.0f, Y = 0.0f, Z = 0.0f, gotoThreshold = 1.0;
-
-        private string selectedPresetName = "";
-        private Preset selectedPreset = null;
+        internal static Preset selectedPreset = null;
+        internal static Command newCommand = null;
 
         public PresetsTab(ref CottonCollectorConfig config) : base("Presets", ref config)
         {
@@ -39,7 +35,8 @@ namespace CottonCollector.Interface
             if (ImGui.BeginTable("LayoutsTable", 2 ,ImGuiTableFlags.Resizable))
             {
                 ImGui.TableSetupColumn("Preset list", ImGuiTableColumnFlags.None, 200);
-                ImGui.TableSetupColumn($"{selectedPresetName}##selectedPresetName", ImGuiTableColumnFlags.None, 600);
+                var displayPresetName = selectedPreset != null ? selectedPreset.name : "";
+                ImGui.TableSetupColumn($"{displayPresetName}##selectedPresetName", ImGuiTableColumnFlags.None, 600);
 
                 ImGui.TableHeadersRow();
 
@@ -74,55 +71,94 @@ namespace CottonCollector.Interface
                     {
                         continue;
                     }
-                    if (ImGui.Selectable($"{preset.name}", preset.name == selectedPresetName))
+                    if (ImGui.Selectable($"{preset.name}", selectedPreset != null && preset.name == selectedPreset.name))
                     {
-                        selectedPresetName = preset.name;
                         selectedPreset = preset;
                     }
                 }
                 ImGui.EndChild();
 
                 ImGui.TableNextColumn();
-                if (!selectedPresetName.IsNullOrEmpty() && selectedPreset != null)
+                if (selectedPreset != null)
                 {
+                    int index = 0;
                     foreach(Command command in selectedPreset.atomicCommands)
                     {
-                        command.SelectorGui(); 
+                        ImGui.Text($"{index} : {command.GetType().Name}");
+
+                        ImGui.SameLine();
+                        command.SelectorGui();
+
+                        ImGui.SameLine();
                         if (ImGui.Button("Remove")) 
                         {
-                            selectedPreset.atomicCommands.Remove(command);
+                            selectedPreset.atomicCommands.RemoveAt(index);
+                            return;
                         }
+
+                        if (index > 0)
+                        {
+                            ImGui.SameLine();
+                            if (ImGui.Button("Up"))
+                            {
+                                selectedPreset.atomicCommands.RemoveAt(index);
+                                selectedPreset.atomicCommands.Insert(index - 1, command);
+                                return;
+                            }
+                        }
+
+                        if (index < selectedPreset.atomicCommands.Count - 1)
+                        {
+                            ImGui.SameLine();
+                            if (ImGui.Button("Down"))
+                            {
+                                selectedPreset.atomicCommands.RemoveAt(index);
+                                if (index + 1 == selectedPreset.atomicCommands.Count)
+                                {
+                                    selectedPreset.atomicCommands.Add(command);
+                                }
+                                else
+                                {
+                                    selectedPreset.atomicCommands.Insert(index + 1, command);
+                                }
+                                return;
+                            }
+                        }
+                        index++;
                     }
 
+                    ImGui.Text("New Command");
                     // TODO: fix this shit.
-                    var commandTypes = new List<string>() { "Keyboard Command", "Till Moved To", "Till Looked At" };
+                    var commandTypes = new List<string>() { "Keyboard Command", "SleepCommand", "Till Moved To", "Till Looked At" };
 
-                    if (ImGui.Button("Add"))
+                    ImGui.SetNextItemWidth(100);
+                    if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, commandTypes.ToArray(), commandTypes.Count))
                     {
-                        ImGui.SetNextItemWidth(100);
-                        ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, commandTypes.ToArray(), commandTypes.Count);
-
-                        Command cmd = null;
                         switch (selectedNewCommandIndex)
                         {
                             case 0:
-                                cmd = new KeyboardCommand();
+                                newCommand = new KeyboardCommand();
                                 break;
                             case 1:
-                                cmd = new TillMovedToCommand();
+                                newCommand = new SleepCommand();
                                 break;
                             case 2:
-                                cmd = new TillLookedAtCommand();
+                                newCommand = new TillMovedToCommand();
+                                break;
+                            case 3:
+                                newCommand = new TillLookedAtCommand();
                                 break;
                         }
+                    }
 
-                        if (cmd != null)
+                    if (newCommand != null)
+                    {
+                        ImGui.SameLine();
+                        newCommand.SelectorGui();
+                        if (ImGui.Button("Add"))
                         {
-                            cmd.SelectorGui();
-                            if (ImGui.Button("Add"))
-                            {
-                                selectedPreset.atomicCommands.Add(cmd);
-                            }
+                            selectedPreset.atomicCommands.Add(newCommand);
+                            newCommand = null;
                         }
                     }
 

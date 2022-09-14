@@ -23,9 +23,6 @@ namespace CottonCollector.CharacterControl.Commands
         private Type type = Type.KEY_PRESS;
         private VirtualKey vk;
 
-        static int newTypeIndex = 0;
-        static int newVkIndex = 0;
-
         private InputSimulator sim = new InputSimulator();
 
         public KeyboardCommand() { }
@@ -53,11 +50,11 @@ namespace CottonCollector.CharacterControl.Commands
             ImGui.PushItemWidth(100);
 
             // Type selector
-            ImGui.SameLine();
             ImGui.Text("Type:");
             ImGui.SameLine();
             List<Type> types = Enum.GetValues(typeof(Type)).Cast<Type>().ToList();
-            if (ImGui.Combo("##KeyboardCommand__TypeSelector", ref newTypeIndex, Enum.GetNames(typeof(Type)), types.Count))
+            int newTypeIndex = types.IndexOf(type);
+            if (ImGui.Combo($"##KeyboardCommand__TypeSelector__{this.GetHashCode()}", ref newTypeIndex, Enum.GetNames(typeof(Type)), types.Count))
             {
                 type = types[newTypeIndex];
             }
@@ -67,14 +64,13 @@ namespace CottonCollector.CharacterControl.Commands
             ImGui.Text("Key:");
             ImGui.SameLine();
             List<VirtualKey> keys = Enum.GetValues(typeof(VirtualKey)).Cast<VirtualKey>().ToList();
-            int key_index = types.IndexOf(type); 
-            if (ImGui.Combo("##KeyboardCommand__KeySelector", ref newVkIndex, Enum.GetNames(typeof(VirtualKey)), keys.Count))
+            int newVkIndex = keys.IndexOf(vk); 
+            if (ImGui.Combo($"##KeyboardCommand__KeySelector__{this.GetHashCode()}", ref newVkIndex, Enum.GetNames(typeof(VirtualKey)), keys.Count))
             {
                 vk = keys[newVkIndex];
             }
 
             // TODO: add key modifier selector
-
             ImGui.PopItemWidth();
         }
     }
