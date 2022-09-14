@@ -64,7 +64,7 @@ namespace CottonCollector
         public CottonCollectorPlugin()
         {
             // temp
-            // DalamudPluginInterface.ConfigFile.Delete();
+            DalamudPluginInterface.ConfigFile.Delete();
 
             // Ini CameraHelpers
             CameraHelpers.Initialize();

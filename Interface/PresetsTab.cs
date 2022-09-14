@@ -14,6 +14,7 @@ using CottonCollector.CharacterControl;
 using CottonCollector.CharacterControl.Commands;
 using Windows.Devices.AllJoyn;
 using Microsoft.VisualBasic.FileIO;
+using Dalamud.Logging;
 
 namespace CottonCollector.Interface
 {
@@ -90,7 +91,7 @@ namespace CottonCollector.Interface
                         command.SelectorGui();
 
                         ImGui.SameLine();
-                        if (ImGui.Button("Remove")) 
+                        if (ImGui.Button($"Remove##PresetsTab__Btn__{index}")) 
                         {
                             selectedPreset.atomicCommands.RemoveAt(index);
                             return;
@@ -99,7 +100,7 @@ namespace CottonCollector.Interface
                         if (index > 0)
                         {
                             ImGui.SameLine();
-                            if (ImGui.Button("Up"))
+                            if (ImGui.Button($"Up##PresetsTab__Btn__{index}"))
                             {
                                 selectedPreset.atomicCommands.RemoveAt(index);
                                 selectedPreset.atomicCommands.Insert(index - 1, command);
@@ -110,17 +111,10 @@ namespace CottonCollector.Interface
                         if (index < selectedPreset.atomicCommands.Count - 1)
                         {
                             ImGui.SameLine();
-                            if (ImGui.Button("Down"))
+                            if (ImGui.Button($"Down##PresetsTab__Btn__{index}"))
                             {
                                 selectedPreset.atomicCommands.RemoveAt(index);
-                                if (index + 1 == selectedPreset.atomicCommands.Count)
-                                {
-                                    selectedPreset.atomicCommands.Add(command);
-                                }
-                                else
-                                {
-                                    selectedPreset.atomicCommands.Insert(index + 1, command);
-                                }
+                                selectedPreset.atomicCommands.Insert(index + 1, command);
                                 return;
                             }
                         }
