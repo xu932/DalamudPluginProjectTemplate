@@ -24,7 +24,7 @@ namespace CottonCollector.Interface
         internal static string newPresetName = "";
         internal static int selectedNewCommandIndex = 0;
         internal static Preset selectedPreset = null;
-        internal static Command newCommand = null;
+        internal static Command newCommand = new KeyboardCommand();
 
         public PresetsTab(ref CottonCollectorConfig config) : base("Presets", ref config)
         {
@@ -82,78 +82,93 @@ namespace CottonCollector.Interface
                 ImGui.TableNextColumn();
                 if (selectedPreset != null)
                 {
-                    int index = 0;
-                    foreach(Command command in selectedPreset.atomicCommands)
+                    if (ImGui.BeginTable("CommandsTable", 2, ImGuiTableFlags.Resizable))
                     {
-                        ImGui.Text($"{index} : {command.GetType().Name}");
+                        ImGui.TableSetupColumn("##Commands", ImGuiTableColumnFlags.None, 500);
+                        ImGui.TableSetupColumn("##Btns", ImGuiTableColumnFlags.None, 100);
+                        ImGui.TableHeadersRow();
 
-                        ImGui.SameLine();
-                        command.SelectorGui();
-
-                        ImGui.SameLine();
-                        if (ImGui.Button($"Remove##PresetsTab__Btn__{index}")) 
+                        int index = 0;
+                        foreach (Command command in selectedPreset.atomicCommands)
                         {
-                            selectedPreset.atomicCommands.RemoveAt(index);
-                            return;
-                        }
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
 
-                        if (index > 0)
-                        {
+                            ImGui.Text($"{index} : {command.GetType().Name}");
+
+                            ImGui.SameLine();
+                            command.SelectorGui();
+
+                            ImGui.TableSetColumnIndex(1);
+                            if (ImGui.Button($"Remove##PresetsTab__Btn__{index}"))
+                            {
+                                selectedPreset.atomicCommands.RemoveAt(index);
+                                return;
+                            }
+
                             ImGui.SameLine();
                             if (ImGui.Button($"Up##PresetsTab__Btn__{index}"))
                             {
-                                selectedPreset.atomicCommands.RemoveAt(index);
-                                selectedPreset.atomicCommands.Insert(index - 1, command);
-                                return;
+                                if (index > 0)
+                                {
+                                    selectedPreset.atomicCommands.RemoveAt(index);
+                                    selectedPreset.atomicCommands.Insert(index - 1, command);
+                                    return;
+                                }
                             }
-                        }
 
-                        if (index < selectedPreset.atomicCommands.Count - 1)
-                        {
                             ImGui.SameLine();
                             if (ImGui.Button($"Down##PresetsTab__Btn__{index}"))
                             {
-                                selectedPreset.atomicCommands.RemoveAt(index);
-                                selectedPreset.atomicCommands.Insert(index + 1, command);
-                                return;
+                                if (index < selectedPreset.atomicCommands.Count - 1)
+                                {
+                                    selectedPreset.atomicCommands.RemoveAt(index);
+                                    selectedPreset.atomicCommands.Insert(index + 1, command);
+                                    return;
+                                }
+                            }
+                            index++;
+                        }
+
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+
+                        ImGui.Text("New ");
+                        // TODO: fix this shit.
+                        var commandTypes = new List<string>() { "Keyboard Command", "SleepCommand", "Till Moved To", "Till Looked At" };
+
+                        ImGui.SetNextItemWidth(100);
+                        ImGui.SameLine();
+                        if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, commandTypes.ToArray(), commandTypes.Count))
+                        {
+                            switch (selectedNewCommandIndex)
+                            {
+                                case 0:
+                                    newCommand = new KeyboardCommand();
+                                    break;
+                                case 1:
+                                    newCommand = new SleepCommand();
+                                    break;
+                                case 2:
+                                    newCommand = new TillMovedToCommand();
+                                    break;
+                                case 3:
+                                    newCommand = new TillLookedAtCommand();
+                                    break;
                             }
                         }
-                        index++;
-                    }
 
-                    ImGui.Text("New Command");
-                    // TODO: fix this shit.
-                    var commandTypes = new List<string>() { "Keyboard Command", "SleepCommand", "Till Moved To", "Till Looked At" };
-
-                    ImGui.SetNextItemWidth(100);
-                    if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, commandTypes.ToArray(), commandTypes.Count))
-                    {
-                        switch (selectedNewCommandIndex)
+                        ImGui.TableSetColumnIndex(1);
+                        if (newCommand != null)
                         {
-                            case 0:
-                                newCommand = new KeyboardCommand();
-                                break;
-                            case 1:
-                                newCommand = new SleepCommand();
-                                break;
-                            case 2:
-                                newCommand = new TillMovedToCommand();
-                                break;
-                            case 3:
-                                newCommand = new TillLookedAtCommand();
-                                break;
+                            if (ImGui.Button("Add"))
+                            {
+                                selectedPreset.atomicCommands.Add(newCommand);
+                                newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
+                            }
                         }
-                    }
 
-                    if (newCommand != null)
-                    {
-                        ImGui.SameLine();
-                        newCommand.SelectorGui();
-                        if (ImGui.Button("Add"))
-                        {
-                            selectedPreset.atomicCommands.Add(newCommand);
-                            newCommand = null;
-                        }
+                        ImGui.EndTable();
                     }
 
                     if (ImGui.Button("Play"))
