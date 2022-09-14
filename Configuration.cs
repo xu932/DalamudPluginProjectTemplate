@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 
 using Dalamud.Configuration;
-using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.ClientState.Objects.Enums;
+
+using CottonCollector.CharacterControl;
 
 namespace CottonCollector.Config
 {
-    public class CottonCollectorConfig : IPluginConfiguration
+    internal class CottonCollectorConfig : IPluginConfiguration
     {
         int IPluginConfiguration.Version { get; set; }
 
         public bool showObjects = false;
-        public bool showCharacterControl = false;
         public ObjectKind currKind = ObjectKind.None;
         public bool showCameraInfo = false;
 
-        public List<string> presets = new List<string>(); 
+        public List<Preset> presets = new List<Preset>(); 
     }
 }

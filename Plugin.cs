@@ -52,23 +52,22 @@ namespace CottonCollector
         [PluginService]
         internal static AetheryteList AetheryteList { get; private set; }
 
+        internal static CharacterControl.CommandManager cmdManager = new CharacterControl.CommandManager();
+
         internal static CottonCollectorConfig config { get; set; }
         private readonly ConfigWindow configWindow;
         private readonly PluginCommandManager<CottonCollectorPlugin> pluginCommandManager;
 
 
-        public CharacterControl.Commands Commands;
-
         public string Name => "Cotton Collector";
 
         public CottonCollectorPlugin()
         {
+            // temp
+            DalamudPluginInterface.ConfigFile.Delete();
+
             // Ini CameraHelpers
             CameraHelpers.Initialize();
-
-            // Ini commands manager
-            Commands = new CharacterControl.Commands();
-
 
             // Load config window
             config = DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
@@ -90,7 +89,7 @@ namespace CottonCollector
 
         private void Update(Framework framework)
         {
-            Commands.Update();
+            cmdManager.Update();
         }
 
         public void Dispose()
