@@ -8,8 +8,10 @@ namespace CottonCollector.CharacterControl.Commands
     [Serializable]
     internal class SleepCommand : Command
     {
-        int mili = 1000;
+        public int mili = 1000;
         private Stopwatch stopwatch = new Stopwatch();
+
+        public SleepCommand() : base(Type.SLEEP_COMMAND) { }
 
         public override bool TerminateCondition() {
             return stopwatch.ElapsedMilliseconds > mili;

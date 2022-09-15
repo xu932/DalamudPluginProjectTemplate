@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-
-using WindowsInput;
-using WindowsInput.Native;
 
 using Dalamud.Data;
 using Dalamud.IoC;
@@ -63,9 +59,6 @@ namespace CottonCollector
 
         public CottonCollectorPlugin()
         {
-            // temp
-            // DalamudPluginInterface.ConfigFile.Delete();
-
             // Ini CameraHelpers
             CameraHelpers.Initialize();
 

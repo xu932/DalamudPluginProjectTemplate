@@ -15,32 +15,32 @@ namespace CottonCollector.CharacterControl.Commands
     [Serializable]
     internal class KeyboardCommand : Command
     {
-        public enum Type {
+        public enum ActionType {
             KEY_DOWN = 0,
             KEY_UP = 1,
             KEY_PRESS = 2,
         }
 
-        private Type type = Type.KEY_PRESS;
-        private VirtualKey vk;
+        public ActionType actionType = ActionType.KEY_PRESS;
+        public VirtualKey vk;
 
         private InputSimulator sim = new InputSimulator();
 
-        public KeyboardCommand() { }
+        public KeyboardCommand() : base(Type.KEYBOARD_COMMAND){ }
 
         public override bool TerminateCondition() => true;
 
         public override void Do()
         {
-            switch (type)
+            switch (actionType)
             {
-                case Type.KEY_DOWN:
+                case ActionType.KEY_DOWN:
                     sim.Keyboard.KeyDown((VirtualKeyCode)(int)vk);
                     break;
-                case Type.KEY_UP:
+                case ActionType.KEY_UP:
                     sim.Keyboard.KeyUp((VirtualKeyCode)(int)vk);
                     break;
-                case Type.KEY_PRESS:
+                case ActionType.KEY_PRESS:
                     sim.Keyboard.KeyPress((VirtualKeyCode)(int)vk);
                     break;
             }
@@ -53,11 +53,12 @@ namespace CottonCollector.CharacterControl.Commands
             // Type selector
             ImGui.Text("Type:");
             ImGui.SameLine();
-            List<Type> types = Enum.GetValues(typeof(Type)).Cast<Type>().ToList();
-            int newTypeIndex = types.IndexOf(type);
-            if (ImGui.Combo($"##KeyboardCommand__TypeSelector__{this.GetHashCode()}", ref newTypeIndex, Enum.GetNames(typeof(Type)), types.Count))
+            List<ActionType> actionTypes = Enum.GetValues(typeof(ActionType)).Cast<ActionType>().ToList();
+            int newActionTypeIndex = actionTypes.IndexOf(actionType);
+            if (ImGui.Combo($"##KeyboardCommand__ActionTypeSelector__{this.GetHashCode()}", ref newActionTypeIndex, 
+                Enum.GetNames(typeof(ActionType)), actionTypes.Count))
             {
-                type = types[newTypeIndex];
+                actionType = actionTypes[newActionTypeIndex];
             }
 
             // Key Selector
