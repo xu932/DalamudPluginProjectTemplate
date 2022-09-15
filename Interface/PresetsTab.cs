@@ -85,9 +85,9 @@ namespace CottonCollector.Interface
                 {
                     if (ImGui.BeginTable("CommandsTable", 3, ImGuiTableFlags.Resizable))
                     {
-                        ImGui.TableSetupColumn("##Tracking", ImGuiTableColumnFlags.None, 20);
-                        ImGui.TableSetupColumn("##Commands", ImGuiTableColumnFlags.None, 500);
-                        ImGui.TableSetupColumn("##Btns", ImGuiTableColumnFlags.None, 80);
+                        ImGui.TableSetupColumn("##Tracking", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 10);
+                        ImGui.TableSetupColumn("##Commands", ImGuiTableColumnFlags.None, 450);
+                        ImGui.TableSetupColumn("##Btns", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 140);
                         ImGui.TableHeadersRow();
 
                         int index = 0;

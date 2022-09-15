@@ -58,6 +58,7 @@ namespace CottonCollector.CharacterControl
             commands.Clear();
             currCommandQueue = null;
             CottonCollectorPlugin.KeyState.ClearAll();
+            done = true;
         }
     }
 }

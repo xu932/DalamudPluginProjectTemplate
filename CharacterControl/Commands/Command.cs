@@ -27,7 +27,7 @@ namespace CottonCollector.CharacterControl.Commands
 
         public Command(Type type)
         {
-            minTimeMili = 10;
+            minTimeMili = 0;
             timeOutMili = 1000 * 60 * 5; // 5 mins 
             this.type = type;
         }
