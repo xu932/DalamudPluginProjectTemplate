@@ -15,6 +15,7 @@ using CottonCollector.CharacterControl.Commands;
 using Windows.Devices.AllJoyn;
 using Microsoft.VisualBasic.FileIO;
 using Dalamud.Logging;
+using Dalamud.Interface.Colors;
 
 namespace CottonCollector.Interface
 {
@@ -82,10 +83,11 @@ namespace CottonCollector.Interface
                 ImGui.TableNextColumn();
                 if (selectedPreset != null)
                 {
-                    if (ImGui.BeginTable("CommandsTable", 2, ImGuiTableFlags.Resizable))
+                    if (ImGui.BeginTable("CommandsTable", 3, ImGuiTableFlags.Resizable))
                     {
+                        ImGui.TableSetupColumn("##Tracking", ImGuiTableColumnFlags.None, 20);
                         ImGui.TableSetupColumn("##Commands", ImGuiTableColumnFlags.None, 500);
-                        ImGui.TableSetupColumn("##Btns", ImGuiTableColumnFlags.None, 100);
+                        ImGui.TableSetupColumn("##Btns", ImGuiTableColumnFlags.None, 80);
                         ImGui.TableHeadersRow();
 
                         int index = 0;
@@ -93,13 +95,19 @@ namespace CottonCollector.Interface
                         {
                             ImGui.TableNextRow();
                             ImGui.TableSetColumnIndex(0);
+                            if (command.IsCurrent()) {
+                                ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
+                                ImGui.Text("->");
+                                ImGui.PopStyleColor();
+                            }
 
+                            ImGui.TableSetColumnIndex(1);
                             ImGui.Text($"{index} : {command.GetType().Name}");
 
                             ImGui.SameLine();
                             command.SelectorGui();
 
-                            ImGui.TableSetColumnIndex(1);
+                            ImGui.TableSetColumnIndex(2);
                             if (ImGui.Button($"Remove##PresetsTab__Btn__{index}"))
                             {
                                 selectedPreset.atomicCommands.RemoveAt(index);
@@ -131,13 +139,13 @@ namespace CottonCollector.Interface
                         }
 
                         ImGui.TableNextRow();
-                        ImGui.TableSetColumnIndex(0);
+                        ImGui.TableSetColumnIndex(1);
 
                         ImGui.Text("New ");
                         // TODO: fix this shit.
                         var commandTypes = new List<string>() { "Keyboard Command", "SleepCommand", "Till Moved To", "Till Looked At" };
 
-                        ImGui.SetNextItemWidth(100);
+                        ImGui.SetNextItemWidth(200);
                         ImGui.SameLine();
                         if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, commandTypes.ToArray(), commandTypes.Count))
                         {
@@ -158,7 +166,7 @@ namespace CottonCollector.Interface
                             }
                         }
 
-                        ImGui.TableSetColumnIndex(1);
+                        ImGui.TableSetColumnIndex(2);
                         if (newCommand != null)
                         {
                             if (ImGui.Button("Add"))
@@ -171,9 +179,16 @@ namespace CottonCollector.Interface
                         ImGui.EndTable();
                     }
 
+                    ImGui.Separator();
                     if (ImGui.Button("Play"))
                     {
                         CottonCollectorPlugin.cmdManager.commands.Enqueue(new Queue<Command>(selectedPreset.atomicCommands));
+                    }
+
+                    ImGui.SameLine();
+                    if (ImGui.Button("Kill Switch"))
+                    {
+                        CottonCollectorPlugin.cmdManager.KillSwitch();
                     }
                 }
                 ImGui.EndTable();

@@ -20,16 +20,19 @@ namespace CottonCollector.CharacterControl.Commands
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }
 
+        private bool isCurrent = false;
         private Stopwatch timer = new Stopwatch();
 
         public Type type;
 
         public Command(Type type)
         {
-            minTimeMili = 50;
+            minTimeMili = 10;
             timeOutMili = 1000 * 60 * 5; // 5 mins 
             this.type = type;
         }
+
+        public bool IsCurrent() => isCurrent;
 
         public abstract void Do();
 
@@ -42,6 +45,7 @@ namespace CottonCollector.CharacterControl.Commands
 
         public void Execute()
         {
+            isCurrent = true;
             OnStart();
             timer.Reset();
             timer.Start();
@@ -59,6 +63,7 @@ namespace CottonCollector.CharacterControl.Commands
             {
                 timer.Stop();
                 OnFinish();
+                isCurrent = false;
             }
             return finished;
         }

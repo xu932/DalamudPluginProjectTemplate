@@ -56,6 +56,8 @@ namespace CottonCollector.CharacterControl
         public void KillSwitch()
         {
             commands.Clear();
+            currCommandQueue = null;
+            CottonCollectorPlugin.KeyState.ClearAll();
         }
     }
 }

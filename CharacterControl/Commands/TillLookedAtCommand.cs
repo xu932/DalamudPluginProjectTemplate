@@ -8,7 +8,7 @@ namespace CottonCollector.CharacterControl.Commands
 {
     internal unsafe class TillLookedAtCommand : Command
     {
-        private double X, Y, Z;
+        public double X, Y, Z;
 
         public TillLookedAtCommand() : base(Type.TILL_LOOKED_AT_COMMAND) { }
 
@@ -30,13 +30,19 @@ namespace CottonCollector.CharacterControl.Commands
         {            
             ImGui.PushItemWidth(100);
 
-            ImGui.InputDouble("X:##TillLookedAtCommand__X", ref X);
+            ImGui.Text("X:");
+            ImGui.SameLine();
+            ImGui.InputDouble("##TillLookedAtCommand__X", ref X);
 
             ImGui.SameLine();
-            ImGui.InputDouble("Y:##TillLookedAtCommand__Y", ref Y);
+            ImGui.Text("Y:");
+            ImGui.SameLine();
+            ImGui.InputDouble("##TillLookedAtCommand__Y", ref Y);
 
             ImGui.SameLine();
-            ImGui.InputDouble("Z:##TillLookedAtCommand__Z", ref Y);
+            ImGui.Text("Z:");
+            ImGui.SameLine();
+            ImGui.InputDouble("##TillLookedAtCommand__Z", ref Z);
 
             ImGui.SameLine();
             if (ImGui.Button($"GetCurrentPos##TillLookedAtCommand__getpos"))
