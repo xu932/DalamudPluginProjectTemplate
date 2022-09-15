@@ -8,6 +8,7 @@ using CottonCollector.CharacterControl;
 
 namespace CottonCollector.Config
 {
+    [Serializable]
     internal class CottonCollectorConfig : IPluginConfiguration
     {
         int IPluginConfiguration.Version { get; set; }

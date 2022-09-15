@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using CottonCollector.CharacterControl.Commands;
 
@@ -6,6 +7,7 @@ namespace CottonCollector.CharacterControl
 {
     using AtomicCommand = List<Command>;
 
+    [Serializable]
     internal class Preset
     {
         public string name { get; private set; }

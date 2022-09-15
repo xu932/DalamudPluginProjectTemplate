@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 using ImGuiNET;
 
 namespace CottonCollector.CharacterControl.Commands
 {
+    [Serializable]
     internal class SleepCommand : Command
     {
         int mili = 1000;

@@ -12,6 +12,7 @@ using Dalamud.Logging;
 
 namespace CottonCollector.CharacterControl.Commands
 {
+    [Serializable]
     internal class KeyboardCommand : Command
     {
         public enum Type {

@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 namespace CottonCollector.CharacterControl.Commands
 {
+    [Serializable]
     internal abstract class Command
     {
         protected int minTimeMili { set; get; }
