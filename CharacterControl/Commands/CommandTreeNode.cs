@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Dalamud.Logging;
+
 namespace CottonCollector.CharacterControl.Commands
 {
     [Serializable]
     internal class CommandTreeNode
     {
-        // The following two shall be mutally exclusive.
-        public Command command = null;
+        public Command command = null;  // only available for leaf.
+
         public LinkedList<CommandTreeNode> children = new LinkedList<CommandTreeNode>();
+        private LinkedListNode<CommandTreeNode> curr = null;
 
         public CommandTreeNode() { }
 
@@ -17,6 +20,7 @@ namespace CottonCollector.CharacterControl.Commands
         {
             command = source.command;
             children = source.children;
+            curr = children.First;
         }
 
         public CommandTreeNode(Command command)
@@ -37,11 +41,15 @@ namespace CottonCollector.CharacterControl.Commands
         public void Add(Command command)
         {
             children.AddLast(new CommandTreeNode(command));
+            curr = children.First;
+            children.Last().Reset();
         }
 
         public void Add(CommandTreeNode child)
         {
             children.AddLast(child);
+            curr = children.First;
+            children.Last().Reset();
         }
 
         public bool IsCurrent()
@@ -54,26 +62,30 @@ namespace CottonCollector.CharacterControl.Commands
             return children.Any(i => i.IsCurrent());
         }
 
-        public Command PopCommand()
+        public void Reset()
         {
-            if (IsLeaf())
+            curr = children.First;
+            foreach (var child in children) child.Reset();
+        }
+
+        public Command NextCommand()
+        {
+            var tmp = curr;
+            if (curr != null && curr.ValueRef.IsLeaf())
             {
-                return command;
+                curr = curr.Next;
+                return tmp.ValueRef.command;
             }
 
-            if (children.Count == 0)
+            for (;curr != null; curr = curr.Next)
             {
-                return null;
+                if (curr.ValueRef.curr != null)
+                {
+                    return curr.ValueRef.NextCommand();
+                }
             }
 
-            var nextNode = children.First.ValueRef;
-
-            if (nextNode.IsLeaf() || nextNode.children.Count == 0)
-            {
-                children.RemoveFirst();
-            }
-
-            return nextNode.command;
+            return null;
         }
     }
 }

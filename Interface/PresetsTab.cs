@@ -196,7 +196,9 @@ namespace CottonCollector.Interface
                     ImGui.Separator();
                     if (ImGui.Button("Play"))
                     {
-                        CottonCollectorPlugin.cmdManager.root.Add(new CommandTreeNode(selectedPreset.presetRoot));
+                        CottonCollectorPlugin.cmdManager.root.Reset();
+                        selectedPreset.presetRoot.Reset();
+                        CottonCollectorPlugin.cmdManager.root.Add(selectedPreset.presetRoot);
                     }
 
                     ImGui.SameLine();

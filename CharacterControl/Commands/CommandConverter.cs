@@ -10,6 +10,8 @@ namespace CottonCollector.CharacterControl.Commands
     {
         public override Command ReadJson(JsonReader reader, Type objectType, Command existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
+            if (reader.TokenType == JsonToken.Null) return null;
+
             object ret = null;
             JObject jo = JObject.Load(reader);
             var type = Enum.ToObject(typeof(Command.Type), jo["type"].Value<int>());

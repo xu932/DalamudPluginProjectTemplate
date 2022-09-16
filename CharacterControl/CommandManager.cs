@@ -23,11 +23,17 @@ namespace CottonCollector.CharacterControl
         {
             if (done)
             {
-                if (root.children.Count != 0)
+                var nextCommand = root.NextCommand();
+                if (nextCommand != null)
                 {
-                    currCommand = root.PopCommand();
-                    PluginLog.Log("Exectuing Command");
-                    currCommand.Execute();
+                    PluginLog.Log("BAKA!!");
+                    currCommand = nextCommand;
+                    if (currCommand != null)
+                    {
+                        PluginLog.Log($"Exectuing {currCommand.type}");
+                        currCommand.Execute();
+                        done = false;
+                    }
                 }
             }
 
