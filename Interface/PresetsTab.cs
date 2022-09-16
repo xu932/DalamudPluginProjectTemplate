@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Linq;
 
 using ImGuiNET;
 
@@ -12,9 +10,6 @@ using Dalamud.Utility;
 
 using CottonCollector.CharacterControl;
 using CottonCollector.CharacterControl.Commands;
-using Windows.Devices.AllJoyn;
-using Microsoft.VisualBasic.FileIO;
-using Dalamud.Logging;
 using Dalamud.Interface.Colors;
 
 namespace CottonCollector.Interface
@@ -196,9 +191,7 @@ namespace CottonCollector.Interface
                     ImGui.Separator();
                     if (ImGui.Button("Play"))
                     {
-                        CottonCollectorPlugin.cmdManager.root.Reset();
-                        selectedPreset.presetRoot.Reset();
-                        CottonCollectorPlugin.cmdManager.root.Add(selectedPreset.presetRoot);
+                        CottonCollectorPlugin.cmdManager.root.Add(selectedPreset.presetRoot.ExecutableCopy());
                     }
 
                     ImGui.SameLine();

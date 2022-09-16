@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Reflection;
 using Dalamud.Logging;
 
 namespace CottonCollector.CharacterControl.Commands
@@ -12,15 +12,30 @@ namespace CottonCollector.CharacterControl.Commands
         public Command command = null;  // only available for leaf.
 
         public LinkedList<CommandTreeNode> children = new LinkedList<CommandTreeNode>();
-        private LinkedListNode<CommandTreeNode> curr = null;
+
+        private bool mutable = false;
+
+        public CommandTreeNode ExecutableCopy()
+        {
+            CommandTreeNode ret = new CommandTreeNode(true);
+            ret.command = command; // this is suppose to be a ref.
+            foreach (var child in children) {
+                ret.children.AddLast(child.ExecutableCopy());
+            }
+
+            return ret;
+        }
 
         public CommandTreeNode() { }
+
+        public CommandTreeNode(bool mutable = false) {
+            this.mutable = mutable;
+        }
 
         public CommandTreeNode(CommandTreeNode source)
         {
             command = source.command;
             children = source.children;
-            curr = children.First;
         }
 
         public CommandTreeNode(Command command)
@@ -41,15 +56,11 @@ namespace CottonCollector.CharacterControl.Commands
         public void Add(Command command)
         {
             children.AddLast(new CommandTreeNode(command));
-            curr = children.First;
-            children.Last().Reset();
         }
 
         public void Add(CommandTreeNode child)
         {
             children.AddLast(child);
-            curr = children.First;
-            children.Last().Reset();
         }
 
         public bool IsCurrent()
@@ -62,27 +73,24 @@ namespace CottonCollector.CharacterControl.Commands
             return children.Any(i => i.IsCurrent());
         }
 
-        public void Reset()
+        public Command PopCommand()
         {
-            curr = children.First;
-            foreach (var child in children) child.Reset();
-        }
+            if (!mutable) return null;
 
-        public Command NextCommand()
-        {
-            var tmp = curr;
-            if (curr != null && curr.ValueRef.IsLeaf())
+            if (IsLeaf())
             {
-                curr = curr.Next;
-                return tmp.ValueRef.command;
+                return command;
             }
 
-            for (;curr != null; curr = curr.Next)
+            if (children.Count > 0)
             {
-                if (curr.ValueRef.curr != null)
+                var nextNode = children.First.ValueRef;
+                var ret = nextNode.PopCommand();
+                if (nextNode.children.Count == 0)
                 {
-                    return curr.ValueRef.NextCommand();
+                    children.RemoveFirst();
                 }
+                return ret;
             }
 
             return null;

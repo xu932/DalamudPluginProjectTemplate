@@ -16,24 +16,20 @@ namespace CottonCollector.CharacterControl
 
         public CommandManager ()
         {
-            root = new CommandTreeNode();
+            root = new CommandTreeNode(true);
         }
 
         public void Update()
         {
-            if (done)
+            if (done && root.children.Count > 0)
             {
-                var nextCommand = root.NextCommand();
+                var nextCommand = root.PopCommand();
                 if (nextCommand != null)
                 {
-                    PluginLog.Log("BAKA!!");
                     currCommand = nextCommand;
-                    if (currCommand != null)
-                    {
-                        PluginLog.Log($"Exectuing {currCommand.type}");
-                        currCommand.Execute();
-                        done = false;
-                    }
+                    PluginLog.Log($"Exectuing {currCommand.type}");
+                    currCommand.Execute();
+                    done = false;
                 }
             }
 
