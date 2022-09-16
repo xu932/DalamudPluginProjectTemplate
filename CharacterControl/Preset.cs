@@ -5,13 +5,11 @@ using CottonCollector.CharacterControl.Commands;
 
 namespace CottonCollector.CharacterControl
 {
-    using AtomicCommand = List<Command>;
-
     [Serializable]
     internal class Preset
     {
         public string name { get; private set; }
-        public AtomicCommand atomicCommands = new AtomicCommand();
+        public CommandTreeNode presetRoot = new CommandTreeNode();
 
         public Preset(string name) {
             this.name = name;

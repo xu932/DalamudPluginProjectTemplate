@@ -91,36 +91,50 @@ namespace CottonCollector.Interface
                         ImGui.TableHeadersRow();
 
                         int index = 0;
-                        foreach (Command command in selectedPreset.atomicCommands)
+                        for (LinkedListNode<CommandTreeNode> commandLN = selectedPreset.presetRoot.children.First; 
+                            commandLN != null; commandLN = commandLN.Next, index++)
                         {
+                            var commandTN = commandLN.ValueRef;
                             ImGui.TableNextRow();
                             ImGui.TableSetColumnIndex(0);
-                            if (command.IsCurrent()) {
+                            if (commandTN.IsCurrent()) {
                                 ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
                                 ImGui.Text("->");
                                 ImGui.PopStyleColor();
                             }
 
-                            ImGui.TableSetColumnIndex(1);
-                            ImGui.Text($"{index} : {command.GetType().Name}");
+                            if (commandTN.IsLeaf()) {
+                                var command = commandTN.command;
+                                ImGui.TableSetColumnIndex(1);
+                                if (command != null)
+                                {
+                                    ImGui.Text($"{index} : {command.GetType().Name}");
 
-                            ImGui.SameLine();
-                            command.SelectorGui();
+                                    ImGui.SameLine();
+                                    command.SelectorGui();
+                                }
+                                else {
+                                    ImGui.Text("null: something might went wrong.");
+                                }
+                            }
 
                             ImGui.TableSetColumnIndex(2);
                             if (ImGui.Button($"Remove##PresetsTab__Btn__{index}"))
                             {
-                                selectedPreset.atomicCommands.RemoveAt(index);
+                                var prev = commandLN.Previous;
+                                selectedPreset.presetRoot.children.Remove(commandLN);
+                                commandLN = prev;
                                 return;
                             }
 
                             ImGui.SameLine();
                             if (ImGui.Button($"Up##PresetsTab__Btn__{index}"))
                             {
-                                if (index > 0)
+                                var prev = commandLN.Previous;
+                                if (prev != null)
                                 {
-                                    selectedPreset.atomicCommands.RemoveAt(index);
-                                    selectedPreset.atomicCommands.Insert(index - 1, command);
+                                    selectedPreset.presetRoot.children.Remove(commandLN);
+                                    selectedPreset.presetRoot.children.AddBefore(prev, commandLN);
                                     return;
                                 }
                             }
@@ -128,14 +142,14 @@ namespace CottonCollector.Interface
                             ImGui.SameLine();
                             if (ImGui.Button($"Down##PresetsTab__Btn__{index}"))
                             {
-                                if (index < selectedPreset.atomicCommands.Count - 1)
+                                var next = commandLN.Next;
+                                if (next != null)
                                 {
-                                    selectedPreset.atomicCommands.RemoveAt(index);
-                                    selectedPreset.atomicCommands.Insert(index + 1, command);
+                                    selectedPreset.presetRoot.children.Remove(commandLN);
+                                    selectedPreset.presetRoot.children.AddAfter(next, commandLN);
                                     return;
                                 }
                             }
-                            index++;
                         }
 
                         ImGui.TableNextRow();
@@ -171,7 +185,7 @@ namespace CottonCollector.Interface
                         {
                             if (ImGui.Button("Add"))
                             {
-                                selectedPreset.atomicCommands.Add(newCommand);
+                                selectedPreset.presetRoot.Add(newCommand);
                                 newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
                             }
                         }
@@ -182,7 +196,7 @@ namespace CottonCollector.Interface
                     ImGui.Separator();
                     if (ImGui.Button("Play"))
                     {
-                        CottonCollectorPlugin.cmdManager.commands.Enqueue(new Queue<Command>(selectedPreset.atomicCommands));
+                        CottonCollectorPlugin.cmdManager.root.Add(new CommandTreeNode(selectedPreset.presetRoot));
                     }
 
                     ImGui.SameLine();

@@ -15,6 +15,8 @@ namespace CottonCollector.CharacterControl.Commands
             SLEEP_COMMAND = 1,
             TILL_LOOKED_AT_COMMAND = 2,
             TILL_MOVED_TO_COMMAND = 3,
+
+            COMBINED_COMMAND = 4,
         }
 
         protected int minTimeMili { set; get; }
