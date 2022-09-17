@@ -13,6 +13,7 @@ namespace CottonCollector.CharacterControl
 
         public Preset(string name) {
             this.name = name;
+            presetRoot.name = name;
         }
     }
 }

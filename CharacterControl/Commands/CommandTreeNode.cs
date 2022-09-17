@@ -15,6 +15,8 @@ namespace CottonCollector.CharacterControl.Commands
 
         private bool mutable = false;
 
+        public string name = "Intermediate Command Node";
+
         public CommandTreeNode ExecutableCopy()
         {
             CommandTreeNode ret = new CommandTreeNode(true);
@@ -24,6 +26,16 @@ namespace CottonCollector.CharacterControl.Commands
             }
 
             return ret;
+        }
+
+        public string Name()
+        {
+            if (IsLeaf() && command != null)
+            {
+                return command.GetType().Name;
+            }
+
+            return name;
         }
 
         public CommandTreeNode() { }

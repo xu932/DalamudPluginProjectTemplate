@@ -11,6 +11,7 @@ using Dalamud.Utility;
 using CottonCollector.CharacterControl;
 using CottonCollector.CharacterControl.Commands;
 using Dalamud.Interface.Colors;
+using System.Linq;
 
 namespace CottonCollector.Interface
 {
@@ -19,6 +20,7 @@ namespace CottonCollector.Interface
         internal static string filterString = "";
         internal static string newPresetName = "";
         internal static int selectedNewCommandIndex = 0;
+        internal static int selectedPresetLinkIndex = 0;
         internal static Preset selectedPreset = null;
         internal static Command newCommand = new KeyboardCommand();
 
@@ -98,9 +100,9 @@ namespace CottonCollector.Interface
                                 ImGui.PopStyleColor();
                             }
 
+                            ImGui.TableSetColumnIndex(1);
                             if (commandTN.IsLeaf()) {
                                 var command = commandTN.command;
-                                ImGui.TableSetColumnIndex(1);
                                 if (command != null)
                                 {
                                     ImGui.Text($"{index} : {command.GetType().Name}");
@@ -111,6 +113,10 @@ namespace CottonCollector.Interface
                                 else {
                                     ImGui.Text("null: something might went wrong.");
                                 }
+                            }
+                            else
+                            {
+                                ImGui.Text($"{index} : {commandTN.name}");
                             }
 
                             ImGui.TableSetColumnIndex(2);
@@ -178,12 +184,33 @@ namespace CottonCollector.Interface
                         ImGui.TableSetColumnIndex(2);
                         if (newCommand != null)
                         {
-                            if (ImGui.Button("Add"))
+                            if (ImGui.Button("Add##command"))
                             {
                                 selectedPreset.presetRoot.Add(newCommand);
                                 newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
                             }
                         }
+
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(1);
+
+                        ImGui.Text("Link Preset ");
+
+                        var presetList = new List<Preset>(config.presets);
+                        presetList.Remove(selectedPreset);
+
+                        ImGui.SetNextItemWidth(200);
+                        ImGui.SameLine();
+                        ImGui.Combo("##PresetSelector", ref selectedPresetLinkIndex, 
+                            presetList.Select(p => p.name).ToArray(), presetList.Count);
+
+                        ImGui.TableSetColumnIndex(2);
+                        if (ImGui.Button("Add##preset"))
+                        {
+                            // TODO: this is not safe for adding loop dependencies. Fix.
+                            selectedPreset.presetRoot.children.AddLast(presetList[selectedPresetLinkIndex].presetRoot);
+                        }
+
 
                         ImGui.EndTable();
                     }

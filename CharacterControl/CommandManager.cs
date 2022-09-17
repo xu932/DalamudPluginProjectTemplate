@@ -11,7 +11,6 @@ namespace CottonCollector.CharacterControl
         private bool done = true;
         private Command currCommand;
 
-        // public Queue<AtomicCommand> commands;
         public CommandTreeNode root;
 
         public CommandManager ()
