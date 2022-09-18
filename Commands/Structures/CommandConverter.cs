@@ -2,21 +2,30 @@
 using Newtonsoft.Json.Linq;
 
 using System;
+
+using CottonCollector.Commands.Impls;
+using System.Linq;
 using System.Collections.Generic;
 
 using Dalamud.Logging;
-using CottonCollector.Commands.Impls;
 
 namespace CottonCollector.Commands.Structures
 {
     internal class CommandConverter : JsonConverter<Command>
     {
+        static private HashSet<string> serializedCommandSets = new();
+
         public override Command ReadJson(JsonReader reader, Type objectType, Command existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null) return null;
 
             object ret = null;
             JObject jo = JObject.Load(reader);
+            string id = (string)jo["$ref"];
+            if (id != null)
+            {
+                return (Command)serializer.ReferenceResolver.ResolveReference(serializer, id);
+            }
             var type = Enum.ToObject(typeof(Command.Type), jo["type"].Value<int>());
             switch (type)
             {
@@ -34,16 +43,12 @@ namespace CottonCollector.Commands.Structures
                     ret = new TillMovedToCommand();
                     break;
                 case Command.Type.COMMAND_SET:
-                    var id = jo["uniqueId"].Value<string>();
-                    if (CommandSet.CommandSetMap.ContainsKey(id))
+                    CommandSet existingCommandSet = null;
+                    if (CommandSet.CommandSetMap.TryGetValue((string)jo["uniqueId"], out existingCommandSet))
                     {
-                        ret = CommandSet.CommandSetMap[id];
-                        return (Command)ret;
+                        return existingCommandSet;
                     }
-                    else
-                    {
-                        ret = new CommandSet(jo["uniqueId"].Value<string>());
-                    }
+                    ret = new CommandSet(jo["uniqueId"].Value<string>());
                     break;
             }
 
