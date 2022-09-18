@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Diagnostics;
-using System.Runtime.Serialization;
 
-namespace CottonCollector.CharacterControl.Commands
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
+namespace CottonCollector.Commands.Structures
 {
     [Serializable]
     [JsonConverter(typeof(CommandConverter))]
@@ -16,8 +17,10 @@ namespace CottonCollector.CharacterControl.Commands
             TILL_LOOKED_AT_COMMAND = 2,
             TILL_MOVED_TO_COMMAND = 3,
 
-            COMBINED_COMMAND = 4,
+            COMMAND_SET = 4,
         }
+
+        public LinkedList<Command> subCommands = null;
 
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }
@@ -29,10 +32,13 @@ namespace CottonCollector.CharacterControl.Commands
 
         public Command(Type type)
         {
+            this.type = type;
+
             minTimeMili = 0;
             timeOutMili = 1000 * 60 * 5; // 5 mins 
-            this.type = type;
         }
+
+        public bool IsCommandSet() => type == Type.COMMAND_SET;
 
         public bool IsCurrent() => isCurrent;
 
@@ -58,7 +64,7 @@ namespace CottonCollector.CharacterControl.Commands
         // This should be called per frame.
         public bool IsFinished()
         {
-            bool timedout = timer.ElapsedMilliseconds >= timeOutMili;
+            bool timedout = timeOutMili != -1 && timer.ElapsedMilliseconds >= timeOutMili;
             bool finished = timer.ElapsedMilliseconds >= minTimeMili && TerminateCondition() || timedout;
 
             if (finished)

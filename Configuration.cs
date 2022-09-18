@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Objects.Enums;
-
-using CottonCollector.CharacterControl;
+using CottonCollector.Commands.Structures;
 
 namespace CottonCollector.Config
 {
@@ -17,6 +16,6 @@ namespace CottonCollector.Config
         public ObjectKind currKind = ObjectKind.None;
         public bool showCameraInfo = false;
 
-        public List<Preset> presets = new List<Preset>(); 
+        public List<CommandSet> commandSets = new List<CommandSet>(); 
     }
 }

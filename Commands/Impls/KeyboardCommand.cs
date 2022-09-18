@@ -10,12 +10,15 @@ using WindowsInput.Native;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Logging;
 
-namespace CottonCollector.CharacterControl.Commands
+using CottonCollector.Commands.Structures;
+
+namespace CottonCollector.Commands.Impls
 {
     [Serializable]
     internal class KeyboardCommand : Command
     {
-        public enum ActionType {
+        public enum ActionType
+        {
             KEY_DOWN = 0,
             KEY_UP = 1,
             KEY_PRESS = 2,
@@ -26,7 +29,7 @@ namespace CottonCollector.CharacterControl.Commands
 
         private InputSimulator sim = new InputSimulator();
 
-        public KeyboardCommand() : base(Type.KEYBOARD_COMMAND){ }
+        public KeyboardCommand() : base(Type.KEYBOARD_COMMAND) { }
 
         public override bool TerminateCondition() => true;
 
@@ -55,7 +58,7 @@ namespace CottonCollector.CharacterControl.Commands
             ImGui.SameLine();
             List<ActionType> actionTypes = Enum.GetValues(typeof(ActionType)).Cast<ActionType>().ToList();
             int newActionTypeIndex = actionTypes.IndexOf(actionType);
-            if (ImGui.Combo($"##KeyboardCommand__ActionTypeSelector__{this.GetHashCode()}", ref newActionTypeIndex, 
+            if (ImGui.Combo($"##KeyboardCommand__ActionTypeSelector__{GetHashCode()}", ref newActionTypeIndex,
                 Enum.GetNames(typeof(ActionType)), actionTypes.Count))
             {
                 actionType = actionTypes[newActionTypeIndex];
@@ -66,8 +69,8 @@ namespace CottonCollector.CharacterControl.Commands
             ImGui.Text("Key:");
             ImGui.SameLine();
             List<VirtualKey> keys = Enum.GetValues(typeof(VirtualKey)).Cast<VirtualKey>().ToList();
-            int newVkIndex = keys.IndexOf(vk); 
-            if (ImGui.Combo($"##KeyboardCommand__KeySelector__{this.GetHashCode()}", ref newVkIndex, Enum.GetNames(typeof(VirtualKey)), keys.Count))
+            int newVkIndex = keys.IndexOf(vk);
+            if (ImGui.Combo($"##KeyboardCommand__KeySelector__{GetHashCode()}", ref newVkIndex, Enum.GetNames(typeof(VirtualKey)), keys.Count))
             {
                 vk = keys[newVkIndex];
             }

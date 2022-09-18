@@ -16,6 +16,7 @@ using CottonCollector.Attributes;
 using CottonCollector.CameraManager;
 using CottonCollector.Config;
 using CottonCollector.Interface;
+using CottonCollector.Commands;
 
 namespace CottonCollector
 {
@@ -31,7 +32,7 @@ namespace CottonCollector
         internal static ClientState ClientState { get; private set; }
 
         [PluginService]
-        internal static CommandManager CommandManager { get; private set; }
+        internal static Dalamud.Game.Command.CommandManager CommandManager { get; private set; }
 
         [PluginService]
         internal static ChatGui ChatGui { get; private set; }
@@ -48,7 +49,7 @@ namespace CottonCollector
         [PluginService]
         internal static AetheryteList AetheryteList { get; private set; }
 
-        internal static CharacterControl.CommandManager cmdManager = new CharacterControl.CommandManager();
+        internal static Commands.CommandManager cmdManager = new Commands.CommandManager();
 
         internal static CottonCollectorConfig config { get; set; }
         private readonly ConfigWindow configWindow;

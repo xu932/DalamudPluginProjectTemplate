@@ -3,7 +3,9 @@ using System.Numerics;
 
 using ImGuiNET;
 
-namespace CottonCollector.CharacterControl.Commands
+using CottonCollector.Commands.Structures;
+
+namespace CottonCollector.Commands.Impls
 {
     [Serializable]
     internal class TillMovedToCommand : Command
@@ -20,7 +22,7 @@ namespace CottonCollector.CharacterControl.Commands
         public override void Do() { }
 
         public override void SelectorGui()
-        {            
+        {
             ImGui.PushItemWidth(100);
 
             ImGui.Text("X:");

@@ -3,8 +3,9 @@ using Newtonsoft.Json.Linq;
 using System;
 
 using Dalamud.Logging;
+using CottonCollector.Commands.Impls;
 
-namespace CottonCollector.CharacterControl.Commands
+namespace CottonCollector.Commands.Structures
 {
     internal class CommandConverter : JsonConverter<Command>
     {
@@ -29,6 +30,9 @@ namespace CottonCollector.CharacterControl.Commands
                     break;
                 case Command.Type.TILL_MOVED_TO_COMMAND:
                     ret = new TillMovedToCommand();
+                    break;
+                case Command.Type.COMMAND_SET:
+                    ret = new CommandSet(jo["uniqueId"].Value<string>());
                     break;
             }
 

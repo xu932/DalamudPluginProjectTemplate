@@ -3,7 +3,9 @@ using System.Diagnostics;
 
 using ImGuiNET;
 
-namespace CottonCollector.CharacterControl.Commands
+using CottonCollector.Commands.Structures;
+
+namespace CottonCollector.Commands.Impls
 {
     [Serializable]
     internal class SleepCommand : Command
@@ -13,7 +15,8 @@ namespace CottonCollector.CharacterControl.Commands
 
         public SleepCommand() : base(Type.SLEEP_COMMAND) { }
 
-        public override bool TerminateCondition() {
+        public override bool TerminateCondition()
+        {
             return stopwatch.ElapsedMilliseconds > mili;
         }
 
@@ -29,7 +32,7 @@ namespace CottonCollector.CharacterControl.Commands
             ImGui.Text("Sleep for ");
 
             ImGui.SameLine();
-            ImGui.InputInt($"##SleepCommand__Input__{this.GetHashCode()}", ref mili);
+            ImGui.InputInt($"##SleepCommand__Input__{GetHashCode()}", ref mili);
 
             ImGui.SameLine();
             ImGui.Text(" mili seconds");

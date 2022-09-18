@@ -14,7 +14,7 @@ namespace CottonCollector.Interface
         private SettingsTab settingsTab;
         private ObjectTableTab objectTableTab;
         private CameraInfoTab cameraInfoTab;
-        private PresetsTab presetsTab;
+        private CommandSetsTab presetsTab;
         private readonly CottonCollectorPlugin plugin;
 
         public ConfigWindow(CottonCollectorPlugin plugin)
@@ -24,7 +24,7 @@ namespace CottonCollector.Interface
             settingsTab = new SettingsTab(ref config);
             objectTableTab = new ObjectTableTab(ref config);
             cameraInfoTab = new CameraInfoTab(ref config);
-            presetsTab = new PresetsTab(ref config);
+            presetsTab = new CommandSetsTab(ref config);
         }
 
         public void Draw()

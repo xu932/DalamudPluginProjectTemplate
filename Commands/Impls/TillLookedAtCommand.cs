@@ -3,8 +3,9 @@
 using ImGuiNET;
 
 using CottonCollector.CameraManager;
+using CottonCollector.Commands.Structures;
 
-namespace CottonCollector.CharacterControl.Commands
+namespace CottonCollector.Commands.Impls
 {
     internal unsafe class TillLookedAtCommand : Command
     {
@@ -27,7 +28,7 @@ namespace CottonCollector.CharacterControl.Commands
         public override void Do() { }
 
         public override void SelectorGui()
-        {            
+        {
             ImGui.PushItemWidth(100);
 
             ImGui.Text("X:");
