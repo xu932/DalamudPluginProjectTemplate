@@ -34,7 +34,7 @@ namespace CottonCollector.Commands
                 }
 
                 currCommand = nextCommand;
-                PluginLog.Log($"Exectuing {currCommand.type}");
+                PluginLog.Log($"Exectuing {currCommand.GetType().Name}");
                 currCommand.Execute();
                 done = false;
             }

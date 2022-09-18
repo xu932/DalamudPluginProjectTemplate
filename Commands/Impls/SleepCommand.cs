@@ -13,8 +13,6 @@ namespace CottonCollector.Commands.Impls
         public int mili = 1000;
         private Stopwatch stopwatch = new Stopwatch();
 
-        public SleepCommand() : base(Type.SLEEP_COMMAND) { }
-
         public override bool TerminateCondition()
         {
             return stopwatch.ElapsedMilliseconds > mili;

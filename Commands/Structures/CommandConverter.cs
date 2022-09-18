@@ -26,30 +26,20 @@ namespace CottonCollector.Commands.Structures
             {
                 return (Command)serializer.ReferenceResolver.ResolveReference(serializer, id);
             }
-            var type = Enum.ToObject(typeof(Command.Type), jo["type"].Value<int>());
-            switch (type)
+
+            Type type = Type.GetType(jo["$type"].ToString());
+
+            if (type.Equals(typeof(CommandSet)))
             {
-                case
-                    Command.Type.KEYBOARD_COMMAND:
-                    ret = new KeyboardCommand();
-                    break;
-                case Command.Type.SLEEP_COMMAND:
-                    ret = new SleepCommand();
-                    break;
-                case Command.Type.TILL_LOOKED_AT_COMMAND:
-                    ret = new TillLookedAtCommand();
-                    break;
-                case Command.Type.TILL_MOVED_TO_COMMAND:
-                    ret = new TillMovedToCommand();
-                    break;
-                case Command.Type.COMMAND_SET:
-                    CommandSet existingCommandSet = null;
-                    if (CommandSet.CommandSetMap.TryGetValue((string)jo["uniqueId"], out existingCommandSet))
-                    {
-                        return existingCommandSet;
-                    }
-                    ret = new CommandSet(jo["uniqueId"].Value<string>());
-                    break;
+                if (CommandSet.CommandSetMap.TryGetValue((string)jo["uniqueId"], out CommandSet existingCommandSet))
+                {
+                    return existingCommandSet;
+                }
+                ret = new CommandSet(jo["uniqueId"].Value<string>());
+            }
+            else
+            {
+                ret = Activator.CreateInstance(type);
             }
 
             if (ret == null)

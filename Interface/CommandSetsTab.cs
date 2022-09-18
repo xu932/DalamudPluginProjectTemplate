@@ -147,8 +147,7 @@ namespace CottonCollector.Interface
                         ImGui.Separator();
 
                         ImGui.Text("New ");
-                        // TODO: fix this shit.
-                        var commandTypes = new List<string>() { "Keyboard Command", "SleepCommand", "Till Moved To", "Till Looked At" };
+                        var commandTypes = Command.AllTypes.Select(t => t.Name).ToList();
 
                         ImGui.SetNextItemWidth(200);
                         ImGui.SameLine();

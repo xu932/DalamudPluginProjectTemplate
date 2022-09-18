@@ -29,8 +29,6 @@ namespace CottonCollector.Commands.Impls
 
         private InputSimulator sim = new InputSimulator();
 
-        public KeyboardCommand() : base(Type.KEYBOARD_COMMAND) { }
-
         public override bool TerminateCondition() => true;
 
         public override void Do()

@@ -12,7 +12,6 @@ namespace CottonCollector.Commands.Impls
     {
         public double X, Y, Z, threshold = 1.0f;
 
-        public TillMovedToCommand() : base(Type.TILL_MOVED_TO_COMMAND) { }
         public override bool TerminateCondition()
         {
             var target = new Vector3((float)X, (float)Y, (float)Z);

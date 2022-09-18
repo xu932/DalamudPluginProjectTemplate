@@ -11,8 +11,6 @@ namespace CottonCollector.Commands.Impls
     {
         public double X, Y, Z;
 
-        public TillLookedAtCommand() : base(Type.TILL_LOOKED_AT_COMMAND) { }
-
         public override bool TerminateCondition()
         {
             var targetPos = new Vector2((float)X, (float)Z);

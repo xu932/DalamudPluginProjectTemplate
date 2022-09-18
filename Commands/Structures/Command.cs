@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace CottonCollector.Commands.Structures
 {
@@ -10,16 +12,8 @@ namespace CottonCollector.Commands.Structures
     [JsonConverter(typeof(CommandConverter))]
     internal abstract class Command
     {
-        public enum Type
-        {
-            KEYBOARD_COMMAND = 0,
-            SLEEP_COMMAND = 1,
-            TILL_LOOKED_AT_COMMAND = 2,
-            TILL_MOVED_TO_COMMAND = 3,
-
-            COMMAND_SET = 4,
-        }
-
+        public static Type[] AllTypes = Assembly.GetAssembly(typeof(Command)).GetTypes()
+                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Command))).ToArray();
 
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }
@@ -27,17 +21,13 @@ namespace CottonCollector.Commands.Structures
         private bool isCurrent = false;
         private Stopwatch timer = new Stopwatch();
 
-        public Type type;
-
-        public Command(Type type)
+        public Command()
         {
-            this.type = type;
-
             minTimeMili = 0;
             timeOutMili = 1000 * 60 * 5; // 5 mins 
         }
 
-        public bool IsCommandSet() => type == Type.COMMAND_SET;
+        public bool IsCommandSet() => this is CommandSet;
 
         public bool IsCurrent() => isCurrent;
 

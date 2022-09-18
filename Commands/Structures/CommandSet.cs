@@ -21,7 +21,7 @@ namespace CottonCollector.Commands.Structures
             CommandSetMap = new Dictionary<string, CommandSet>();
         }
 
-        public CommandSet(string uniqueId) : base(Type.COMMAND_SET)
+        public CommandSet(string uniqueId)
         {
             this.uniqueId = uniqueId;
             this.subCommands = new LinkedList<Command>();
