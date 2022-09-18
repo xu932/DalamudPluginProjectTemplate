@@ -20,7 +20,6 @@ namespace CottonCollector.Commands.Structures
             COMMAND_SET = 4,
         }
 
-        public LinkedList<Command> subCommands = null;
 
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }

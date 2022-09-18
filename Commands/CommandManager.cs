@@ -28,7 +28,7 @@ namespace CottonCollector.Commands
 
                 while (nextCommand.IsCommandSet())
                 {
-                    ScheduleFront(nextCommand.subCommands);
+                    ScheduleFront(((CommandSet)nextCommand).subCommands);
                     nextCommand = commands.First.Value;
                     commands.RemoveFirst();
                 }

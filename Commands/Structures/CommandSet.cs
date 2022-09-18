@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 
 using ImGuiNET;
+using Newtonsoft.Json;
 
 namespace CottonCollector.Commands.Structures
 {
     [Serializable]
+    [JsonObject(IsReference = true)]
     internal class CommandSet : Command
     {
+        static public Dictionary<string, CommandSet> CommandSetMap;
+
         public string uniqueId;
 
-        static public Dictionary<string, CommandSet> CommandSetMap;
+        public LinkedList<Command> subCommands = null;
 
         static CommandSet()
         {
