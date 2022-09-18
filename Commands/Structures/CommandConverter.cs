@@ -32,7 +32,16 @@ namespace CottonCollector.Commands.Structures
                     ret = new TillMovedToCommand();
                     break;
                 case Command.Type.COMMAND_SET:
-                    ret = new CommandSet(jo["uniqueId"].Value<string>());
+                    var id = jo["uniqueId"].Value<string>();
+                    if (CommandSet.CommandSetMap.ContainsKey(id))
+                    {
+                        ret = CommandSet.CommandSetMap[id];
+                        return (Command)ret;
+                    }
+                    else
+                    {
+                        ret = new CommandSet(jo["uniqueId"].Value<string>());
+                    }
                     break;
             }
 

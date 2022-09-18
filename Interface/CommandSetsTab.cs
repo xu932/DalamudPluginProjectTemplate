@@ -9,8 +9,6 @@ using Dalamud.Interface;
 using Dalamud.Utility;
 
 using CottonCollector.Config;
-using CottonCollector.CharacterControl;
-using CottonCollector.CharacterControl.Commands;
 using Dalamud.Interface.Colors;
 using CottonCollector.Commands.Structures;
 using CottonCollector.Commands.Impls;
@@ -146,6 +144,7 @@ namespace CottonCollector.Interface
 
                         ImGui.TableNextRow();
                         ImGui.TableSetColumnIndex(1);
+                        ImGui.Separator();
 
                         ImGui.Text("New ");
                         // TODO: fix this shit.

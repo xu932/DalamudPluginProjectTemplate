@@ -2,7 +2,6 @@
 
 using Dalamud.Logging;
 
-using CottonCollector.CharacterControl.Commands;
 using CottonCollector.Commands.Structures;
 using System.Linq;
 
@@ -26,22 +25,18 @@ namespace CottonCollector.Commands
             {
                 var nextCommand = commands.First.Value;
                 commands.RemoveFirst();
-                if (nextCommand != null)
-                {
-                    while (nextCommand.IsCommandSet())
-                    {
-                        foreach (var subCommand in nextCommand.subCommands.Reverse())
-                        {
-                            commands.AddFirst(subCommand);
-                        }
-                        nextCommand = commands.First.Value;
-                    }
 
-                    currCommand = nextCommand;
-                    PluginLog.Log($"Exectuing {currCommand.type}");
-                    currCommand.Execute();
-                    done = false;
+                while (nextCommand.IsCommandSet())
+                {
+                    ScheduleFront(nextCommand.subCommands);
+                    nextCommand = commands.First.Value;
+                    commands.RemoveFirst();
                 }
+
+                currCommand = nextCommand;
+                PluginLog.Log($"Exectuing {currCommand.type}");
+                currCommand.Execute();
+                done = false;
             }
 
             if (!done && currCommand != null && currCommand.IsFinished())
@@ -65,6 +60,14 @@ namespace CottonCollector.Commands
             {
                 commands.AddLast(command);
             } 
+        }
+
+        public void ScheduleFront(IEnumerable<Command> newCommands)
+        {
+            foreach (var command in newCommands.Reverse())
+            {
+                commands.AddFirst(command);
+            }
         }
     }
 }
