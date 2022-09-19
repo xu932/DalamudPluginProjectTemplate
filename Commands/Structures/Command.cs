@@ -15,6 +15,8 @@ namespace CottonCollector.Commands.Structures
         public static Type[] AllTypes = Assembly.GetAssembly(typeof(Command)).GetTypes()
                 .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Command))).ToArray();
 
+        protected static CommandManager cmdManager = CottonCollectorPlugin.cmdManager;
+
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }
 

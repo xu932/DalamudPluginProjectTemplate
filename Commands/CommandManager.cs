@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace CottonCollector.Commands
 {
-    internal unsafe class CommandManager
+    internal class CommandManager
     {
         private bool done = true;
         private Command currCommand;
@@ -48,6 +48,7 @@ namespace CottonCollector.Commands
 
         public void KillSwitch()
         {
+            PluginLog.Log($"Killed {commands.Count} commands");
             commands.Clear();
             CottonCollectorPlugin.KeyState.ClearAll();
 
@@ -62,12 +63,22 @@ namespace CottonCollector.Commands
             } 
         }
 
+        public void Schedule(Command newCommand)
+        {
+            commands.AddLast(newCommand);
+        }
+
         public void ScheduleFront(IEnumerable<Command> newCommands)
         {
             foreach (var command in newCommands.Reverse())
             {
                 commands.AddFirst(command);
             }
+        }
+
+        public void ScheduleFront(Command newCommand)
+        {
+            commands.AddFirst(newCommand);
         }
     }
 }

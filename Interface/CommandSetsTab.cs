@@ -147,27 +147,13 @@ namespace CottonCollector.Interface
                         ImGui.Separator();
 
                         ImGui.Text("New ");
-                        var commandTypes = Command.AllTypes.Select(t => t.Name).ToList();
+                        var commandTypes = Command.AllTypes.ToList().FindAll(t => !t.Equals(typeof(CommandSet))).Select(t => t.Name);
 
                         ImGui.SetNextItemWidth(200);
                         ImGui.SameLine();
-                        if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, commandTypes.ToArray(), commandTypes.Count))
+                        if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, commandTypes.ToArray(), commandTypes.Count()))
                         {
-                            switch (selectedNewCommandIndex)
-                            {
-                                case 0:
-                                    newCommand = new KeyboardCommand();
-                                    break;
-                                case 1:
-                                    newCommand = new SleepCommand();
-                                    break;
-                                case 2:
-                                    newCommand = new TillMovedToCommand();
-                                    break;
-                                case 3:
-                                    newCommand = new TillLookedAtCommand();
-                                    break;
-                            }
+                            newCommand = (Command)Activator.CreateInstance(Command.AllTypes[selectedNewCommandIndex]);
                         }
 
                         ImGui.TableSetColumnIndex(2);
