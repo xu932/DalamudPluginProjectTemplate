@@ -10,55 +10,82 @@ using CottonCollector.Commands.Structures;
 
 namespace CottonCollector.Commands.Impls
 {
+    /*
     internal unsafe class MoveToCommand: Command
     {
+        private static readonly double CROSS_THRESHOLD = 1e-3;
+
         public double X, Y, Z, threshold = 1.0f;
 
-        public override bool TerminateCondition() => true;
+        private LinkedListNode<Command> nextCommandNode = null;
+        private int isAdjusting = 0; // 0 not adjusting
+                                     // 1 is adjusting left
+                                     // 2 is adjusting right
+
+        public override bool TerminateCondition()
+        {
+            var target = new Vector3((float)X, (float)Y, (float)Z);
+            return Vector3.Distance(CottonCollectorPlugin.ClientState.LocalPlayer.Position, target) < threshold;
+        }
+
+        public override void OnStart()
+        {
+            var pressRight = CameraOnLeft();
+            var pressLeft = CameraOnRight();
+
+            if (!pressLeft && !pressRight)
+            {
+                return;
+            }
+
+            var cmdlist = new List<Command>
+            {
+                new KeyboardCommand(),
+                new TillLookedAtCommand(),
+                new KeyboardCommand()
+            };
+
+            var vk = pressLeft ? Dalamud.Game.ClientState.Keys.VirtualKey.RIGHT
+                : Dalamud.Game.ClientState.Keys.VirtualKey.LEFT;
+            ((KeyboardCommand)cmdlist[0]).vk = vk;
+            ((KeyboardCommand)cmdlist[2]).vk = vk;
+            ((KeyboardCommand)cmdlist[0]).actionType = KeyboardCommand.ActionType.KEY_DOWN;
+            ((KeyboardCommand)cmdlist[2]).actionType = KeyboardCommand.ActionType.KEY_UP;
+
+            nextCommandNode = cmdManager.ScheduleFront(cmdlist);
+        }
 
         public override void Do()
         {
-            var player = CottonCollectorPlugin.ClientState.LocalPlayer;
-            var targetPos2 = new Vector2((float)X, (float)Z);
-            var playerPos2 = new Vector2(player.Position.X, player.Position.Z);
-            var cameraPos2 = new Vector2(CameraHelpers.collection->WorldCamera->X, 
-                CameraHelpers.collection->WorldCamera->Y);
-            var v = Vector2.Normalize(cameraPos2 - playerPos2);
-            var u = Vector2.Normalize(targetPos2 - playerPos2);
+            var pressW = new KeyboardCommand();
 
-            var cross = v.X * u.Y - v.Y * u.X;
+            pressW.vk = Dalamud.Game.ClientState.Keys.VirtualKey.W;
+            pressW.actionType = KeyboardCommand.ActionType.KEY_DOWN;
 
-            var cmdlist = new List<Command>();
-            cmdlist.Add(new KeyboardCommand());
-            cmdlist.Add(new TillLookedAtCommand());
-            cmdlist.Add(new KeyboardCommand());
-            cmdlist.Add(new KeyboardCommand());
-            cmdlist.Add(new TillMovedToCommand());
-            cmdlist.Add(new KeyboardCommand());
+            cmdManager.ScheduleBefore(nextCommandNode, pressW);
+        }
 
-            var vk = cross > 0 ? Dalamud.Game.ClientState.Keys.VirtualKey.LEFT
-                : Dalamud.Game.ClientState.Keys.VirtualKey.RIGHT;
-            ((KeyboardCommand)cmdlist[0]).vk = vk;
-            ((KeyboardCommand)cmdlist[2]).vk = vk;
-            ((KeyboardCommand)cmdlist[3]).vk = Dalamud.Game.ClientState.Keys.VirtualKey.W;
-            ((KeyboardCommand)cmdlist[5]).vk = Dalamud.Game.ClientState.Keys.VirtualKey.W;
+        public override void OnUpdate()
+        {
+            var pressRight = CameraOnLeft();
+            var pressLeft = CameraOnRight();
 
-            ((KeyboardCommand)cmdlist[0]).actionType = KeyboardCommand.ActionType.KEY_DOWN;
-            ((KeyboardCommand)cmdlist[2]).actionType = KeyboardCommand.ActionType.KEY_UP;
-            ((KeyboardCommand)cmdlist[3]).actionType = KeyboardCommand.ActionType.KEY_DOWN;
-            ((KeyboardCommand)cmdlist[5]).actionType = KeyboardCommand.ActionType.KEY_UP;
+            if (!pressLeft && !pressRight)
+            {
+                isAdjusting = 0;
+                return;
+            }
 
-            ((TillLookedAtCommand)cmdlist[1]).X = X;
-            ((TillLookedAtCommand)cmdlist[1]).Y = Y;
-            ((TillLookedAtCommand)cmdlist[1]).Z = Z;
+            if (pressLeft && isAdjusting != 1)
+            {
+                isAdjusting = 1;
 
-            ((TillMovedToCommand)cmdlist[4]).X = X;
-            ((TillMovedToCommand)cmdlist[4]).Y = Y;
-            ((TillMovedToCommand)cmdlist[4]).Z = Z;
-            ((TillMovedToCommand)cmdlist[4]).threshold = threshold;
+            }
+            else if (pressRight && isAdjusting != 2)
+            {
+                isAdjusting = 2;
 
-            PluginLog.Log($"Scheduling {cmdlist.Count} commands to the front.");
-            cmdManager.ScheduleFront(cmdlist);
+            }
         }
 
         public override void SelectorGui()
@@ -96,5 +123,28 @@ namespace CottonCollector.Commands.Impls
             ImGui.PopItemWidth();
         }
 
+        private double CameraPlayerCrossTargetPlayer()
+        {
+            var player = CottonCollectorPlugin.ClientState.LocalPlayer;
+            var targetPos2 = new Vector2((float)X, (float)Z);
+            var playerPos2 = new Vector2(player.Position.X, player.Position.Z);
+            var cameraPos2 = new Vector2(CameraHelpers.collection->WorldCamera->X, 
+                CameraHelpers.collection->WorldCamera->Y);
+            var v = Vector2.Normalize(cameraPos2 - playerPos2);
+            var u = Vector2.Normalize(targetPos2 - playerPos2);
+
+            return v.X * u.Y - v.Y * u.X;
+        }
+
+        private bool CameraOnLeft()
+        {
+            return CameraPlayerCrossTargetPlayer() < -CROSS_THRESHOLD;
+        }
+
+        private bool CameraOnRight()
+        {
+            return CameraPlayerCrossTargetPlayer() > CROSS_THRESHOLD;
+        }
     }
+    */
 }

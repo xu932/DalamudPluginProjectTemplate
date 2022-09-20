@@ -7,16 +7,14 @@ using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Aetherytes;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.ClientState.Objects;
-using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.Plugin;
-using Dalamud.Logging;
 
 using CottonCollector.Attributes;
 using CottonCollector.CameraManager;
 using CottonCollector.Config;
 using CottonCollector.Interface;
-using CottonCollector.Commands;
+using CottonCollector.Commands.Structures;
 
 namespace CottonCollector
 {
@@ -49,7 +47,7 @@ namespace CottonCollector
         [PluginService]
         internal static AetheryteList AetheryteList { get; private set; }
 
-        internal static Commands.CommandManager cmdManager = new Commands.CommandManager();
+        internal static CommandManager rootCmdManager = new();
 
         internal static CottonCollectorConfig config { get; set; }
         private readonly ConfigWindow configWindow;
@@ -68,7 +66,7 @@ namespace CottonCollector
             configWindow = new ConfigWindow(this);
             DalamudPluginInterface.UiBuilder.Draw += configWindow.Draw;
             DalamudPluginInterface.UiBuilder.OpenConfigUi += configWindow.Open;
-            Framework.Update += Update;
+            Framework.Update += rootCmdManager.Update;
 
             // Load all commands
             pluginCommandManager = new PluginCommandManager<CottonCollectorPlugin>(this);
@@ -81,16 +79,11 @@ namespace CottonCollector
             configWindow.Toggle();
         }
 
-        private void Update(Framework framework)
-        {
-            cmdManager.Update();
-        }
-
         public void Dispose()
         {
             DalamudPluginInterface.UiBuilder.Draw -= configWindow.Draw;
             DalamudPluginInterface.UiBuilder.OpenConfigUi -= configWindow.Open;
-            Framework.Update -= Update;
+            Framework.Update -= rootCmdManager.Update;
             if (pluginCommandManager != null) pluginCommandManager.Dispose();
             GC.SuppressFinalize(this);
         }

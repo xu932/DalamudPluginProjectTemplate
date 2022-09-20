@@ -13,8 +13,9 @@ namespace CottonCollector.Commands.Structures
         static public Dictionary<string, CommandSet> CommandSetMap;
 
         public string uniqueId;
+        public LinkedList<Command> subCommands = new();
 
-        public LinkedList<Command> subCommands = null;
+        private CommandManager commandManager = new();
 
         static CommandSet()
         {
@@ -35,12 +36,23 @@ namespace CottonCollector.Commands.Structures
             CommandSetMap.Add(uniqueId, this);
         }
 
-        public override void Do()
+        public override bool TerminateCondition() => commandManager.IsEmpty;
+
+        public override void OnStart()
         {
-            // Do nothing. This should never get called.
+            commandManager.Schedule(subCommands);
         }
 
-        public override bool TerminateCondition() => true;
+        public override void Do()
+        {
+            CottonCollectorPlugin.Framework.Update += commandManager.Update;
+        }
+
+        public override void OnFinish()
+        {
+            CottonCollectorPlugin.Framework.Update -= commandManager.Update;
+        }
+
 
         public override void SelectorGui()
         {

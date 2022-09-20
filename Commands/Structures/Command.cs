@@ -15,8 +15,6 @@ namespace CottonCollector.Commands.Structures
         public static Type[] AllTypes = Assembly.GetAssembly(typeof(Command)).GetTypes()
                 .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Command))).ToArray();
 
-        protected static CommandManager cmdManager = CottonCollectorPlugin.cmdManager;
-
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }
 
@@ -33,15 +31,18 @@ namespace CottonCollector.Commands.Structures
 
         public bool IsCurrent() => isCurrent;
 
-        public abstract void Do();
-
-        public abstract bool TerminateCondition();
 
         public abstract void SelectorGui();
 
+        public abstract bool TerminateCondition();
+
         public virtual void OnStart() { }
+
+        public abstract void Do();
+
         public virtual void OnFinish() { }
 
+        #region wrapper methods
         public void Execute()
         {
             isCurrent = true;
@@ -66,5 +67,6 @@ namespace CottonCollector.Commands.Structures
             }
             return finished;
         }
+        #endregion
     }
 }

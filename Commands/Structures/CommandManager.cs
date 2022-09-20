@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
 using Dalamud.Logging;
-
-using CottonCollector.Commands.Structures;
 using System.Linq;
+using Dalamud.Game;
 
-namespace CottonCollector.Commands
+namespace CottonCollector.Commands.Structures
 {
     internal class CommandManager
     {
@@ -19,7 +18,9 @@ namespace CottonCollector.Commands
             commands = new LinkedList<Command>();
         }
 
-        public void Update()
+        public bool IsEmpty => commands.Count == 0;
+
+        public void Update(Framework framework)
         {
             if (done && commands.Count > 0)
             {
@@ -60,7 +61,7 @@ namespace CottonCollector.Commands
             foreach (var command in newCommands)
             {
                 commands.AddLast(command);
-            } 
+            }
         }
 
         public void Schedule(Command newCommand)
@@ -68,17 +69,50 @@ namespace CottonCollector.Commands
             commands.AddLast(newCommand);
         }
 
-        public void ScheduleFront(IEnumerable<Command> newCommands)
+        // returns the first command before scheduling.
+        public LinkedListNode<Command> ScheduleFront(IEnumerable<Command> newCommands)
         {
+            var ret = commands.First;
             foreach (var command in newCommands.Reverse())
             {
                 commands.AddFirst(command);
             }
+            return ret;
         }
 
-        public void ScheduleFront(Command newCommand)
+        // returns the first command before scheduling.
+        public LinkedListNode<Command> ScheduleFront(Command newCommand)
         {
+            var ret = commands.First;
             commands.AddFirst(newCommand);
+            return ret;
+        }
+
+        public void ScheduleBefore(LinkedListNode<Command> commandNode, IEnumerable<Command> newCommands)
+        {
+            if (commandNode == null)
+            {
+                Schedule(newCommands);
+            }
+            else
+            {
+                foreach (var command in newCommands.Reverse())
+                {
+                    commands.AddBefore(commandNode, command);
+                }
+            }
+        }
+
+        public void ScheduleBefore(LinkedListNode<Command> commandNode, Command newCommand)
+        {
+            if (commandNode == null)
+            {
+                Schedule(newCommand);
+            }
+            else
+            {
+                commands.AddBefore(commandNode, newCommand);
+            }
         }
     }
 }

@@ -147,13 +147,14 @@ namespace CottonCollector.Interface
                         ImGui.Separator();
 
                         ImGui.Text("New ");
-                        var commandTypes = Command.AllTypes.ToList().FindAll(t => !t.Equals(typeof(CommandSet))).Select(t => t.Name);
+                        var commandTypes = Command.AllTypes.Where(t => !t.Equals(typeof(CommandSet))).ToArray();
 
                         ImGui.SetNextItemWidth(200);
                         ImGui.SameLine();
-                        if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, commandTypes.ToArray(), commandTypes.Count()))
+                        if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex, 
+                            commandTypes.Select(t=>t.Name).ToArray(), commandTypes.Count()))
                         {
-                            newCommand = (Command)Activator.CreateInstance(Command.AllTypes[selectedNewCommandIndex]);
+                            newCommand = (Command)Activator.CreateInstance(commandTypes[selectedNewCommandIndex]);
                         }
 
                         ImGui.TableSetColumnIndex(2);
@@ -191,13 +192,13 @@ namespace CottonCollector.Interface
                     ImGui.Separator();
                     if (ImGui.Button("Play"))
                     {
-                        CottonCollectorPlugin.cmdManager.Schedule(selectedCommandSet.subCommands);
+                        CottonCollectorPlugin.rootCmdManager.Schedule(selectedCommandSet);
                     }
 
                     ImGui.SameLine();
                     if (ImGui.Button("Kill Switch"))
                     {
-                        CottonCollectorPlugin.cmdManager.KillSwitch();
+                        CottonCollectorPlugin.rootCmdManager.KillSwitch();
                     }
                     #endregion
                 }
