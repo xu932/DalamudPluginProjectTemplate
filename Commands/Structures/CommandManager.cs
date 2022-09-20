@@ -18,7 +18,7 @@ namespace CottonCollector.Commands.Structures
             commands = new LinkedList<Command>();
         }
 
-        public bool IsEmpty => commands.Count == 0;
+        public bool IsEmpty => commands.Count == 0 && currCommand == null;
 
         public void Update(Framework framework)
         {
@@ -27,29 +27,36 @@ namespace CottonCollector.Commands.Structures
                 var nextCommand = commands.First.Value;
                 commands.RemoveFirst();
 
-                while (nextCommand.IsCommandSet())
+                if (nextCommand != null)
                 {
-                    ScheduleFront(((CommandSet)nextCommand).subCommands);
-                    nextCommand = commands.First.Value;
-                    commands.RemoveFirst();
+                    currCommand = nextCommand;
+                    currCommand.Execute();
+                    done = false;
                 }
-
-                currCommand = nextCommand;
-                PluginLog.Log($"Exectuing {currCommand.GetType().Name}");
-                currCommand.Execute();
-                done = false;
             }
 
             if (!done && currCommand != null && currCommand.IsFinished())
             {
                 done = true;
-                PluginLog.Log("Finished Command");
+                currCommand = null;
             }
         }
 
         public void KillSwitch()
         {
             PluginLog.Log($"Killed {commands.Count} commands");
+            if (currCommand != null && currCommand is CommandSet currCommandSet)
+            {
+                currCommandSet.KillSwitch();
+            }
+
+            foreach (var command in commands)
+            {
+                if (command is CommandSet commandSet)
+                {
+                    commandSet.KillSwitch();
+                }
+            }
             commands.Clear();
             CottonCollectorPlugin.KeyState.ClearAll();
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 using ImGuiNET;
-using Newtonsoft.Json;
+
+using Dalamud.Logging;
 
 namespace CottonCollector.Commands.Structures
 {
@@ -14,8 +16,10 @@ namespace CottonCollector.Commands.Structures
 
         public string uniqueId;
         public LinkedList<Command> subCommands = new();
+        public LinkedList<Trigger> triggers = new();
 
         private CommandManager commandManager = new();
+        private SynchronousTriggersManager triggersManager = new();
 
         static CommandSet()
         {
@@ -25,7 +29,6 @@ namespace CottonCollector.Commands.Structures
         public CommandSet(string uniqueId)
         {
             this.uniqueId = uniqueId;
-            this.subCommands = new LinkedList<Command>();
             this.timeOutMili = -1;
 
             if (CommandSetMap.ContainsKey(uniqueId))
@@ -40,17 +43,21 @@ namespace CottonCollector.Commands.Structures
 
         public override void OnStart()
         {
+            PluginLog.Log($"Executing Command Set {uniqueId}");
             commandManager.Schedule(subCommands);
+            triggersManager.Add(triggers);
         }
 
         public override void Do()
         {
             CottonCollectorPlugin.Framework.Update += commandManager.Update;
+            CottonCollectorPlugin.Framework.Update += triggersManager.Update;
         }
 
         public override void OnFinish()
         {
             CottonCollectorPlugin.Framework.Update -= commandManager.Update;
+            CottonCollectorPlugin.Framework.Update -= triggersManager.Update;
         }
 
 
@@ -58,6 +65,15 @@ namespace CottonCollector.Commands.Structures
         {
             // Not editable.
             ImGui.Text($"{uniqueId}");
+        }
+
+        public void KillSwitch()
+        {
+            commandManager.KillSwitch();
+            triggersManager.KillSwitch();
+
+            CottonCollectorPlugin.Framework.Update -= commandManager.Update;
+            CottonCollectorPlugin.Framework.Update -= triggersManager.Update;
         }
     }
 }

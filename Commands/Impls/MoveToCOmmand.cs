@@ -1,91 +1,112 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Numerics;
+using Newtonsoft.Json;
 
 using ImGuiNET;
 
-using Dalamud.Logging;
-
-using CottonCollector.CameraManager;
 using CottonCollector.Commands.Structures;
 
 namespace CottonCollector.Commands.Impls
 {
-    /*
-    internal unsafe class MoveToCommand: Command
+    // This is no more than a shitty demo. User shall be able to construct this with GUI.
+    [Serializable]
+    [JsonObject(IsReference = true)]
+    internal class MoveToCommand : CommandSet
     {
-        private static readonly double CROSS_THRESHOLD = 1e-3;
+        public double X, Y, Z, threshold = 2.0f;
 
-        public double X, Y, Z, threshold = 1.0f;
+        // temp
+        static int uid = 0;
+        CommandSet adjustRightCommand = null;
+        CommandSet adjustLeftCommand = null;
+        TillMovedToCommand tillMovedToCommand = null;
+        TillLookedAtCommand tillLookedAtCommand = null;
+        Trigger adjustRightTrigger = null;
+        Trigger adjustLeftTrigger = null;
 
-        private LinkedListNode<Command> nextCommandNode = null;
-        private int isAdjusting = 0; // 0 not adjusting
-                                     // 1 is adjusting left
-                                     // 2 is adjusting right
+        public MoveToCommand() : base("MoveTo" + uid) {
+            tillMovedToCommand = new TillMovedToCommand();
+            tillLookedAtCommand = new TillLookedAtCommand();
 
-        public override bool TerminateCondition()
-        {
-            var target = new Vector3((float)X, (float)Y, (float)Z);
-            return Vector3.Distance(CottonCollectorPlugin.ClientState.LocalPlayer.Position, target) < threshold;
+            // Move
+            var pressW = new KeyboardCommand
+            {
+                vk = Dalamud.Game.ClientState.Keys.VirtualKey.W,
+                actionType = KeyboardCommand.ActionType.KEY_DOWN
+            };
+            var releaseW = new KeyboardCommand
+            {
+                vk = Dalamud.Game.ClientState.Keys.VirtualKey.W,
+                actionType = KeyboardCommand.ActionType.KEY_UP
+            };
+
+            subCommands.AddLast(pressW);
+            subCommands.AddLast(tillMovedToCommand);
+            subCommands.AddLast(releaseW);
+
+
+            // Adjust Right Trigger
+            adjustRightCommand = new CommandSet("adjust right" + uid);
+            var pressLeft = new KeyboardCommand
+            {
+                vk = Dalamud.Game.ClientState.Keys.VirtualKey.LEFT,
+                actionType = KeyboardCommand.ActionType.KEY_DOWN,
+            };
+            var releaseLeft = new KeyboardCommand
+            {
+                vk = Dalamud.Game.ClientState.Keys.VirtualKey.LEFT,
+                actionType = KeyboardCommand.ActionType.KEY_UP
+            };
+
+            adjustRightCommand.subCommands.AddLast(pressLeft);
+            adjustRightCommand.subCommands.AddLast(tillLookedAtCommand);
+            adjustRightCommand.subCommands.AddLast(releaseLeft);
+
+            adjustRightTrigger = new Trigger(adjustRightCommand);
+
+            // Adjust Left Trigger
+            adjustLeftCommand = new CommandSet("adjust left" + uid);
+            var pressRight = new KeyboardCommand
+            {
+                vk = Dalamud.Game.ClientState.Keys.VirtualKey.RIGHT,
+                actionType = KeyboardCommand.ActionType.KEY_DOWN,
+            };
+            var releaseRight = new KeyboardCommand
+            {
+                vk = Dalamud.Game.ClientState.Keys.VirtualKey.RIGHT,
+                actionType = KeyboardCommand.ActionType.KEY_UP,
+            };
+
+            adjustLeftCommand.subCommands.AddLast(pressRight);
+            adjustLeftCommand.subCommands.AddLast(tillLookedAtCommand);
+            adjustLeftCommand.subCommands.AddLast(releaseRight);
+
+            adjustLeftTrigger = new Trigger(adjustLeftCommand);
+
+            // Add triggers to collection.
+            triggers.AddLast(adjustRightTrigger);
+            triggers.AddLast(adjustLeftTrigger);
+
+            uid++;
         }
 
         public override void OnStart()
         {
-            var pressRight = CameraOnLeft();
-            var pressLeft = CameraOnRight();
+            tillMovedToCommand.X = X;
+            tillMovedToCommand.Y = Y;
+            tillMovedToCommand.Z = Z;
+            tillMovedToCommand.threshold = threshold;
 
-            if (!pressLeft && !pressRight)
-            {
-                return;
-            }
+            tillLookedAtCommand.X = X;
+            tillLookedAtCommand.Y = Y;
+            tillLookedAtCommand.Z = Z;
 
-            var cmdlist = new List<Command>
-            {
-                new KeyboardCommand(),
-                new TillLookedAtCommand(),
-                new KeyboardCommand()
-            };
+            adjustRightTrigger.TriggerCondition =
+                () => Conditions.CameraOnRight(new Vector3((float)X, (float)Y, (float)Z));
+            adjustLeftTrigger.TriggerCondition =
+                () => Conditions.CameraOnLeft(new Vector3((float)X, (float)Y, (float)Z));
 
-            var vk = pressLeft ? Dalamud.Game.ClientState.Keys.VirtualKey.RIGHT
-                : Dalamud.Game.ClientState.Keys.VirtualKey.LEFT;
-            ((KeyboardCommand)cmdlist[0]).vk = vk;
-            ((KeyboardCommand)cmdlist[2]).vk = vk;
-            ((KeyboardCommand)cmdlist[0]).actionType = KeyboardCommand.ActionType.KEY_DOWN;
-            ((KeyboardCommand)cmdlist[2]).actionType = KeyboardCommand.ActionType.KEY_UP;
-
-            nextCommandNode = cmdManager.ScheduleFront(cmdlist);
-        }
-
-        public override void Do()
-        {
-            var pressW = new KeyboardCommand();
-
-            pressW.vk = Dalamud.Game.ClientState.Keys.VirtualKey.W;
-            pressW.actionType = KeyboardCommand.ActionType.KEY_DOWN;
-
-            cmdManager.ScheduleBefore(nextCommandNode, pressW);
-        }
-
-        public override void OnUpdate()
-        {
-            var pressRight = CameraOnLeft();
-            var pressLeft = CameraOnRight();
-
-            if (!pressLeft && !pressRight)
-            {
-                isAdjusting = 0;
-                return;
-            }
-
-            if (pressLeft && isAdjusting != 1)
-            {
-                isAdjusting = 1;
-
-            }
-            else if (pressRight && isAdjusting != 2)
-            {
-                isAdjusting = 2;
-
-            }
+            base.OnStart();
         }
 
         public override void SelectorGui()
@@ -122,29 +143,5 @@ namespace CottonCollector.Commands.Impls
 
             ImGui.PopItemWidth();
         }
-
-        private double CameraPlayerCrossTargetPlayer()
-        {
-            var player = CottonCollectorPlugin.ClientState.LocalPlayer;
-            var targetPos2 = new Vector2((float)X, (float)Z);
-            var playerPos2 = new Vector2(player.Position.X, player.Position.Z);
-            var cameraPos2 = new Vector2(CameraHelpers.collection->WorldCamera->X, 
-                CameraHelpers.collection->WorldCamera->Y);
-            var v = Vector2.Normalize(cameraPos2 - playerPos2);
-            var u = Vector2.Normalize(targetPos2 - playerPos2);
-
-            return v.X * u.Y - v.Y * u.X;
-        }
-
-        private bool CameraOnLeft()
-        {
-            return CameraPlayerCrossTargetPlayer() < -CROSS_THRESHOLD;
-        }
-
-        private bool CameraOnRight()
-        {
-            return CameraPlayerCrossTargetPlayer() > CROSS_THRESHOLD;
-        }
     }
-    */
 }

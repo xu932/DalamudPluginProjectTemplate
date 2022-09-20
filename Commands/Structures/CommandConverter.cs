@@ -35,7 +35,8 @@ namespace CottonCollector.Commands.Structures
                 {
                     return existingCommandSet;
                 }
-                ret = new CommandSet(jo["uniqueId"].Value<string>());
+                ret = Activator.CreateInstance(type, jo["uniqueId"].Value<string>());
+
             }
             else
             {

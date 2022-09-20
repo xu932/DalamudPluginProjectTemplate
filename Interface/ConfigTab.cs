@@ -32,8 +32,7 @@ namespace CottonCollector.Interface
             catch (Exception e)
             {
                 PluginLog.Error($"{name} failed to render.");
-                PluginLog.Error(e.Message);
-                PluginLog.Error(e.StackTrace);
+                PluginLog.Error($"{e}");
             }
         }
 

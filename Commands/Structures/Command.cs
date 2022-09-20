@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
+using Dalamud.Logging;
+
 namespace CottonCollector.Commands.Structures
 {
     [Serializable]
@@ -45,6 +47,7 @@ namespace CottonCollector.Commands.Structures
         #region wrapper methods
         public void Execute()
         {
+            PluginLog.Log($"Executing Command {this.GetType()}");
             isCurrent = true;
             OnStart();
             timer.Reset();
@@ -64,6 +67,7 @@ namespace CottonCollector.Commands.Structures
                 timer.Stop();
                 OnFinish();
                 isCurrent = false;
+                PluginLog.Log($"Finished Command {this.GetType()}");
             }
             return finished;
         }
