@@ -14,24 +14,17 @@ namespace CottonCollector.Commands.Structures
         
         public void Update(Framework framework)
         {
-            try
+            if (commandManager.IsEmpty && triggers.Count > 0)
             {
-                if (commandManager.IsEmpty && triggers.Count > 0)
+                var triggeredTriggers = triggers.Where(t => t.TriggerCondition());
+                if (triggeredTriggers.Count() > 0)
                 {
-                    var triggeredTriggers = triggers.Where(t => t.TriggerCondition());
-                    if (triggeredTriggers.Count() > 0)
-                    {
-                        var trigger = triggeredTriggers.First();
-                        PluginLog.Log($"Scheduling Trigger");
-                        commandManager.Schedule(trigger.command);
-                    }
+                    var trigger = triggeredTriggers.First();
+                    PluginLog.Log($"Scheduling Trigger");
+                    commandManager.Schedule(trigger.command);
                 }
-                commandManager.Update(framework);
             }
-            catch (Exception e)
-            {
-                PluginLog.Error($"{e}");
-            }
+            commandManager.Update(framework);
         }
 
         public void Add(Trigger t)

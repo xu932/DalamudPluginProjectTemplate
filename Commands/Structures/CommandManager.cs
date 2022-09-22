@@ -25,10 +25,10 @@ namespace CottonCollector.Commands.Structures
             if (done && commands.Count > 0)
             {
                 var nextCommand = commands.First.Value;
-                commands.RemoveFirst();
 
-                if (nextCommand != null)
+                if (nextCommand != null && nextCommand.TriggerCondition())
                 {
+                    commands.RemoveFirst();
                     currCommand = nextCommand;
                     currCommand.Execute();
                     done = false;

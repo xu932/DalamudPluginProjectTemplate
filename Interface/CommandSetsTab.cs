@@ -83,7 +83,7 @@ namespace CottonCollector.Interface
                 ImGui.TableNextColumn();
                 if (selectedCommandSet != null)
                 {
-                    if (ImGui.BeginTable("CommandsTable", 3, ImGuiTableFlags.Resizable))
+                    if (ImGui.BeginTable("CommandsTable", 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
                     {
                         ImGui.TableSetupColumn("##Tracking", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 10);
                         ImGui.TableSetupColumn("##Commands", ImGuiTableColumnFlags.None, 450);
@@ -104,10 +104,7 @@ namespace CottonCollector.Interface
                             }
 
                             ImGui.TableSetColumnIndex(1);
-                            ImGui.Text($"{index} : {command.GetType().Name}");
-
-                            ImGui.SameLine();
-                            command.SelectorGui();
+                            command.BuilderGui();
 
                             ImGui.TableSetColumnIndex(2);
                             if (ImGui.Button($"Remove##CommandSetsTab__Btn__{index}"))

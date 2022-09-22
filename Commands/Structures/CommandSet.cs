@@ -18,8 +18,8 @@ namespace CottonCollector.Commands.Structures
         public LinkedList<Command> subCommands = new();
         public LinkedList<Trigger> triggers = new();
 
-        private CommandManager commandManager = new();
-        private SynchronousTriggersManager triggersManager = new();
+        private readonly CommandManager commandManager = new();
+        private readonly SynchronousTriggersManager triggersManager = new();
 
         static CommandSet()
         {
