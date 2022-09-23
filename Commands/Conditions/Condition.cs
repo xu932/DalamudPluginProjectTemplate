@@ -17,5 +17,10 @@ namespace CottonCollector.Commands.Conditions
         public abstract bool triggeringCondition();
 
         public abstract void SelectorGui();
+
+        public virtual string Description()
+        {
+            return "On Unknown Condition";
+        }
     }
 }

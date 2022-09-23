@@ -36,7 +36,7 @@ namespace CottonCollector.Interface
                 #region COMMAND_SET_SELECTOR
                 ImGui.TableSetupColumn("Command sets list", ImGuiTableColumnFlags.None, 200);
                 var displayCommandSetName = selectedCommandSet != null ? selectedCommandSet.uniqueId : "";
-                ImGui.TableSetupColumn($"{displayCommandSetName}##selectedCommandSetName", ImGuiTableColumnFlags.None, 600);
+                ImGui.TableSetupColumn($"{displayCommandSetName}##selectedCommandSetName", ImGuiTableColumnFlags.None, 1000);
 
                 ImGui.TableHeadersRow();
 
@@ -86,8 +86,8 @@ namespace CottonCollector.Interface
                     if (ImGui.BeginTable("CommandsTable", 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
                     {
                         ImGui.TableSetupColumn("##Tracking", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 10);
-                        ImGui.TableSetupColumn("##Commands", ImGuiTableColumnFlags.None, 450);
-                        ImGui.TableSetupColumn("##Btns", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 140);
+                        ImGui.TableSetupColumn("Command Sequence", ImGuiTableColumnFlags.NoResize, 400);
+                        ImGui.TableSetupColumn("##Command__Btns", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 190);
                         ImGui.TableHeadersRow();
 
                         int index = 0;
@@ -104,9 +104,28 @@ namespace CottonCollector.Interface
                             }
 
                             ImGui.TableSetColumnIndex(1);
-                            command.BuilderGui();
+                            ImGui.Text(command.Description());
 
                             ImGui.TableSetColumnIndex(2);
+                            
+                            if (ImGui.BeginPopup($"Edit Command##CommandSetsTab_Popup__{index}"))
+                            {
+                                command.BuilderGui();
+
+                                if(ImGui.Button("Save & Close"))
+                                {
+                                    ImGui.CloseCurrentPopup();
+                                    CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
+                                }
+                                ImGui.EndPopup();
+                            }
+
+                            if (ImGui.Button($"Edit##CommandSetsTab__Btn__{index}"))
+                            {
+                                ImGui.OpenPopup($"Edit Command##CommandSetsTab_Popup__{index}");
+                            }
+
+                            ImGui.SameLine();
                             if (ImGui.Button($"Remove##CommandSetsTab__Btn__{index}"))
                             {
                                 var prev = commandLN.Previous;
@@ -182,8 +201,8 @@ namespace CottonCollector.Interface
                             selectedCommandSet.subCommands.AddLast(CommandSet.CommandSetMap[commandSetKeys[selectedCommandSetLinkIndex]]);
                         }
 
-
                         ImGui.EndTable();
+
                     }
 
                     ImGui.Separator();
@@ -200,6 +219,15 @@ namespace CottonCollector.Interface
                     #endregion
                 }
                 ImGui.EndTable();
+
+                /*
+                if (ImGui.BeginTable("TriggerTable", 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
+                {
+
+                ImGui.TableSetupColumn("Triggers", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 400);
+                ImGui.TableSetupColumn("##Trigger__Btns", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 190);
+                }
+                */
             }
             ImGui.EndChild();
         }

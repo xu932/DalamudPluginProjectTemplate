@@ -1,7 +1,5 @@
 ﻿using ImGuiNET;
 
-using Dalamud.Logging;
-
 using CottonCollector.Config;
 
 namespace CottonCollector.Interface

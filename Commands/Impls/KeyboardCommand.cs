@@ -31,6 +31,13 @@ namespace CottonCollector.Commands.Impls
 
         public override bool TerminateCondition() => true;
 
+        public override string Description()
+        {
+            string description = base.Description();
+            description += actionType.ToString() + " " + vk.ToString();
+            return description;
+        }
+
         public override void Do()
         {
             switch (actionType)

@@ -57,6 +57,10 @@ namespace CottonCollector.Commands.Structures
 
         public virtual void OnFinish() { }
 
+        public virtual string Description() { 
+            return condition != null ? (condition.Description() + "\n") : "";
+        }
+
         #region wrapper methods
         public void BuilderGui()
         {

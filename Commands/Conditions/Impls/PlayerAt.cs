@@ -52,5 +52,10 @@ namespace CottonCollector.Commands.Conditions.Impls
 
             ImGui.PopItemWidth();
         }
+
+        public override string Description()
+        {
+            return $"On player within {distThreshold} of {targetPos}";
+        }
     }
 }
