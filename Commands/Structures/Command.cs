@@ -13,6 +13,7 @@ using CottonCollector.Commands.Conditions;
 namespace CottonCollector.Commands.Structures
 {
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     [JsonConverter(typeof(CommandConverter))]
     internal abstract class Command
     {

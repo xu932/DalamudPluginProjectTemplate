@@ -33,6 +33,7 @@ namespace CottonCollector.Interface
 
             var imGuiReady = ImGui.Begin("Cotton Collector Configuration", ref IsOpen, ImGuiWindowFlags.None);
 
+            ImGui.BeginChild("RootWrapper", ImGui.GetContentRegionAvail(), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
             if (imGuiReady)
             {
                 if (ImGui.BeginTabBar("", ImGuiTabBarFlags.None))
@@ -47,6 +48,14 @@ namespace CottonCollector.Interface
 
             }
 
+            if (ImGui.Button("Save"))
+            {
+                CottonCollectorPlugin.config = this.config;
+                CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
+                PluginLog.Log("Cotton Collector config saved.");
+            }
+
+            ImGui.SameLine();
             if (ImGui.Button("Save and Close"))
             {
                 CottonCollectorPlugin.config = this.config;
@@ -54,6 +63,9 @@ namespace CottonCollector.Interface
                 PluginLog.Log("Cotton Collector config saved.");
                 this.Close();
             }
+
+            ImGui.EndChild();
+
             ImGui.End();
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using Newtonsoft.Json;
 
 using ImGuiNET;
 
@@ -7,8 +8,11 @@ namespace CottonCollector.Commands.Conditions.Impls
 {
     internal class PlayerAtTarget : Condition
     {
-        public Vector3 targetPos = new Vector3();
-        public float distThreshold = 1.0f;
+        [JsonProperty]
+        private Vector3 targetPos = new();
+
+        [JsonProperty]
+        private float distThreshold = 1.0f;
 
         public override bool triggeringCondition()
         {
