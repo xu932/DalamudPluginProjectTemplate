@@ -33,11 +33,11 @@ namespace CottonCollector.Commands.Conditions.Impls
             switch(type)
             {
                 case ConditionType.ON_LEFT_OF:
-                    return cross < -CROSS_THRESHOLD;
+                    return cross < 0;
                 case ConditionType.ON_RIGHT_OF:
-                    return cross > CROSS_THRESHOLD;
+                    return cross >= 0;
                 case ConditionType.FACING:
-                    return cross >= -CROSS_THRESHOLD && cross <= CROSS_THRESHOLD && dist < 1.414;
+                    return cross >= -CROSS_THRESHOLD && cross <= CROSS_THRESHOLD && dist > 1.414;
                 default:
                     // Not ever happening.
                     return false;
@@ -84,7 +84,7 @@ namespace CottonCollector.Commands.Conditions.Impls
 
         public override string Description()
         {
-            return $"On camera {type} of target:{targetPos}";
+            return $"On camera {type} target:{targetPos}";
         }
 
         private double CameraPlayerCrossTargetPlayer(Vector3 target)

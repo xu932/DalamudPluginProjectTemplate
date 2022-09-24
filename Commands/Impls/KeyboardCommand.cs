@@ -27,6 +27,11 @@ namespace CottonCollector.Commands.Impls
         [JsonProperty] public ActionType actionType = ActionType.KEY_PRESS;
         [JsonProperty] public VirtualKey vk;
 
+        public KeyboardCommand()
+        {
+            minTimeMili = 10;
+        }
+
         private InputSimulator sim = new();
 
         public override bool TerminateCondition() => true;
