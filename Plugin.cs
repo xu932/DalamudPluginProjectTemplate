@@ -85,6 +85,8 @@ namespace CottonCollector
             DalamudPluginInterface.UiBuilder.OpenConfigUi -= configWindow.Open;
             Framework.Update -= rootCmdManager.Update;
             if (pluginCommandManager != null) pluginCommandManager.Dispose();
+            CommandSet.CommandSetMap.Clear();
+
             GC.SuppressFinalize(this);
         }
     }

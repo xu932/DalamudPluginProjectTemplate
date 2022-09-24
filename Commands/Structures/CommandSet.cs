@@ -8,15 +8,17 @@ using Dalamud.Logging;
 
 namespace CottonCollector.Commands.Structures
 {
-    [Serializable]
     [JsonObject(IsReference = true)]
     internal class CommandSet : Command
     {
         static public Dictionary<string, CommandSet> CommandSetMap;
 
-        public string uniqueId;
+        [JsonProperty] public string uniqueId { get; private set; }
+
+        [JsonProperty]
         public LinkedList<Command> subCommands = new();
-        public LinkedList<Trigger> triggers = new();
+
+        [JsonProperty] public LinkedList<Command> triggers = new();
 
         private readonly CommandManager commandManager = new();
         private readonly SynchronousTriggersManager triggersManager = new();
@@ -28,6 +30,7 @@ namespace CottonCollector.Commands.Structures
 
         public CommandSet(string uniqueId)
         {
+            PluginLog.Log($"new command set: {uniqueId}");
             this.uniqueId = uniqueId;
             this.timeOutMili = -1;
 
@@ -74,6 +77,11 @@ namespace CottonCollector.Commands.Structures
 
             CottonCollectorPlugin.Framework.Update -= commandManager.Update;
             CottonCollectorPlugin.Framework.Update -= triggersManager.Update;
+        }
+
+        public override string Description()
+        {
+            return base.Description() + $"{uniqueId}";
         }
     }
 }

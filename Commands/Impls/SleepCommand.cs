@@ -4,13 +4,13 @@ using System.Diagnostics;
 using ImGuiNET;
 
 using CottonCollector.Commands.Structures;
+using Newtonsoft.Json;
 
 namespace CottonCollector.Commands.Impls
 {
-    [Serializable]
     internal class SleepCommand : Command
     {
-        public int mili = 1000;
+        [JsonProperty] public int mili = 1000;
         private Stopwatch stopwatch = new Stopwatch();
 
         public override bool TerminateCondition()

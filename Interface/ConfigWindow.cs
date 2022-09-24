@@ -20,7 +20,7 @@ namespace CottonCollector.Interface
         public ConfigWindow(CottonCollectorPlugin plugin)
         {
             this.plugin = plugin;
-            config = CottonCollectorPlugin.DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
+            config = CottonCollectorPlugin.config;
             settingsTab = new SettingsTab(ref config);
             objectTableTab = new ObjectTableTab(ref config);
             cameraInfoTab = new CameraInfoTab(ref config);

@@ -10,7 +10,7 @@ namespace CottonCollector.Commands.Structures
     internal class SynchronousTriggersManager
     {
         private readonly CommandManager commandManager = new();
-        private readonly LinkedList<Trigger> triggers = new();
+        private readonly LinkedList<Command> triggers = new();
         
         public void Update(Framework framework)
         {
@@ -21,18 +21,18 @@ namespace CottonCollector.Commands.Structures
                 {
                     var trigger = triggeredTriggers.First();
                     PluginLog.Log($"Scheduling Trigger");
-                    commandManager.Schedule(trigger.command);
+                    commandManager.Schedule(trigger);
                 }
             }
             commandManager.Update(framework);
         }
 
-        public void Add(Trigger t)
+        public void Add(Command t)
         {
             triggers.AddLast(t);
         }
 
-        public void Add(IEnumerable<Trigger> ts)
+        public void Add(IEnumerable<Command> ts)
         {
             foreach (var t in ts)
             {
@@ -43,6 +43,7 @@ namespace CottonCollector.Commands.Structures
         public void KillSwitch()
         {
             triggers.Clear();
+            commandManager.KillSwitch();
         }
     }
 }

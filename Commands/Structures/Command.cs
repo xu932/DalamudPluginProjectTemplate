@@ -12,15 +12,14 @@ using CottonCollector.Commands.Conditions;
 
 namespace CottonCollector.Commands.Structures
 {
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     [JsonConverter(typeof(CommandConverter))]
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal abstract class Command
     {
         public static Type[] AllTypes = Assembly.GetAssembly(typeof(Command)).GetTypes()
                 .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Command))).ToArray();
 
-        public Condition condition = null;
+        [JsonProperty] public Condition condition = null;
 
         private static int nextUid = 0;
 

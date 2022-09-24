@@ -8,11 +8,9 @@ namespace CottonCollector.Commands.Conditions.Impls
 {
     internal class PlayerAtTarget : Condition
     {
-        [JsonProperty]
-        private Vector3 targetPos = new();
+        [JsonProperty] private Vector3 targetPos = new();
 
-        [JsonProperty]
-        private float distThreshold = 1.0f;
+        [JsonProperty] private float distThreshold = 1.0f;
 
         public override bool triggeringCondition()
         {
@@ -55,7 +53,7 @@ namespace CottonCollector.Commands.Conditions.Impls
 
         public override string Description()
         {
-            return $"On player within {distThreshold} of {targetPos}";
+            return $"On player within threshold:{distThreshold} of target:{targetPos}";
         }
     }
 }

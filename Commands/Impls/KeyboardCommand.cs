@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 using ImGuiNET;
 
@@ -14,7 +15,6 @@ using CottonCollector.Commands.Structures;
 
 namespace CottonCollector.Commands.Impls
 {
-    [Serializable]
     internal class KeyboardCommand : Command
     {
         public enum ActionType
@@ -24,10 +24,10 @@ namespace CottonCollector.Commands.Impls
             KEY_PRESS = 2,
         }
 
-        public ActionType actionType = ActionType.KEY_PRESS;
-        public VirtualKey vk;
+        [JsonProperty] public ActionType actionType = ActionType.KEY_PRESS;
+        [JsonProperty] public VirtualKey vk;
 
-        private InputSimulator sim = new InputSimulator();
+        private InputSimulator sim = new();
 
         public override bool TerminateCondition() => true;
 
