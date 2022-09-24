@@ -11,12 +11,7 @@ namespace CottonCollector.Commands.Structures
         private bool done = true;
         private Command currCommand;
 
-        private LinkedList<Command> commands;
-
-        public CommandManager()
-        {
-            commands = new LinkedList<Command>();
-        }
+        private LinkedList<Command> commands = new();
 
         public bool IsEmpty => commands.Count == 0 && currCommand == null;
 
@@ -25,7 +20,6 @@ namespace CottonCollector.Commands.Structures
             if (done && commands.Count > 0)
             {
                 var nextCommand = commands.First.Value;
-
                 if (nextCommand != null && nextCommand.TriggerCondition())
                 {
                     commands.RemoveFirst();
@@ -73,53 +67,8 @@ namespace CottonCollector.Commands.Structures
 
         public void Schedule(Command newCommand)
         {
+            PluginLog.Log($"Scheduling {newCommand.Description()}");
             commands.AddLast(newCommand);
-        }
-
-        // returns the first command before scheduling.
-        public LinkedListNode<Command> ScheduleFront(IEnumerable<Command> newCommands)
-        {
-            var ret = commands.First;
-            foreach (var command in newCommands.Reverse())
-            {
-                commands.AddFirst(command);
-            }
-            return ret;
-        }
-
-        // returns the first command before scheduling.
-        public LinkedListNode<Command> ScheduleFront(Command newCommand)
-        {
-            var ret = commands.First;
-            commands.AddFirst(newCommand);
-            return ret;
-        }
-
-        public void ScheduleBefore(LinkedListNode<Command> commandNode, IEnumerable<Command> newCommands)
-        {
-            if (commandNode == null)
-            {
-                Schedule(newCommands);
-            }
-            else
-            {
-                foreach (var command in newCommands.Reverse())
-                {
-                    commands.AddBefore(commandNode, command);
-                }
-            }
-        }
-
-        public void ScheduleBefore(LinkedListNode<Command> commandNode, Command newCommand)
-        {
-            if (commandNode == null)
-            {
-                Schedule(newCommand);
-            }
-            else
-            {
-                commands.AddBefore(commandNode, newCommand);
-            }
         }
     }
 }

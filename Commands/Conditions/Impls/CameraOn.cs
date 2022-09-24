@@ -29,6 +29,7 @@ namespace CottonCollector.Commands.Conditions.Impls
         public override bool triggeringCondition()
         {
             var cross = CameraPlayerCrossTargetPlayer(targetPos);
+            var dist = CameraPlayerToTargetPlayerDist(targetPos);
             switch(type)
             {
                 case ConditionType.ON_LEFT_OF:
@@ -36,7 +37,7 @@ namespace CottonCollector.Commands.Conditions.Impls
                 case ConditionType.ON_RIGHT_OF:
                     return cross > CROSS_THRESHOLD;
                 case ConditionType.FACING:
-                    return cross >= -CROSS_THRESHOLD && cross <= CROSS_THRESHOLD;
+                    return cross >= -CROSS_THRESHOLD && cross <= CROSS_THRESHOLD && dist < 1.414;
                 default:
                     // Not ever happening.
                     return false;
@@ -98,6 +99,17 @@ namespace CottonCollector.Commands.Conditions.Impls
 
             return v.X * u.Y - v.Y * u.X;
         }
+        private double CameraPlayerToTargetPlayerDist(Vector3 target)
+        {
+            var player = CottonCollectorPlugin.ClientState.LocalPlayer;
+            var targetPos2 = new Vector2(targetPos.X, targetPos.Z);
+            var playerPos2 = new Vector2(player.Position.X, player.Position.Z);
+            var cameraPos2 = new Vector2(CameraHelpers.collection->WorldCamera->X,
+                CameraHelpers.collection->WorldCamera->Y);
+            var v = Vector2.Normalize(cameraPos2 - playerPos2);
+            var u = Vector2.Normalize(targetPos2 - playerPos2);
 
+            return Vector2.Distance(u, v);
+        }
     }
 }

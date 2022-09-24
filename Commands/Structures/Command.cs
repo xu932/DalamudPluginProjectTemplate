@@ -24,6 +24,7 @@ namespace CottonCollector.Commands.Structures
         private static int nextUid = 0;
 
         private readonly int uid;
+        private int conditionIndex = 0;
 
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }
@@ -73,7 +74,6 @@ namespace CottonCollector.Commands.Structures
                 ImGui.SameLine();
 
                 var types = Condition.AllTypes.ToArray();
-                var conditionIndex = 0;
                 ImGui.SetNextItemWidth(200);
                 ImGui.Combo($"##ConditionTypeSelector__Command__{uid}", ref conditionIndex,
                     types.Select(t => t.Name).ToArray(), types.Length);

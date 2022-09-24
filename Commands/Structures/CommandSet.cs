@@ -11,13 +11,10 @@ namespace CottonCollector.Commands.Structures
     [JsonObject(IsReference = true)]
     internal class CommandSet : Command
     {
-        static public Dictionary<string, CommandSet> CommandSetMap;
+        static public Dictionary<string, CommandSet> CommandSetMap { get; private set; }
 
         [JsonProperty] public string uniqueId { get; private set; }
-
-        [JsonProperty]
-        public LinkedList<Command> subCommands = new();
-
+        [JsonProperty] public LinkedList<Command> subCommands = new();
         [JsonProperty] public LinkedList<Command> triggers = new();
 
         private readonly CommandManager commandManager = new();
@@ -60,6 +57,8 @@ namespace CottonCollector.Commands.Structures
         public override void OnFinish()
         {
             CottonCollectorPlugin.Framework.Update -= commandManager.Update;
+
+            triggersManager.KillSwitch();
             CottonCollectorPlugin.Framework.Update -= triggersManager.Update;
         }
 

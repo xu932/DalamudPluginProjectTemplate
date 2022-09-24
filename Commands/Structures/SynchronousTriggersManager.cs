@@ -17,7 +17,7 @@ namespace CottonCollector.Commands.Structures
             if (commandManager.IsEmpty && triggers.Count > 0)
             {
                 var triggeredTriggers = triggers.Where(t => t.TriggerCondition());
-                if (triggeredTriggers.Count() > 0)
+                if (triggeredTriggers.Any())
                 {
                     var trigger = triggeredTriggers.First();
                     PluginLog.Log($"Scheduling Trigger");
