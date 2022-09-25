@@ -5,12 +5,10 @@ using Newtonsoft.Json;
 
 using ImGuiNET;
 
-using WindowsInput;
-using WindowsInput.Native;
-
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Logging;
 
+using CottonCollector.BackgroundInputs;
 using CottonCollector.Commands.Structures;
 
 namespace CottonCollector.Commands.Impls
@@ -32,8 +30,6 @@ namespace CottonCollector.Commands.Impls
             minTimeMili = 10;
         }
 
-        private InputSimulator sim = new();
-
         public override bool TerminateCondition() => true;
 
         public override void MinimalInfo()
@@ -47,16 +43,16 @@ namespace CottonCollector.Commands.Impls
             switch (actionType)
             {
                 case ActionType.KEY_DOWN:
-                    PluginLog.Log($"BAKA! KeyDown {vk}");
-                    sim.Keyboard.KeyDown((VirtualKeyCode)(int)vk);
+                    PluginLog.Verbose($"KeyDown {vk}");
+                    BgInput.KeyDown(vk);
                     break;
                 case ActionType.KEY_UP:
-                    PluginLog.Log($"BAKA! KeyUp {vk}");
-                    sim.Keyboard.KeyUp((VirtualKeyCode)(int)vk);
+                    PluginLog.Verbose($"KeyUp {vk}");
+                    BgInput.KeyUp(vk);
                     break;
                 case ActionType.KEY_PRESS:
-                    PluginLog.Log($"BAKA! KeyPress {vk}");
-                    sim.Keyboard.KeyPress((VirtualKeyCode)(int)vk);
+                    PluginLog.Verbose($"KeyPress {vk}");
+                    BgInput.KeyPress(vk);
                     break;
             }
         }

@@ -5,16 +5,13 @@ using Newtonsoft.Json;
 
 using ImGuiNET;
 
-using WindowsInput;
-using WindowsInput.Native;
-
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Logging;
 
+using CottonCollector.BackgroundInputs;
 using CottonCollector.Commands.Structures;
 using CottonCollector.CameraManager;
 using CottonCollector.Util;
-using Lumina;
 
 namespace CottonCollector.Commands.Impls
 {
@@ -22,7 +19,6 @@ namespace CottonCollector.Commands.Impls
     {
         [JsonProperty] public Vector3 targetPos;
 
-        private readonly InputSimulator sim = new();
         private bool finished = false;
         private int xMove = 0;
         private int yMove = 0;
@@ -94,23 +90,23 @@ namespace CottonCollector.Commands.Impls
             {
                 if (cur == -1)
                 {
-                    sim.Keyboard.KeyUp((VirtualKeyCode)(int)neg);
+                    BgInput.KeyUp(neg);
                     Thread.Sleep(1);
                 }
                 else if (cur == 1)
                 {
-                    sim.Keyboard.KeyUp((VirtualKeyCode)(int)pos);
+                    BgInput.KeyUp(pos);
                     Thread.Sleep(1);
                 }
 
                 if (next == 1)
                 {
-                    sim.Keyboard.KeyDown((VirtualKeyCode)(int)pos);
+                    BgInput.KeyDown(pos);
                     Thread.Sleep(1);
                 }
                 else if (next == -1)
                 {
-                    sim.Keyboard.KeyDown((VirtualKeyCode)(int)neg);
+                    BgInput.KeyDown(neg);
                     Thread.Sleep(1);
                 }
             }
