@@ -177,12 +177,17 @@ namespace CottonCollector.Commands.Impls
             if (ImGui.Button($"GetCurrentPos##TillMovedToCommand__getpos"))
             {
                 var localPlayer = CottonCollectorPlugin.ClientState.LocalPlayer;
-                targetPos.X = localPlayer.Position.X;
-                targetPos.Y = localPlayer.Position.Y;
-                targetPos.Z = localPlayer.Position.Z;
+                SetTarget(localPlayer.Position);
             }
 
             ImGui.PopItemWidth();
+        }
+
+        public void SetTarget(Vector3 target)
+        {
+            targetPos.X = target.X;
+            targetPos.Y = target.Y;
+            targetPos.Z = target.Z;
         }
     }
 }

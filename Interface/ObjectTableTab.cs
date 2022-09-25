@@ -7,6 +7,8 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Objects.Enums;
 
 using CottonCollector.Config;
+using Dalamud.Logging;
+using CottonCollector.Commands.Impls;
 
 namespace CottonCollector.Interface
 {
@@ -37,7 +39,7 @@ namespace CottonCollector.Interface
 
         private void ObjectTable(CottonCollectorConfig config)
         {
-            if (ImGui.BeginTable("Objects", 4))
+            if (ImGui.BeginTable("Objects", 5))
             {
                 // Table header
                 ImGui.TableSetupColumn("Name");
@@ -59,6 +61,15 @@ namespace CottonCollector.Interface
                     ImGui.Text($"{obj.DataId}");
                     ImGui.TableSetColumnIndex(3);
                     ImGui.Text($"X:{obj.Position.X}, Y:{obj.Position.Y}, Z:{obj.Position.Z}");
+                    ImGui.TableSetColumnIndex(4);
+                    ImGui.Text("Move!");
+                    if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                    {
+                        PluginLog.Log($"Moving to {obj.Name} at <{obj.Position.X}, {obj.Position.Y}, {obj.Position.Z}>");
+                        MoveToCommand cmd = new();
+                        cmd.SetTarget(obj.Position);
+                        CottonCollectorPlugin.rootCmdManager.Schedule(cmd);
+                    }
                 }
                 ImGui.EndTable();
             }
