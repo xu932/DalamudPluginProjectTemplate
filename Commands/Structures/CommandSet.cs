@@ -75,9 +75,10 @@ namespace CottonCollector.Commands.Structures
             CottonCollectorPlugin.Framework.Update -= triggersManager.Update;
         }
 
-        public override string Description()
+        public override void MinimalInfo()
         {
-            return base.Description() + $"{uniqueId}";
+            base.MinimalInfo();
+            ImGui.Text($"{uniqueId}");
         }
     }
 }

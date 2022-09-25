@@ -13,6 +13,7 @@ using Dalamud.Logging;
 
 using CottonCollector.Commands.Structures;
 using CottonCollector.CameraManager;
+using CottonCollector.Util;
 
 namespace CottonCollector.Commands.Impls
 {
@@ -36,11 +37,16 @@ namespace CottonCollector.Commands.Impls
             return state == 4;
         }
 
-        public override string Description()
+        public override void MinimalInfo()
         {
-            string description = base.Description();
-            description += $"Move to {this.targetPos}";
-            return description;
+            base.MinimalInfo();
+            ImGui.Text($"Move to {this.targetPos}");
+            ImGui.SameLine();
+            Vector3? currPos = Ui.GetCurrPosBtn("GetCurrPos", this.GetType(), this.GetHashCode().ToString());
+            if (currPos != null)
+            {
+                targetPos = currPos.Value;
+            }
         }
 
         private static Vector3 Decide(double angle, double dist)

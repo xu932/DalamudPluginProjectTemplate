@@ -122,7 +122,7 @@ namespace CottonCollector.Interface
                                 }
 
                                 ImGui.TableSetColumnIndex(1);
-                                ImGui.Text(command.Description());
+                                command.MinimalInfo();
 
                                 ImGui.TableSetColumnIndex(2);
 
@@ -246,7 +246,7 @@ namespace CottonCollector.Interface
                                 }
 
                                 ImGui.TableSetColumnIndex(1);
-                                ImGui.Text(command.Description());
+                                command.MinimalInfo();
 
                                 ImGui.TableSetColumnIndex(2);
 

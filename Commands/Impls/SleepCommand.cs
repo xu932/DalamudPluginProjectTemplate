@@ -13,6 +13,12 @@ namespace CottonCollector.Commands.Impls
         [JsonProperty] public int mili = 1000;
         private Stopwatch stopwatch = new Stopwatch();
 
+        public override void MinimalInfo()
+        {
+            base.MinimalInfo();
+            ImGui.Text($"Sleep for {mili} miliseconds");
+        }
+
         public override bool TerminateCondition()
         {
             return stopwatch.ElapsedMilliseconds > mili;

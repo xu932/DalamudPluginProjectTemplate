@@ -69,14 +69,14 @@ namespace CottonCollector.Commands.Structures
         {
             foreach (var command in newCommands)
             {
-                PluginLog.Log($"Scheduling {command.Description()}");
+                PluginLog.Log($"Scheduling {command.GetType()}");
                 commands.AddLast(command);
             }
         }
 
         public void Schedule(Command newCommand)
         {
-            PluginLog.Log($"Scheduling {newCommand.Description()}");
+            PluginLog.Log($"Scheduling {newCommand.GetType()}");
             PluginLog.Log($"Command set size {commands.Count}");
             commands.AddLast(newCommand);
         }

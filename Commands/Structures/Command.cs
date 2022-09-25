@@ -60,8 +60,12 @@ namespace CottonCollector.Commands.Structures
 
         public virtual void OnFinish() { }
 
-        public virtual string Description() { 
-            return condition != null ? (condition.Description() + "\n") : "";
+        public virtual void MinimalInfo()
+        {
+            if (condition != null)
+            {
+                ImGui.Text(condition.Description());
+            }
         }
 
         #region wrapper methods

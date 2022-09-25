@@ -36,11 +36,10 @@ namespace CottonCollector.Commands.Impls
 
         public override bool TerminateCondition() => true;
 
-        public override string Description()
+        public override void MinimalInfo()
         {
-            string description = base.Description();
-            description += actionType.ToString() + " " + vk.ToString();
-            return description;
+            base.MinimalInfo();
+            ImGui.Text(actionType.ToString() + " " + vk.ToString());
         }
 
         public override void Do()
