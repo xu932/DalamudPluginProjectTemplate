@@ -14,6 +14,7 @@ using Dalamud.Logging;
 using CottonCollector.Commands.Structures;
 using CottonCollector.CameraManager;
 using CottonCollector.Util;
+using Lumina;
 
 namespace CottonCollector.Commands.Impls
 {
@@ -22,7 +23,7 @@ namespace CottonCollector.Commands.Impls
         [JsonProperty] public Vector3 targetPos;
 
         private readonly InputSimulator sim = new();
-        private ushort state = 0;
+        private bool finished = false;
         private int xMove = 0;
         private int yMove = 0;
         private int turn = 0; // + left - right
@@ -34,7 +35,7 @@ namespace CottonCollector.Commands.Impls
 
         public override bool TerminateCondition()
         {
-            return state == 4;
+            return finished;
         }
 
         public override void MinimalInfo()
@@ -63,11 +64,11 @@ namespace CottonCollector.Commands.Impls
             else if (dist < 10)
             {
                 v.Y = 1;
-                if (angle > 0)
+                if (dist > 10 && angle > 0)
                 {
                     v.X = 1;
                 }
-                else if (angle < 0)
+                else if (dist > 10 && angle < 0)
                 {
                     v.X = -1;
                 }
@@ -87,7 +88,7 @@ namespace CottonCollector.Commands.Impls
             return v;
         }
 
-        public ushort StopAndStart(int cur, int next, VirtualKey pos, VirtualKey neg)
+        public void UpdateMove(int cur, int next, VirtualKey pos, VirtualKey neg)
         {
             if (cur != next)
             {
@@ -113,12 +114,12 @@ namespace CottonCollector.Commands.Impls
                     Thread.Sleep(1);
                 }
             }
-            return (ushort)(next != 0 ? 0x1u : 0u);
         }
 
         public override void OnStart()
         {
-            state = 0;
+            finished = false;
+            xMove = yMove = turn = 0;
         }
 
         public override void Do()
@@ -128,83 +129,37 @@ namespace CottonCollector.Commands.Impls
             var angle = MyMath.angle2d(player.Position, camera, this.targetPos);
             var dist = MyMath.dist(player.Position, targetPos);
 
-
+            PluginLog.Log("start moving");
             if (dist < 3)
             {
-                state = 4;
+                UpdateMove(xMove, 0, VirtualKey.D, VirtualKey.A);
+                UpdateMove(yMove, 0, VirtualKey.W, VirtualKey.W);
+                UpdateMove(turn, 0, VirtualKey.LEFT, VirtualKey.RIGHT);
+                finished = true;
+                return;
             }
 
             Vector3 next = Decide(angle, dist);
-            ushort newState = 0;
 
+            // update turn logic to avoid shaking
+            if (turn != 0 && dist > 10 && (angle < -Math.PI / 72 || angle > Math.PI / 72))
+            {
+                if (next.Z == 0 || angle * next.Z < 0)
+                {
+                    next.Z = turn;
+                }
+            }
 
             PluginLog.Log($"Angle: {angle}\t\tDist: {dist}");
             PluginLog.Log($"<{xMove}, {yMove}, {turn}> -> <{next.X}, {next.Y}, {next.Z}>");
-            switch (state)
-            {
-                case 0:
-                    // stopped
-                    switch (next.X)
-                    {
-                        case 1:
-                            sim.Keyboard.KeyDown(VirtualKeyCode.VK_D);
-                            Thread.Sleep(1);
-                            newState |= 0x1;
-                            break;
-                        case -1:
-                            sim.Keyboard.KeyDown(VirtualKeyCode.VK_A);
-                            Thread.Sleep(1);
-                            newState |= 0x1;
-                            break;
-                    }
-                    if (next.Y == 1)
-                    {
-                        sim.Keyboard.KeyDown(VirtualKeyCode.VK_W);
-                        Thread.Sleep(1);
-                        newState |= 0x1;
-                    }
-                    switch (next.Z)
-                    {
-                        case 1:
-                            sim.Keyboard.KeyDown(VirtualKeyCode.LEFT);
-                            Thread.Sleep(1);
-                            newState |= 0x2;
-                            break;
-                        case -1:
-                            sim.Keyboard.KeyDown(VirtualKeyCode.RIGHT);
-                            Thread.Sleep(1);
-                            newState |= 0x2;
-                            break;
-                    }
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                    // moving
-                    if (dist > 10 && (angle < -Math.PI / 72 || angle > Math.PI / 72))
-                    {
-                        if (next.Z == 0 || angle * next.Z < 0)
-                        {
-                            next.Z = turn;
-                        }
-                    }
-                    newState |= StopAndStart(xMove, (int)next.X, VirtualKey.D, VirtualKey.A);
-                    newState |= StopAndStart(yMove, (int)next.Y, VirtualKey.W, VirtualKey.W);
-                    newState |= (ushort)(StopAndStart(turn, (int)next.Z, VirtualKey.LEFT, VirtualKey.RIGHT) << 1);
-                    break;
-                case 4:
-                    StopAndStart(xMove, 0, VirtualKey.D, VirtualKey.A);
-                    StopAndStart(yMove, 0, VirtualKey.W, VirtualKey.W);
-                    StopAndStart(turn, 0, VirtualKey.LEFT, VirtualKey.RIGHT);
-                    newState = 4;
-                    break;
-            }
 
-            PluginLog.Log($"State {state} -> {newState}");
+            UpdateMove(xMove, (int)next.X, VirtualKey.D, VirtualKey.A);
+            UpdateMove(yMove, (int)next.Y, VirtualKey.W, VirtualKey.W);
+            UpdateMove(turn, (int)next.Z, VirtualKey.LEFT, VirtualKey.RIGHT);
+
             xMove = (int)next.X;
             yMove = (int)next.Y;
             turn = (int)next.Z;
-            state = newState;
         }
 
         public override void SelectorGui()
