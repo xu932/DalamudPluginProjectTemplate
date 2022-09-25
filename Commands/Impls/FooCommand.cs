@@ -192,6 +192,13 @@ namespace CottonCollector.Commands.Impls
                 case 2:
                 case 3:
                     // moving
+                    if (dist > 10 && (angle < -Math.PI / 72 || angle > Math.PI / 72))
+                    {
+                        if (next.Z == 0 || angle * next.Z < 0)
+                        {
+                            next.Z = turn;
+                        }
+                    }
                     newState |= StopAndStart(xMove, (int)next.X, KeyCode.D, KeyCode.A);
                     newState |= StopAndStart(yMove, (int)next.Y, KeyCode.W, KeyCode.W);
                     newState |= StopAndStart(turn, (int)next.Z, KeyCode.LEFT, KeyCode.RIGHT) << 1;
