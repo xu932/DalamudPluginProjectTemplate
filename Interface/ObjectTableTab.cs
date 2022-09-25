@@ -62,7 +62,7 @@ namespace CottonCollector.Interface
                     ImGui.Text($"{obj.ObjectId}");
                     ImGui.TableSetColumnIndex(2);
                     var dist = MyMath.dist(player.Position, obj.Position);
-                    ImGui.Text($"{dist:.3f}");
+                    ImGui.Text($"{dist:#.00}");
                     ImGui.TableSetColumnIndex(3);
                     ImGui.Text($"X:{obj.Position.X}, Y:{obj.Position.Y}, Z:{obj.Position.Z}");
                     ImGui.TableSetColumnIndex(4);
