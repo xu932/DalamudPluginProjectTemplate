@@ -18,6 +18,7 @@ using CottonCollector.Config;
 using CottonCollector.Interface;
 using CottonCollector.Commands.Impls;
 using CottonCollector.Commands.Structures;
+using CottonCollector.BackgroundInputs;
 
 namespace CottonCollector
 {
@@ -53,6 +54,8 @@ namespace CottonCollector
         [PluginService]
         internal static AetheryteList AetheryteList { get; private set; }
 
+        internal static BgInput bginput { get; private set; }
+
         internal static CommandManager rootCmdManager = new();
 
         internal static CottonCollectorConfig config { get; set; }
@@ -69,6 +72,7 @@ namespace CottonCollector
         {
             // Ini CameraHelpers
             CameraHelpers.Initialize();
+            BgInput.Initialize();
 
             // Load config window
             config = DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
@@ -164,6 +168,7 @@ namespace CottonCollector
 
         public void Dispose()
         {
+            BgInput.Dispose();
             DalamudPluginInterface.UiBuilder.Draw -= configWindow.Draw;
             DalamudPluginInterface.UiBuilder.OpenConfigUi -= configWindow.Open;
             Framework.Update -= rootCmdManager.Update;

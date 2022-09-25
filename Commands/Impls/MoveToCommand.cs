@@ -91,23 +91,19 @@ namespace CottonCollector.Commands.Impls
                 if (cur == -1)
                 {
                     BgInput.KeyUp(neg);
-                    Thread.Sleep(1);
                 }
                 else if (cur == 1)
                 {
                     BgInput.KeyUp(pos);
-                    Thread.Sleep(1);
                 }
 
                 if (next == 1)
                 {
                     BgInput.KeyDown(pos);
-                    Thread.Sleep(1);
                 }
                 else if (next == -1)
                 {
                     BgInput.KeyDown(neg);
-                    Thread.Sleep(1);
                 }
             }
         }
