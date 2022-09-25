@@ -19,13 +19,21 @@ namespace CottonCollector.Commands.Structures
         {
             if (done && commands.Count > 0)
             {
+                PluginLog.Log($"Command {commands.Count}");
                 var nextCommand = commands.First.Value;
                 if (nextCommand != null && nextCommand.TriggerCondition())
                 {
-                    commands.RemoveFirst();
                     currCommand = nextCommand;
                     currCommand.Execute();
                     done = false;
+                }
+                if (!nextCommand.Repeate || currCommand.IsFinished())
+                {
+                    commands.RemoveFirst();
+                }
+                else
+                {
+                    done = true;
                 }
             }
 
@@ -69,6 +77,7 @@ namespace CottonCollector.Commands.Structures
         public void Schedule(Command newCommand)
         {
             PluginLog.Log($"Scheduling {newCommand.Description()}");
+            PluginLog.Log($"Command set size {commands.Count}");
             commands.AddLast(newCommand);
         }
     }

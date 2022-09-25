@@ -34,6 +34,7 @@ namespace CottonCollector.Commands.Structures
         }
 
         private bool isCurrent = false;
+        public bool Repeate = false;
         private readonly Stopwatch timer = new();
 
         public Command()

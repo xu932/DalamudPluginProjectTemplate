@@ -33,7 +33,7 @@ namespace CottonCollector.Commands.Structures
 
             if (CommandSetMap.ContainsKey(uniqueId))
             {
-                throw new ArgumentException($"Duplicated command set name: {uniqueId}");
+                CommandSetMap.Remove(uniqueId);
             }
 
             CommandSetMap.Add(uniqueId, this);

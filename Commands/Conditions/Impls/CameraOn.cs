@@ -75,7 +75,6 @@ namespace CottonCollector.Commands.Conditions.Impls
             }
 
             ImGui.PopItemWidth();
-
         }
 
         public override string Description()
@@ -93,6 +92,8 @@ namespace CottonCollector.Commands.Conditions.Impls
             var v = Vector2.Normalize(cameraPos2 - playerPos2);
             var u = Vector2.Normalize(targetPos2 - playerPos2);
 
+            // < 0 ccw -> left
+            // > 0 cw -> right
             return v.X * u.Y - v.Y * u.X;
         }
 
