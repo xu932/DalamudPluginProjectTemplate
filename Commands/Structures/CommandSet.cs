@@ -51,21 +51,18 @@ namespace CottonCollector.Commands.Structures
         public override void Do()
         {
             CottonCollectorPlugin.Framework.Update += commandManager.Update;
-            CottonCollectorPlugin.Framework.Update += triggersManager.Update;
+            triggersManager.Enable();
         }
 
         public override void OnFinish()
         {
             CottonCollectorPlugin.Framework.Update -= commandManager.Update;
-
-            triggersManager.KillSwitch();
-            CottonCollectorPlugin.Framework.Update -= triggersManager.Update;
+            triggersManager.Disable();
         }
 
 
         public override void SelectorGui()
         {
-            // Not editable.
             ImGui.Text($"{uniqueId}");
         }
 

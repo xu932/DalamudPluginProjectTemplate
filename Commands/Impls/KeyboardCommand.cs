@@ -48,12 +48,15 @@ namespace CottonCollector.Commands.Impls
             switch (actionType)
             {
                 case ActionType.KEY_DOWN:
+                    PluginLog.Log($"BAKA! KeyDown {vk}");
                     sim.Keyboard.KeyDown((VirtualKeyCode)(int)vk);
                     break;
                 case ActionType.KEY_UP:
+                    PluginLog.Log($"BAKA! KeyUp {vk}");
                     sim.Keyboard.KeyUp((VirtualKeyCode)(int)vk);
                     break;
                 case ActionType.KEY_PRESS:
+                    PluginLog.Log($"BAKA! KeyPress {vk}");
                     sim.Keyboard.KeyPress((VirtualKeyCode)(int)vk);
                     break;
             }

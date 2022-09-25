@@ -91,6 +91,7 @@ namespace CottonCollector.Interface
                 ImGui.TableNextColumn();
                 if (selectedCommandSet != null)
                 {
+                    selectedCommandSet.BuilderGui();
                     if (ImGui.BeginTable("CommandSetEditorWrapper", 2, ImGuiTableFlags.Resizable))
                     {
                         ImGui.TableSetupColumn("CommandSequenceEditor", ImGuiTableColumnFlags.NoResize, 600);

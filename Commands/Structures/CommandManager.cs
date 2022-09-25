@@ -20,7 +20,6 @@ namespace CottonCollector.Commands.Structures
             if (done && commands.Count > 0)
             {
                 var nextCommand = commands.First.Value;
-                PluginLog.Log($"trigger condition is {nextCommand.condition}");
                 if (nextCommand != null && nextCommand.TriggerCondition())
                 {
                     commands.RemoveFirst();

@@ -4,6 +4,7 @@ using System.Linq;
 
 using Dalamud.Game;
 using Dalamud.Logging;
+using Windows.Devices.Display.Core;
 
 namespace CottonCollector.Commands.Structures
 {
@@ -11,10 +12,14 @@ namespace CottonCollector.Commands.Structures
     {
         private readonly CommandManager commandManager = new();
         private readonly LinkedList<Command> triggers = new();
-        
+        private bool enabled = false;
+        private bool updating = false;
+
+        public bool IsFinished => !updating;
+
         public void Update(Framework framework)
         {
-            if (commandManager.IsEmpty && triggers.Count > 0)
+            if (commandManager.IsEmpty && triggers.Count > 0 && enabled)
             {
                 var triggeredTriggers = triggers.Where(t => t.TriggerCondition());
                 if (triggeredTriggers.Any())
@@ -25,6 +30,12 @@ namespace CottonCollector.Commands.Structures
                 }
             }
             commandManager.Update(framework);
+
+            if (!enabled && updating && commandManager.IsEmpty)
+            {
+                updating = false;
+                CottonCollectorPlugin.Framework.Update -= Update; 
+            }
         }
 
         public void Add(Command t)
@@ -38,6 +49,18 @@ namespace CottonCollector.Commands.Structures
             {
                 triggers.AddLast(t);
             }
+        }
+
+        public void Enable()
+        {
+            enabled = true;
+            updating = true;
+            CottonCollectorPlugin.Framework.Update += Update;
+        }
+
+        public void Disable()
+        {
+            enabled = false;
         }
 
         public void KillSwitch()

@@ -25,23 +25,19 @@ namespace CottonCollector.Commands.Conditions.Impls
         private Vector3 targetPos = new();
 
         private static float CROSS_THRESHOLD = 1e-2f;
-        private static float FACING_THRESHOLD = 1e-2f;
+        private static float FACING_THRESHOLD = 1e-1f;
 
         public override bool triggeringCondition()
         {
             var cross = CameraPlayerCrossTargetPlayer(targetPos);
-            switch(type)
+            bool isFacing = CameraFacingTarget(targetPos);
+            return type switch
             {
-                case ConditionType.ON_LEFT_OF:
-                    return cross < -CROSS_THRESHOLD ;
-                case ConditionType.ON_RIGHT_OF:
-                    return cross >= CROSS_THRESHOLD;
-                case ConditionType.FACING:
-                    return CameraFacingTarget(targetPos);
-                default:
-                    // Not ever happening.
-                    return false;
-            }
+                ConditionType.ON_LEFT_OF => !isFacing && cross < -CROSS_THRESHOLD,
+                ConditionType.ON_RIGHT_OF => !isFacing && cross >= CROSS_THRESHOLD,
+                ConditionType.FACING => isFacing,
+                _ => false,// Not ever happening.
+            };
         }
 
         public override void SelectorGui()
@@ -99,6 +95,7 @@ namespace CottonCollector.Commands.Conditions.Impls
 
             return v.X * u.Y - v.Y * u.X;
         }
+
         private bool CameraFacingTarget(Vector3 target)
         {
             var player = CottonCollectorPlugin.ClientState.LocalPlayer;
