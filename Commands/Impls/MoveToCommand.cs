@@ -148,6 +148,7 @@ namespace CottonCollector.Commands.Impls
             UpdateMove(xMove, (int)next.X, VirtualKey.D, VirtualKey.A);
             UpdateMove(yMove, (int)next.Y, VirtualKey.W, VirtualKey.W);
             UpdateMove(turn, (int)next.Z, VirtualKey.LEFT, VirtualKey.RIGHT);
+            Thread.Sleep(1);
 
             xMove = (int)next.X;
             yMove = (int)next.Y;
