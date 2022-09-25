@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using System.Threading;
+using Newtonsoft.Json;
 
 using ImGuiNET;
 
@@ -11,43 +12,23 @@ using Dalamud.Game.ClientState.Keys;
 using Dalamud.Logging;
 
 using CottonCollector.Commands.Structures;
-using System.Diagnostics;
 using CottonCollector.CameraManager;
 
 namespace CottonCollector.Commands.Impls
 {
-    internal unsafe class FooCommand : Command
+    internal unsafe class MoveToCommand: Command
     {
-        public enum ActionType
-        {
-            KEY_DOWN = 0,
-            KEY_UP = 1,
-            KEY_PRESS = 2,
-        }
+        [JsonProperty] private Vector3 targetPos;
 
-        public enum KeyCode
-        {
-            W = 0x57,
-            A = 0x41,
-            D = 0x44,
-            LEFT = 0x25,
-            RIGHT = 0x27,
-        }
-
-        public ActionType actionType = ActionType.KEY_PRESS;
-        private readonly Stopwatch stopwatch = new();
-
-        private InputSimulator sim = new();
-        private Vector3 targetPos;
-
-        private int state = 0;
+        private readonly InputSimulator sim = new();
+        private ushort state = 0;
         private int xMove = 0;
         private int yMove = 0;
         private int turn = 0; // + left - right
 
-        public FooCommand()
+        public MoveToCommand()
         {
-            this.Repeate = true;
+            shouldRepeat = true;
         }
 
         public override bool TerminateCondition()
@@ -62,9 +43,9 @@ namespace CottonCollector.Commands.Impls
             return description;
         }
 
-        private Vector3 Decide(double angle, double dist)
+        private static Vector3 Decide(double angle, double dist)
         {
-            Vector3 v = new Vector3(0, 0, 0);
+            Vector3 v = new();
             if (angle > Math.PI / 3)
             {
                 v.Z = -1;
@@ -100,7 +81,7 @@ namespace CottonCollector.Commands.Impls
             return v;
         }
 
-        public int StopAndStart(int cur, int next, VirtualKey pos, VirtualKey neg)
+        public ushort StopAndStart(int cur, int next, VirtualKey pos, VirtualKey neg)
         {
             if (cur != next)
             {
@@ -126,7 +107,12 @@ namespace CottonCollector.Commands.Impls
                     Thread.Sleep(1);
                 }
             }
-            return next != 0 ? 1 : 0;
+            return (ushort)(next != 0 ? 0x1u : 0u);
+        }
+
+        public override void OnStart()
+        {
+            state = 0;
         }
 
         public override void Do()
@@ -143,7 +129,7 @@ namespace CottonCollector.Commands.Impls
             }
 
             Vector3 next = Decide(angle, dist);
-            int newState = 0;
+            ushort newState = 0;
 
 
             PluginLog.Log($"Angle: {angle}\t\tDist: {dist}");
@@ -155,31 +141,31 @@ namespace CottonCollector.Commands.Impls
                     switch (next.X)
                     {
                         case 1:
-                            sim.Keyboard.KeyDown((VirtualKeyCode)KeyCode.D);
+                            sim.Keyboard.KeyDown(VirtualKeyCode.VK_D);
                             Thread.Sleep(1);
                             newState |= 0x1;
                             break;
                         case -1:
-                            sim.Keyboard.KeyDown((VirtualKeyCode)KeyCode.A);
+                            sim.Keyboard.KeyDown(VirtualKeyCode.VK_A);
                             Thread.Sleep(1);
                             newState |= 0x1;
                             break;
                     }
                     if (next.Y == 1)
                     {
-                        sim.Keyboard.KeyDown((VirtualKeyCode)KeyCode.W);
+                        sim.Keyboard.KeyDown(VirtualKeyCode.VK_W);
                         Thread.Sleep(1);
                         newState |= 0x1;
                     }
                     switch (next.Z)
                     {
                         case 1:
-                            sim.Keyboard.KeyDown((VirtualKeyCode)KeyCode.LEFT);
+                            sim.Keyboard.KeyDown(VirtualKeyCode.LEFT);
                             Thread.Sleep(1);
                             newState |= 0x2;
                             break;
                         case -1:
-                            sim.Keyboard.KeyDown((VirtualKeyCode)KeyCode.RIGHT);
+                            sim.Keyboard.KeyDown(VirtualKeyCode.RIGHT);
                             Thread.Sleep(1);
                             newState |= 0x2;
                             break;
@@ -198,7 +184,7 @@ namespace CottonCollector.Commands.Impls
                     }
                     newState |= StopAndStart(xMove, (int)next.X, VirtualKey.D, VirtualKey.A);
                     newState |= StopAndStart(yMove, (int)next.Y, VirtualKey.W, VirtualKey.W);
-                    newState |= StopAndStart(turn, (int)next.Z, VirtualKey.LEFT, VirtualKey.RIGHT) << 1;
+                    newState |= (ushort)(StopAndStart(turn, (int)next.Z, VirtualKey.LEFT, VirtualKey.RIGHT) << 1);
                     break;
                 case 4:
                     StopAndStart(xMove, 0, VirtualKey.D, VirtualKey.A);

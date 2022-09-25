@@ -27,7 +27,7 @@ namespace CottonCollector.Commands.Structures
                     currCommand.Execute();
                     done = false;
                 }
-                if (!nextCommand.Repeate || currCommand.IsFinished())
+                if (!nextCommand.shouldRepeat || currCommand.IsFinished())
                 {
                     commands.RemoveFirst();
                 }

@@ -85,14 +85,17 @@ namespace CottonCollector
         [Aliases("/rp")]
         public void RecordPos(string command, string args)
         {
+            /*
             var player = CottonCollectorPlugin.ClientState.LocalPlayer;
             configWindow.positions.Add(player.Position);
             PluginLog.Log($"Recorded {player.Position.ToString()} at index {configWindow.positions.Count - 1}");
+            */
         }
 
         [Command("/move")]
         public void MoveTo(string command, string args)
         {
+            /*
             int idx;
             try
             {
@@ -104,6 +107,7 @@ namespace CottonCollector
                 return;
             }
             configWindow.RunCommand(idx);
+            */
         }
 
         [Command("/kill")]
@@ -115,11 +119,13 @@ namespace CottonCollector
         [Command("/debug")]
         public void Debug(string command, string args)
         {
+            /*
             var player = CottonCollectorPlugin.ClientState.LocalPlayer;
             var camera = new Vector3(CameraHelpers.collection->WorldCamera->X, CameraHelpers.collection->WorldCamera->Y, 0);
             var angle = MyMath.angle2d(player.Position, camera, configWindow.positions[0]);
             var dist = MyMath.dist(player.Position, configWindow.positions[0]);
             PluginLog.Log($"Angle: {angle}, dist: {dist}");
+            */
         }
 
         public void Dispose()

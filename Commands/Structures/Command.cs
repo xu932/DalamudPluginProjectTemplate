@@ -34,7 +34,9 @@ namespace CottonCollector.Commands.Structures
         }
 
         private bool isCurrent = false;
-        public bool Repeate = false;
+        public bool shouldRepeat { get; protected set; } = false;
+        private int runnedTimes = 0;
+
         private readonly Stopwatch timer = new();
 
         public Command()
@@ -99,13 +101,17 @@ namespace CottonCollector.Commands.Structures
 
         public void Execute()
         {
-            PluginLog.Log($"Executing Command {this.GetType()}");
-            isCurrent = true;
-            OnStart();
-            timer.Reset();
-            timer.Start();
+            if (runnedTimes == 0)
+            {
+                PluginLog.Log($"Executing Command {this.GetType()}");
+                isCurrent = true;
+                OnStart();
+                timer.Reset();
+                timer.Start();
+            }
 
             Do();
+            runnedTimes++;
         }
 
         // This should be called per frame.
@@ -117,6 +123,8 @@ namespace CottonCollector.Commands.Structures
             if (finished)
             {
                 timer.Stop();
+
+                runnedTimes = 0;
                 OnFinish();
                 isCurrent = false;
                 PluginLog.Log($"Finished Command {this.GetType()}");
