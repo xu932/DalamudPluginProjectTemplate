@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Threading;
 
@@ -37,19 +35,18 @@ namespace CottonCollector.Commands.Impls
         }
 
         public ActionType actionType = ActionType.KEY_PRESS;
-        private Stopwatch stopwatch = new Stopwatch();
+        private readonly Stopwatch stopwatch = new();
 
         private InputSimulator sim = new();
-        private Vector3 target;
+        private Vector3 targetPos;
 
         private int state = 0;
         private int xMove = 0;
         private int yMove = 0;
         private int turn = 0; // + left - right
 
-        public FooCommand(Vector3 target)
+        public FooCommand()
         {
-            this.target = target;
             this.Repeate = true;
         }
 
@@ -61,11 +58,11 @@ namespace CottonCollector.Commands.Impls
         public override string Description()
         {
             string description = base.Description();
-            description += $"Move to {this.target.ToString()}";
+            description += $"Move to {this.targetPos}";
             return description;
         }
 
-        private Vector3 decide(double angle, double dist)
+        private Vector3 Decide(double angle, double dist)
         {
             Vector3 v = new Vector3(0, 0, 0);
             if (angle > Math.PI / 3)
@@ -103,29 +100,29 @@ namespace CottonCollector.Commands.Impls
             return v;
         }
 
-        public int StopAndStart(int cur, int next, KeyCode pos, KeyCode neg)
+        public int StopAndStart(int cur, int next, VirtualKey pos, VirtualKey neg)
         {
             if (cur != next)
             {
                 if (cur == -1)
                 {
-                    sim.Keyboard.KeyUp((VirtualKeyCode)neg);
+                    sim.Keyboard.KeyUp((VirtualKeyCode)(int)neg);
                     Thread.Sleep(1);
                 }
                 else if (cur == 1)
                 {
-                    sim.Keyboard.KeyUp((VirtualKeyCode)pos);
+                    sim.Keyboard.KeyUp((VirtualKeyCode)(int)pos);
                     Thread.Sleep(1);
                 }
 
                 if (next == 1)
                 {
-                    sim.Keyboard.KeyDown((VirtualKeyCode)pos);
+                    sim.Keyboard.KeyDown((VirtualKeyCode)(int)pos);
                     Thread.Sleep(1);
                 }
                 else if (next == -1)
                 {
-                    sim.Keyboard.KeyDown((VirtualKeyCode)neg);
+                    sim.Keyboard.KeyDown((VirtualKeyCode)(int)neg);
                     Thread.Sleep(1);
                 }
             }
@@ -136,8 +133,8 @@ namespace CottonCollector.Commands.Impls
         {
             var player = CottonCollectorPlugin.ClientState.LocalPlayer;
             var camera = new Vector3(CameraHelpers.collection->WorldCamera->X, CameraHelpers.collection->WorldCamera->Y, 0);
-            var angle = MyMath.angle2d(player.Position, camera, this.target);
-            var dist = MyMath.dist(player.Position, target);
+            var angle = MyMath.angle2d(player.Position, camera, this.targetPos);
+            var dist = MyMath.dist(player.Position, targetPos);
 
 
             if (dist < 3)
@@ -145,7 +142,7 @@ namespace CottonCollector.Commands.Impls
                 state = 4;
             }
 
-            Vector3 next = decide(angle, dist);
+            Vector3 next = Decide(angle, dist);
             int newState = 0;
 
 
@@ -192,14 +189,14 @@ namespace CottonCollector.Commands.Impls
                 case 2:
                 case 3:
                     // moving
-                    newState |= StopAndStart(xMove, (int)next.X, KeyCode.D, KeyCode.A);
-                    newState |= StopAndStart(yMove, (int)next.Y, KeyCode.W, KeyCode.W);
-                    newState |= StopAndStart(turn, (int)next.Z, KeyCode.LEFT, KeyCode.RIGHT) << 1;
+                    newState |= StopAndStart(xMove, (int)next.X, VirtualKey.D, VirtualKey.A);
+                    newState |= StopAndStart(yMove, (int)next.Y, VirtualKey.W, VirtualKey.W);
+                    newState |= StopAndStart(turn, (int)next.Z, VirtualKey.LEFT, VirtualKey.RIGHT) << 1;
                     break;
                 case 4:
-                    StopAndStart(xMove, 0, KeyCode.D, KeyCode.A);
-                    StopAndStart(yMove, 0, KeyCode.W, KeyCode.W);
-                    StopAndStart(turn, 0, KeyCode.LEFT, KeyCode.RIGHT);
+                    StopAndStart(xMove, 0, VirtualKey.D, VirtualKey.A);
+                    StopAndStart(yMove, 0, VirtualKey.W, VirtualKey.W);
+                    StopAndStart(turn, 0, VirtualKey.LEFT, VirtualKey.RIGHT);
                     newState = 4;
                     break;
             }
@@ -215,24 +212,29 @@ namespace CottonCollector.Commands.Impls
         {
             ImGui.PushItemWidth(100);
 
-            // Type selector
-            ImGui.Text("Type:");
+            ImGui.Text("X:");
             ImGui.SameLine();
-            List<ActionType> actionTypes = Enum.GetValues(typeof(ActionType)).Cast<ActionType>().ToList();
-            int newActionTypeIndex = actionTypes.IndexOf(actionType);
-            if (ImGui.Combo($"##KeyboardCommand__ActionTypeSelector__{GetHashCode()}", ref newActionTypeIndex,
-                Enum.GetNames(typeof(ActionType)), actionTypes.Count))
+            ImGui.InputFloat("##TillMovedToCommand__X", ref targetPos.X);
+
+            ImGui.SameLine();
+            ImGui.Text("Y:");
+            ImGui.SameLine();
+            ImGui.InputFloat("##TillMovedToCommand__Y", ref targetPos.Y);
+
+            ImGui.SameLine();
+            ImGui.Text("Z:");
+            ImGui.SameLine();
+            ImGui.InputFloat("##TillMovedToCommand__Z", ref targetPos.Z);
+
+            ImGui.SameLine();
+            if (ImGui.Button($"GetCurrentPos##TillMovedToCommand__getpos"))
             {
-                actionType = actionTypes[newActionTypeIndex];
+                var localPlayer = CottonCollectorPlugin.ClientState.LocalPlayer;
+                targetPos.X = localPlayer.Position.X;
+                targetPos.Y = localPlayer.Position.Y;
+                targetPos.Z = localPlayer.Position.Z;
             }
 
-            // Key Selector
-            ImGui.SameLine();
-            ImGui.Text("Key:");
-            ImGui.SameLine();
-            List<VirtualKey> keys = Enum.GetValues(typeof(VirtualKey)).Cast<VirtualKey>().ToList();
-
-            // TODO: add key modifier selector
             ImGui.PopItemWidth();
         }
     }

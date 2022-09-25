@@ -21,8 +21,6 @@ namespace CottonCollector.Interface
         private CommandSetsTab presetsTab;
         private readonly CottonCollectorPlugin plugin;
 
-        public List<Vector3> positions = new();
-
         public ConfigWindow(CottonCollectorPlugin plugin)
         {
             this.plugin = plugin;
@@ -88,14 +86,6 @@ namespace CottonCollector.Interface
         public void Toggle()
         {
             IsOpen = !IsOpen;
-        }
-
-        public void RunCommand(int i)
-        {
-            CommandSet cs = new("foo");
-            FooCommand fcmd = new(positions[i]);
-            cs.subCommands.AddLast(fcmd);
-            CottonCollectorPlugin.rootCmdManager.Schedule(cs);
         }
     }
 }
