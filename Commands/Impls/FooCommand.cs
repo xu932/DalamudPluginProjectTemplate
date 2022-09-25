@@ -68,11 +68,11 @@ namespace CottonCollector.Commands.Impls
         private Vector3 decide(double angle, double dist)
         {
             Vector3 v = new Vector3(0, 0, 0);
-            if (angle > Math.PI / 2)
+            if (angle > Math.PI / 3)
             {
                 v.Z = -1;
             }
-            else if (angle < -Math.PI / 2)
+            else if (angle < -Math.PI / 3)
             {
                 v.Z = 1;
             }
@@ -91,11 +91,11 @@ namespace CottonCollector.Commands.Impls
             else
             {
                 v.Y = 1;
-                if (angle > 0)
+                if (angle > Math.PI / 4)
                 {
                     v.Z = -1;
                 }
-                else
+                else if (angle < -Math.PI / 4)
                 {
                     v.Z = 1;
                 }
