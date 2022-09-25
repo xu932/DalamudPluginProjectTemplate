@@ -16,6 +16,7 @@ using CottonCollector.Attributes;
 using CottonCollector.CameraManager;
 using CottonCollector.Config;
 using CottonCollector.Interface;
+using CottonCollector.Commands.Impls;
 using CottonCollector.Commands.Structures;
 
 namespace CottonCollector
@@ -52,6 +53,9 @@ namespace CottonCollector
         internal static CommandManager rootCmdManager = new();
 
         internal static CottonCollectorConfig config { get; set; }
+
+        internal static CommandSet selectedCommandSet = null;
+
         private readonly ConfigWindow configWindow;
         private readonly PluginCommandManager<CottonCollectorPlugin> pluginCommandManager;
 
@@ -65,7 +69,7 @@ namespace CottonCollector
 
             // Load config window
             config = DalamudPluginInterface.GetPluginConfig() as CottonCollectorConfig ?? new CottonCollectorConfig();
-            configWindow = new ConfigWindow(this);
+            configWindow = new ConfigWindow();
             DalamudPluginInterface.UiBuilder.Draw += configWindow.Draw;
             DalamudPluginInterface.UiBuilder.OpenConfigUi += configWindow.Open;
             Framework.Update += rootCmdManager.Update;
@@ -74,58 +78,85 @@ namespace CottonCollector
             pluginCommandManager = new PluginCommandManager<CottonCollectorPlugin>(this);
         }
 
-        [Command("/cottoncollectormonitor")]
-        [Aliases("/ccm")]
+        [Command("/cottoncollectorconfig")]
+        [Aliases("/ccc")]
+        [HelpMessage("Open cotton collector config.")]
         public void OpenMonitorWindowCommand(string command, string args)
         {
             configWindow.Toggle();
         }
 
-        [Command("/recordpos")]
-        [Aliases("/rp")]
-        public void RecordPos(string command, string args)
+        [Command("/ccselect")]
+        [HelpMessage("/ccselect <command set name>")]
+        public void SelectPreset(string command, string args)
         {
-            /*
-            var player = CottonCollectorPlugin.ClientState.LocalPlayer;
-            configWindow.positions.Add(player.Position);
-            PluginLog.Log($"Recorded {player.Position.ToString()} at index {configWindow.positions.Count - 1}");
-            */
+            CommandSet.CommandSetMap.TryGetValue(args, out selectedCommandSet);
+            if (selectedCommandSet == null)
+            {
+                ChatGui.Print($"CommandSet {args} does not exist.");
+            }
+            else
+            {
+                ChatGui.Print($"Selected CommandSet {args}");
+            }
         }
 
-        [Command("/move")]
-        public void MoveTo(string command, string args)
+        [Command("/ccaddwaymark")]
+        [Aliases("/ccaw")]
+        [HelpMessage("Add a waymark to selected CommandSet.")]
+        public void RecordPos(string command, string args)
         {
-            /*
-            int idx;
-            try
+            if (selectedCommandSet != null)
             {
-                idx = Int32.Parse(args);
+                var player = ClientState.LocalPlayer;
+                var moveTo = new MoveToCommand()
+                {
+                    targetPos = player.Position,
+                };
+
+                PluginLog.Log($"added waymark {player.Position} in {selectedCommandSet.uniqueId} at index {selectedCommandSet.subCommands.Count}");
+                selectedCommandSet.subCommands.AddLast(moveTo);
             }
-            catch(FormatException)
+            else
             {
-                PluginLog.Log($"Unable to parse args {args}");
-                return;
+                ChatGui.Print("No selected CommandSet.");
             }
-            configWindow.RunCommand(idx);
-            */
+        }
+
+        [Command("/ccplay")]
+        [HelpMessage("/ccplay <integer>. Play selected CommandSet <n> times. Play once if you do not pass anything.")]
+        public void PlaySelectedCommandSet(string command, string args)
+        {
+            if (selectedCommandSet != null)
+            {
+                if (string.IsNullOrEmpty(args))
+                {
+                    rootCmdManager.Schedule(selectedCommandSet);
+                    ChatGui.Print($"Playing CommandSet {selectedCommandSet.uniqueId}.");
+                }
+                else if (int.TryParse(args, out int times))
+                {
+                    for (int i = 0; i < times; i++)
+                    {
+                        rootCmdManager.Schedule(selectedCommandSet);
+                    }
+                    ChatGui.Print($"Playing CommandSet {selectedCommandSet.uniqueId} {args} times.");
+                }
+                else 
+                {
+                    ChatGui.Print($"{args} is not a valid integer.");
+                }
+            }
+            else
+            {
+                ChatGui.Print("No selected CommandSet.");
+            }
         }
 
         [Command("/kill")]
         public void Kill(string command, string args)
         {
-            CottonCollectorPlugin.rootCmdManager.KillSwitch();
-        }
-
-        [Command("/debug")]
-        public void Debug(string command, string args)
-        {
-            /*
-            var player = CottonCollectorPlugin.ClientState.LocalPlayer;
-            var camera = new Vector3(CameraHelpers.collection->WorldCamera->X, CameraHelpers.collection->WorldCamera->Y, 0);
-            var angle = MyMath.angle2d(player.Position, camera, configWindow.positions[0]);
-            var dist = MyMath.dist(player.Position, configWindow.positions[0]);
-            PluginLog.Log($"Angle: {angle}, dist: {dist}");
-            */
+            rootCmdManager.KillSwitch();
         }
 
         public void Dispose()

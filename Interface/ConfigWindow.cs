@@ -18,17 +18,15 @@ namespace CottonCollector.Interface
         private SettingsTab settingsTab;
         private ObjectTableTab objectTableTab;
         private CameraInfoTab cameraInfoTab;
-        private CommandSetsTab presetsTab;
-        private readonly CottonCollectorPlugin plugin;
+        public CommandSetsTab commandSetsTab { get; private set; }
 
-        public ConfigWindow(CottonCollectorPlugin plugin)
+        public ConfigWindow()
         {
-            this.plugin = plugin;
             config = CottonCollectorPlugin.config;
             settingsTab = new SettingsTab(ref config);
             objectTableTab = new ObjectTableTab(ref config);
             cameraInfoTab = new CameraInfoTab(ref config);
-            presetsTab = new CommandSetsTab(ref config);
+            commandSetsTab = new CommandSetsTab(ref config);
         }
 
         public void Draw()
@@ -45,7 +43,7 @@ namespace CottonCollector.Interface
                     settingsTab.Draw();
                     objectTableTab.Draw(config.showObjects);
                     cameraInfoTab.Draw(config.showCameraInfo);
-                    presetsTab.Draw();
+                    commandSetsTab.Draw();
 
                     ImGui.EndTabBar();  
                 }

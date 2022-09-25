@@ -24,16 +24,14 @@ namespace CottonCollector.Interface
         internal static int selectedNewTriggerIndex = 0;
         internal static int selectedCommandSetLinkIndex = 0;
         internal static int selectedTriggerLinkIndex = 0;
-        internal static CommandSet selectedCommandSet = null;
         internal static Command newCommand = new KeyboardCommand();
         internal static Command newTrigger = new KeyboardCommand();
 
-        public CommandSetsTab(ref CottonCollectorConfig config) : base("CommandSets", ref config)
-        {
-        }
+        public CommandSetsTab(ref CottonCollectorConfig config) : base("CommandSets", ref config) { }
 
         public override void TabContent()
         {
+            ref var selectedCommandSet = ref CottonCollectorPlugin.selectedCommandSet;
             ImGui.BeginChild("TableWrapper", ImGui.GetContentRegionAvail(), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
             if (ImGui.BeginTable("LayoutsTable", 2 ,ImGuiTableFlags.Resizable))
             {

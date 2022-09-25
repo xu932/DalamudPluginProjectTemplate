@@ -19,7 +19,7 @@ namespace CottonCollector.Commands.Impls
 {
     internal unsafe class MoveToCommand: Command
     {
-        [JsonProperty] private Vector3 targetPos;
+        [JsonProperty] public Vector3 targetPos;
 
         private readonly InputSimulator sim = new();
         private ushort state = 0;
@@ -41,7 +41,7 @@ namespace CottonCollector.Commands.Impls
         {
             base.MinimalInfo();
             ImGui.Text($"Move to {this.targetPos}");
-            ImGui.SameLine();
+            ImGui.SameLine(ImGui.GetColumnWidth() - 90);
             Vector3? currPos = Ui.GetCurrPosBtn("GetCurrPos", this.GetType(), this.GetHashCode().ToString());
             if (currPos != null)
             {
