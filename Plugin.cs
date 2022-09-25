@@ -36,6 +36,9 @@ namespace CottonCollector
         internal static Dalamud.Game.Command.CommandManager CommandManager { get; private set; }
 
         [PluginService]
+        internal static GameGui GameGui { get; private set; }
+
+        [PluginService]
         internal static ChatGui ChatGui { get; private set; }
 
         [PluginService]
