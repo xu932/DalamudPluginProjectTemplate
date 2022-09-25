@@ -9,6 +9,7 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using CottonCollector.Config;
 using Dalamud.Logging;
 using CottonCollector.Commands.Impls;
+using Lumina.Excel.GeneratedSheets;
 
 namespace CottonCollector.Interface
 {
@@ -39,15 +40,17 @@ namespace CottonCollector.Interface
 
         private void ObjectTable(CottonCollectorConfig config)
         {
+            var player = CottonCollectorPlugin.ClientState.LocalPlayer;
+
             if (ImGui.BeginTable("Objects", 5))
             {
                 // Table header
                 ImGui.TableSetupColumn("Name");
                 ImGui.TableSetupColumn("ObjectId");
-                ImGui.TableSetupColumn("DataId");
+                ImGui.TableSetupColumn("Distance To Player");
                 ImGui.TableSetupColumn("Pos");
+                ImGui.TableSetupColumn("Move to object");
                 ImGui.TableHeadersRow();
-
                 // Object table
                 foreach (GameObject obj in CottonCollectorPlugin.ObjectTable)
                 {
@@ -58,7 +61,8 @@ namespace CottonCollector.Interface
                     ImGui.TableSetColumnIndex(1);
                     ImGui.Text($"{obj.ObjectId}");
                     ImGui.TableSetColumnIndex(2);
-                    ImGui.Text($"{obj.DataId}");
+                    var dist = MyMath.dist(player.Position, obj.Position);
+                    ImGui.Text($"{dist:.3f}");
                     ImGui.TableSetColumnIndex(3);
                     ImGui.Text($"X:{obj.Position.X}, Y:{obj.Position.Y}, Z:{obj.Position.Z}");
                     ImGui.TableSetColumnIndex(4);
