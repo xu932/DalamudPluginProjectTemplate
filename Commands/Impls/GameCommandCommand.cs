@@ -18,7 +18,7 @@ namespace CottonCollector.Commands.Impls
     class SeFunctionBase<T> where T : Delegate
     {
         public IntPtr Address;
-        protected T? FuncDelegate;
+        protected T FuncDelegate;
 
         public SeFunctionBase(SigScanner sigScanner, int offset)
         {
@@ -35,7 +35,7 @@ namespace CottonCollector.Commands.Impls
             PluginLog.Debug($"{GetType().Name} address 0x{Address.ToInt64():X16}, baseOffset 0x{baseOffset:X16}.");
         }
 
-        public T? Delegate()
+        public T Delegate()
         {
             if (FuncDelegate != null)
                 return FuncDelegate;
@@ -50,7 +50,7 @@ namespace CottonCollector.Commands.Impls
             return null;
         }
 
-        public dynamic? Invoke(params dynamic[] parameters)
+        public dynamic Invoke(params dynamic[] parameters)
         {
             if (FuncDelegate != null)
                 return FuncDelegate.DynamicInvoke(parameters);
@@ -67,7 +67,7 @@ namespace CottonCollector.Commands.Impls
             }
         }
 
-        public Hook<T>? CreateHook(T detour)
+        public Hook<T> CreateHook(T detour)
         {
             if (Address != IntPtr.Zero)
             {
