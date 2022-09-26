@@ -5,18 +5,19 @@ using ImGuiNET;
 using Dalamud.Logging;
 
 using CottonCollector.Config;
+using CottonCollector.Util;
 
 namespace CottonCollector.Interface
 {
     internal abstract class ConfigTab
     {
-        private string name;
         protected CottonCollectorConfig config;
+        private string name;
 
-        public ConfigTab(string name, ref CottonCollectorConfig config)
+        public ConfigTab(string name)
         {
             this.name = name;
-            this.config = config;
+            this.config = CottonCollectorPlugin.config;
         }
 
         public void Draw(bool shouldShow = true)

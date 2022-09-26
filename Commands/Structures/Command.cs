@@ -8,7 +8,9 @@ using System.Reflection;
 using ImGuiNET;
 
 using Dalamud.Logging;
+
 using CottonCollector.Commands.Conditions;
+using CottonCollector.Util;
 
 namespace CottonCollector.Commands.Structures
 {

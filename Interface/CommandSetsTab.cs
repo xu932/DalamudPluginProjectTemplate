@@ -8,11 +8,13 @@ using ImGuiNET;
 using Dalamud.Interface;
 using Dalamud.Utility;
 
-using CottonCollector.Config;
 using Dalamud.Interface.Colors;
+using Dalamud.Logging;
+
+using CottonCollector.Config;
 using CottonCollector.Commands.Structures;
 using CottonCollector.Commands.Impls;
-using Dalamud.Logging;
+using CottonCollector.Util;
 
 namespace CottonCollector.Interface
 {
@@ -27,35 +29,172 @@ namespace CottonCollector.Interface
         internal static Command newCommand = new KeyboardCommand();
         internal static Command newTrigger = new KeyboardCommand();
 
-        public CommandSetsTab(ref CottonCollectorConfig config) : base("CommandSets", ref config) { }
+        public CommandSetsTab() : base("CommandSets") { }
+
+        private void CommandList(LinkedList<Command> commands)
+        {
+            if (ImGui.BeginTable(Ui.Uid(), 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
+            {
+                ImGui.TableSetupColumn(Ui.Uid(), ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 10);
+                ImGui.TableSetupColumn(Ui.Uid(), ImGuiTableColumnFlags.NoResize, 400);
+                ImGui.TableSetupColumn(Ui.Uid(), ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 120);
+                ImGui.TableHeadersRow();
+
+                int index = 0;
+                for (var commandLN = commands.First;
+                    commandLN != null; commandLN = commandLN.Next, index++)
+                {
+                    var command = commandLN.Value;
+
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    if (command.IsCurrent())
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
+                        ImGui.Text("->");
+                        ImGui.PopStyleColor();
+                    }
+
+                    ImGui.TableSetColumnIndex(1);
+                    command.MinimalInfo();
+
+                    ImGui.TableSetColumnIndex(2);
+                    var editUid = Ui.Uid("Edit Command");
+                    if (ImGui.BeginPopup(editUid))
+                    {
+                        command.BuilderGui();
+
+                        if (ImGui.Button("Save & Close"))
+                        {
+                            ImGui.CloseCurrentPopup();
+                            CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
+                        }
+                        ImGui.EndPopup();
+                    }
+
+                    ImGui.PushFont(UiBuilder.IconFont);
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Edit.ToIconString()}")))
+                    {
+                        ImGui.OpenPopup(editUid);
+                    }
+
+                    ImGui.SameLine();
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Minus.ToIconString()}")))
+                    {
+                        var prev = commandLN.Previous;
+                        commands.Remove(commandLN);
+                        commandLN = prev;
+                    }
+
+                    ImGui.SameLine();
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowUp.ToIconString()}")))
+                    {
+                        var prev = commandLN.Previous;
+                        if (prev != null)
+                        {
+                            commands.Remove(commandLN);
+                            commands.AddBefore(prev, commandLN);
+                            return;
+                        }
+                    }
+
+                    ImGui.SameLine();
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowDown.ToIconString()}")))
+                    {
+                        var next = commandLN.Next;
+                        if (next != null)
+                        {
+                            commands.Remove(commandLN);
+                            commands.AddAfter(next, commandLN);
+                            return;
+                        }
+                    }
+                    ImGui.PopFont();
+                }
+
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(1);
+                ImGui.Separator();
+
+                ImGui.Text("New ");
+                var commandTypes = Command.AllTypes.Where(t => !t.Equals(typeof(CommandSet))).ToArray();
+
+                ImGui.SetNextItemWidth(200);
+                ImGui.SameLine();
+                if (ImGui.Combo(Ui.Uid(), ref selectedNewCommandIndex,
+                    commandTypes.Select(t => t.Name).ToArray(), commandTypes.Length))
+                {
+                    newCommand = (Command)Activator.CreateInstance(commandTypes[selectedNewCommandIndex]);
+                }
+
+                ImGui.TableSetColumnIndex(2);
+                if (newCommand != null)
+                {
+                    ImGui.PushFont(UiBuilder.IconFont);
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Plus.ToIconString()}")))
+                    {
+                        commands.AddLast(newCommand);
+                        newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
+                    }
+                    ImGui.PopFont();
+                }
+
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(1);
+
+                ImGui.Text("Link CommandSet ");
+
+                ImGui.SetNextItemWidth(200);
+                ImGui.SameLine();
+                string[] commandSetKeys = CommandSet.CommandSetMap.Keys.ToArray();
+                ImGui.Combo(Ui.Uid(), ref selectedCommandSetLinkIndex,
+                    commandSetKeys, CommandSet.CommandSetMap.Count);
+
+                ImGui.TableSetColumnIndex(2);
+                ImGui.PushFont(UiBuilder.IconFont);
+                if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Plus.ToIconString()}")))
+                {
+                    commands.AddLast(CommandSet.CommandSetMap[commandSetKeys[selectedCommandSetLinkIndex]]);
+                }
+                ImGui.PopFont();
+
+                ImGui.EndTable();
+            }
+        }
 
         public override void TabContent()
         {
             ref var selectedCommandSet = ref CottonCollectorPlugin.selectedCommandSet;
-            ImGui.BeginChild("TableWrapper", ImGui.GetContentRegionAvail(), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
-            if (ImGui.BeginTable("LayoutsTable", 2 ,ImGuiTableFlags.Resizable))
+            var tableRegion = ImGui.GetContentRegionAvail();
+            tableRegion.Y -= 30;
+            ImGui.BeginChild("TableWrapper", tableRegion, false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
+            if (ImGui.BeginTable(Ui.Uid(), 2, ImGuiTableFlags.Resizable))
             {
                 #region COMMAND_SET_SELECTOR
-                ImGui.TableSetupColumn("Command sets list", ImGuiTableColumnFlags.None, 200);
+                ImGui.TableSetupColumn(Ui.Uid("Command Sets List"), ImGuiTableColumnFlags.None, 200);
+
                 var displayCommandSetName = selectedCommandSet != null ? selectedCommandSet.uniqueId : "";
-                ImGui.TableSetupColumn($"{displayCommandSetName}##selectedCommandSetName", ImGuiTableColumnFlags.None, 1000);
+                ImGui.TableSetupColumn(Ui.Uid(displayCommandSetName), ImGuiTableColumnFlags.None, 1000);
                 ImGui.TableHeadersRow();
 
                 ImGui.TableNextColumn();
-                ImGui.InputTextWithHint("##presetFilter", "search presets...", ref filterString, 100);
+                ImGui.InputTextWithHint(Ui.Uid(), "search presets...", ref filterString, 100);
                 ImGui.SameLine();
                 ImGui.PushFont(UiBuilder.IconFont);
-                if (ImGui.Button($"{FontAwesomeIcon.Plus.ToIconString()}##AddCommandSet"))
+
+                var addPresetPopupUid = Ui.Uid();
+                if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Plus.ToIconString()}")))
                 {
-                    ImGui.OpenPopup("Add preset");
+                    ImGui.OpenPopup(addPresetPopupUid);
                 }
                 ImGui.PopFont();
 
-                if(ImGui.BeginPopup("Add preset"))
+                if (ImGui.BeginPopup(addPresetPopupUid))
                 {
-                    ImGui.InputTextWithHint("##newCommandSetName", "CommandSet name", ref newCommandSetName, 100);
+                    ImGui.InputTextWithHint(Ui.Uid(), "New Command Set Name", ref newCommandSetName, 100);
                     ImGui.SameLine();
-                    if (ImGui.Button("Add")) {
+                    if (ImGui.Button("Add"))
+                    {
                         if (newCommandSetName != "" && !CommandSet.CommandSetMap.ContainsKey(newCommandSetName))
                         {
                             ImGui.CloseCurrentPopup();
@@ -65,10 +204,10 @@ namespace CottonCollector.Interface
                     ImGui.EndPopup();
                 }
 
-                ImGui.BeginChild("CommandSetsTableSelector");
+                ImGui.BeginChild(Ui.Uid());
                 foreach (var commandSet in config.commandSets)
                 {
-                    if(commandSet == null)
+                    if (commandSet == null)
                     {
                         PluginLog.Log("Null CommandSet!!");
                         continue;
@@ -90,237 +229,20 @@ namespace CottonCollector.Interface
                 if (selectedCommandSet != null)
                 {
                     selectedCommandSet.BuilderGui();
-                    if (ImGui.BeginTable("CommandSetEditorWrapper", 2, ImGuiTableFlags.Resizable))
+                    if (ImGui.BeginTabBar(Ui.Uid(), ImGuiTabBarFlags.None))
                     {
-                        ImGui.TableSetupColumn("CommandSequenceEditor", ImGuiTableColumnFlags.NoResize, 600);
-                        ImGui.TableSetupColumn("TriggersEditor", ImGuiTableColumnFlags.NoResize, 600);
-                        ImGui.TableHeadersRow();
-
-                        ImGui.TableNextRow();
-                        ImGui.TableSetColumnIndex(0);
-                        if (ImGui.BeginTable("CommandsTable", 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
+                        if (ImGui.BeginTabItem(Ui.Uid("Command Sequence")))
                         {
-                            ImGui.TableSetupColumn("##Tracking", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 10);
-                            ImGui.TableSetupColumn("Command Sequence", ImGuiTableColumnFlags.NoResize, 400);
-                            ImGui.TableSetupColumn("##Command__Btns", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 190);
-                            ImGui.TableHeadersRow();
-
-                            int index = 0;
-                            for (var commandLN = selectedCommandSet.subCommands.First;
-                                commandLN != null; commandLN = commandLN.Next, index++)
-                            {
-                                var command = commandLN.Value;
-                                ImGui.TableNextRow();
-                                ImGui.TableSetColumnIndex(0);
-                                if (command.IsCurrent())
-                                {
-                                    ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
-                                    ImGui.Text("->");
-                                    ImGui.PopStyleColor();
-                                }
-
-                                ImGui.TableSetColumnIndex(1);
-                                command.MinimalInfo();
-
-                                ImGui.TableSetColumnIndex(2);
-
-                                if (ImGui.BeginPopup($"Edit Command##CommandSetsTab__Popup__{index}"))
-                                {
-                                    command.BuilderGui();
-
-                                    if (ImGui.Button("Save & Close"))
-                                    {
-                                        ImGui.CloseCurrentPopup();
-                                        CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
-                                    }
-                                    ImGui.EndPopup();
-                                }
-
-                                if (ImGui.Button($"Edit##CommandSetsTab__Btn__{index}"))
-                                {
-                                    ImGui.OpenPopup($"Edit Command##CommandSetsTab__Popup__{index}");
-                                }
-
-                                ImGui.SameLine();
-                                if (ImGui.Button($"Remove##CommandSetsTab__Btn__{index}"))
-                                {
-                                    var prev = commandLN.Previous;
-                                    selectedCommandSet.subCommands.Remove(commandLN);
-                                    commandLN = prev;
-                                }
-
-                                ImGui.SameLine();
-                                if (ImGui.Button($"Up##CommandSetsTab__Btn__{index}"))
-                                {
-                                    var prev = commandLN.Previous;
-                                    if (prev != null)
-                                    {
-                                        selectedCommandSet.subCommands.Remove(commandLN);
-                                        selectedCommandSet.subCommands.AddBefore(prev, commandLN);
-                                        return;
-                                    }
-                                }
-
-                                ImGui.SameLine();
-                                if (ImGui.Button($"Down##CommandSetsTab__Btn__{index}"))
-                                {
-                                    var next = commandLN.Next;
-                                    if (next != null)
-                                    {
-                                        selectedCommandSet.subCommands.Remove(commandLN);
-                                        selectedCommandSet.subCommands.AddAfter(next, commandLN);
-                                        return;
-                                    }
-                                }
-                            }
-
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(1);
-                            ImGui.Separator();
-
-                            ImGui.Text("New ");
-                            var commandTypes = Command.AllTypes.Where(t => !t.Equals(typeof(CommandSet))).ToArray();
-
-                            ImGui.SetNextItemWidth(200);
-                            ImGui.SameLine();
-                            if (ImGui.Combo("##CommandTypeSelector", ref selectedNewCommandIndex,
-                                commandTypes.Select(t => t.Name).ToArray(), commandTypes.Length))
-                            {
-                                newCommand = (Command)Activator.CreateInstance(commandTypes[selectedNewCommandIndex]);
-                            }
-
-                            ImGui.TableSetColumnIndex(2);
-                            if (newCommand != null)
-                            {
-                                if (ImGui.Button("Add##CommandSetsTab__Btn__AddCommand"))
-                                {
-                                    selectedCommandSet.subCommands.AddLast(newCommand);
-                                    newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
-                                }
-                            }
-
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(1);
-
-                            ImGui.Text("Link CommandSet ");
-
-                            ImGui.SetNextItemWidth(200);
-                            ImGui.SameLine();
-                            string[] commandSetKeys = CommandSet.CommandSetMap.Keys.ToArray();
-                            ImGui.Combo("##CommandSetSelector", ref selectedCommandSetLinkIndex,
-                                commandSetKeys, CommandSet.CommandSetMap.Count);
-
-                            ImGui.TableSetColumnIndex(2);
-                            if (ImGui.Button("Add##CommandSetsTab__Btn__AddCommandSet"))
-                            {
-                                // TODO: this is not safe for adding loop dependencies. Fix.
-                                selectedCommandSet.subCommands.AddLast(CommandSet.CommandSetMap[commandSetKeys[selectedCommandSetLinkIndex]]);
-                            }
-
-                            ImGui.EndTable();
-
+                            CommandList(selectedCommandSet.subCommands);
+                            ImGui.EndTabItem();
                         }
 
-                        ImGui.TableSetColumnIndex(1);
-                        if (ImGui.BeginTable("TriggerTable", 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
+                        if (ImGui.BeginTabItem(Ui.Uid("Triggers")))
                         {
-                            ImGui.TableSetupColumn("##tracking", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 10);
-                            ImGui.TableSetupColumn("Triggers", ImGuiTableColumnFlags.NoResize, 400);
-                            ImGui.TableSetupColumn("##Trigger__Btns", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 190);
-                            ImGui.TableHeadersRow();
-
-                            int index = 0;
-                            for (var triggerLN = selectedCommandSet.triggers.First;
-                                triggerLN != null; triggerLN = triggerLN.Next, index++)
-                            {
-                                var command = triggerLN.Value;
-                                ImGui.TableNextRow();
-                                ImGui.TableSetColumnIndex(0);
-                                if (command.IsCurrent())
-                                {
-                                    ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
-                                    ImGui.Text("->");
-                                    ImGui.PopStyleColor();
-                                }
-
-                                ImGui.TableSetColumnIndex(1);
-                                command.MinimalInfo();
-
-                                ImGui.TableSetColumnIndex(2);
-
-                                if (ImGui.BeginPopup($"Edit Trigger##CommandSetsTab__Popup__{index}"))
-                                {
-                                    command.BuilderGui();
-
-                                    if (ImGui.Button("Save & Close"))
-                                    {
-                                        ImGui.CloseCurrentPopup();
-                                        CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
-                                    }
-                                    ImGui.EndPopup();
-                                }
-
-                                if (ImGui.Button($"Edit##CommandSetsTab__Trigger__Btn__{index}"))
-                                {
-                                    ImGui.OpenPopup($"Edit Trigger##CommandSetsTab__Popup__{index}");
-                                }
-
-                                ImGui.SameLine();
-                                if (ImGui.Button($"Remove##CommandSetsTab__Trigger__Btn__{index}"))
-                                {
-                                    var prev = triggerLN.Previous;
-                                    selectedCommandSet.triggers.Remove(triggerLN);
-                                    triggerLN = prev;
-                                }
-                            }
-
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(1);
-                            ImGui.Separator();
-
-                            ImGui.Text("New ");
-                            var commandTypes = Command.AllTypes.Where(t => !t.Equals(typeof(CommandSet))).ToArray();
-
-                            ImGui.SetNextItemWidth(200);
-                            ImGui.SameLine();
-                            if (ImGui.Combo("##TriggerTypeSelector", ref selectedNewTriggerIndex,
-                                commandTypes.Select(t => t.Name).ToArray(), commandTypes.Count()))
-                            {
-                                newTrigger = (Command)Activator.CreateInstance(commandTypes[selectedNewTriggerIndex]);
-                            }
-
-                            ImGui.TableSetColumnIndex(2);
-                            if (newTrigger != null)
-                            {
-                                if (ImGui.Button("Add##CommandSetsTab__Btn__AddTrigger"))
-                                {
-                                    selectedCommandSet.triggers.AddLast(newTrigger);
-                                    newTrigger = (Command)Activator.CreateInstance(newTrigger.GetType());
-                                }
-                            }
-
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(1);
-
-                            ImGui.Text("Link CommandSet ");
-
-                            ImGui.SetNextItemWidth(200);
-                            ImGui.SameLine();
-                            string[] commandSetKeys = CommandSet.CommandSetMap.Keys.ToArray();
-                            ImGui.Combo("##TriggerSetSelector", ref selectedTriggerLinkIndex,
-                                commandSetKeys, CommandSet.CommandSetMap.Count);
-
-                            ImGui.TableSetColumnIndex(2);
-                            if (ImGui.Button("Add##CommandSetsTab__Btn__AddTriggerSet"))
-                            {
-                                // TODO: this is not safe for adding loop dependencies. Fix.
-                                selectedCommandSet.triggers.AddLast(CommandSet.CommandSetMap[commandSetKeys[selectedTriggerLinkIndex]]);
-                            }
-
-                            ImGui.EndTable();
+                            CommandList(selectedCommandSet.triggers);
+                            ImGui.EndTabItem();
                         }
-
-                        ImGui.EndTable();
+                        ImGui.EndTabBar();
                     }
 
                     ImGui.Separator();
@@ -334,6 +256,15 @@ namespace CottonCollector.Interface
                     {
                         CottonCollectorPlugin.rootCmdManager.KillSwitch();
                     }
+                    ImGui.SameLine();
+
+                    ImGui.PushFont(UiBuilder.IconFont);
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Trash.ToIconString()}")))
+                    {
+                        config.commandSets.Remove(selectedCommandSet);
+                        selectedCommandSet = null;
+                    }
+                    ImGui.PopFont();
                 }
                 ImGui.EndTable();
                 #endregion

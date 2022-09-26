@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+
+using Dalamud.Logging;
 
 using ImGuiNET;
 
@@ -7,6 +11,9 @@ namespace CottonCollector.Util
 {
     internal class Ui
     {
+        private static int cnt = 0;
+        private static Dictionary<string, string> hashToUid = new();
+
         public enum UiType
         {
             BUTTON = 0,
@@ -16,19 +23,19 @@ namespace CottonCollector.Util
             CHILD = 4,
         };
 
-        public static string GenUid(string label, Type type, UiType uiType, string description)
+        public static string Uid(string label = "")
         {
-            var uid = label + "##" + type.Name + "__" + uiType.ToString() + "__";
-            if(!string.IsNullOrEmpty(description))
-            {
-                uid += "__" + description;
+            var trace = new System.Diagnostics.StackTrace();
+            string traceHash = string.Join(',', trace.GetFrames().Take(3).Select(t => t.ToString()));
+            if (!hashToUid.ContainsKey(traceHash)) {
+                hashToUid.Add(traceHash, label + "##" + cnt++);
             }
-            return uid;
+            return hashToUid[traceHash];
         }
 
-        public static Vector3? GetCurrPosBtn(string label, Type type, string hash)
+        public static Vector3? GetCurrPosBtn(string uid)
         {
-            if(ImGui.Button(GenUid(label, type, UiType.BUTTON, "GetCurrPos" + hash)))
+            if(ImGui.Button(uid))
             {
                 var player = CottonCollectorPlugin.ClientState.LocalPlayer;
                 return player.Position;

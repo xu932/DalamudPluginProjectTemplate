@@ -148,8 +148,7 @@ namespace CottonCollector.Commands.Impls
             ImGui.SameLine();
 
             ImGui.PushItemWidth(100);
-            ImGui.InputText(Ui.GenUid("", this.GetType(), Ui.UiType.INPUT, "GameCommand"), 
-                ref cmd, 100);
+            ImGui.InputText(Ui.Uid(), ref cmd, 100);
             ImGui.PopItemWidth();
         }
 

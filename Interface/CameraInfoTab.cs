@@ -12,7 +12,7 @@ namespace CottonCollector.Interface
 {
     internal unsafe class CameraInfoTab : ConfigTab
     {
-        public CameraInfoTab(ref CottonCollectorConfig config) : base ("Camera Info", ref config) { }
+        public CameraInfoTab() : base ("Camera Info") { }
 
         public override void TabContent()
         {

@@ -3,10 +3,7 @@
 using Dalamud.Logging;
 
 using CottonCollector.Config;
-using System.Collections.Generic;
-using System.Numerics;
-using CottonCollector.Commands.Impls;
-using CottonCollector.Commands.Structures;
+using CottonCollector.Util;
 
 namespace CottonCollector.Interface
 {
@@ -15,18 +12,18 @@ namespace CottonCollector.Interface
         private bool IsOpen = false;
         private CottonCollectorConfig config;
 
-        private SettingsTab settingsTab;
-        private ObjectTableTab objectTableTab;
-        private CameraInfoTab cameraInfoTab;
-        public CommandSetsTab commandSetsTab { get; private set; }
+        private static SettingsTab settingsTab;
+        private static ObjectTableTab objectTableTab;
+        private static CameraInfoTab cameraInfoTab;
+        private static CommandSetsTab commandSetsTab;
 
         public ConfigWindow()
         {
             config = CottonCollectorPlugin.config;
-            settingsTab = new SettingsTab(ref config);
-            objectTableTab = new ObjectTableTab(ref config);
-            cameraInfoTab = new CameraInfoTab(ref config);
-            commandSetsTab = new CommandSetsTab(ref config);
+            settingsTab = new();
+            objectTableTab = new();
+            cameraInfoTab = new();
+            commandSetsTab = new();
         }
 
         public void Draw()
@@ -38,7 +35,7 @@ namespace CottonCollector.Interface
             ImGui.BeginChild("RootWrapper", ImGui.GetContentRegionAvail(), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
             if (imGuiReady)
             {
-                if (ImGui.BeginTabBar("", ImGuiTabBarFlags.None))
+                if (ImGui.BeginTabBar("##maintabbar", ImGuiTabBarFlags.None))
                 {
                     settingsTab.Draw();
                     objectTableTab.Draw(config.showObjects);

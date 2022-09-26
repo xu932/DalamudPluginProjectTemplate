@@ -37,9 +37,9 @@ namespace CottonCollector.Commands.Impls
         public override void MinimalInfo()
         {
             base.MinimalInfo();
-            ImGui.Text($"Move to {this.targetPos}");
-            ImGui.SameLine(ImGui.GetColumnWidth() - 90);
-            Vector3? currPos = Ui.GetCurrPosBtn("GetCurrPos", this.GetType(), this.GetHashCode().ToString());
+            ImGui.Text($"Move to {this.targetPos:#.00}");
+            ImGui.SameLine();
+            Vector3? currPos = Ui.GetCurrPosBtn(Ui.Uid("CurrPos"));
             if (currPos != null)
             {
                 targetPos = currPos.Value;

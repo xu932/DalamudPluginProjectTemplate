@@ -6,7 +6,7 @@ namespace CottonCollector.Interface
 {
     internal class SettingsTab : ConfigTab
     {
-        public SettingsTab(ref CottonCollectorConfig config) : base("Settings", ref config) { }
+        public SettingsTab() : base("Settings") { }
 
         public override void TabContent()
         {

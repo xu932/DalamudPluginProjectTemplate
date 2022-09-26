@@ -9,13 +9,12 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using CottonCollector.Config;
 using Dalamud.Logging;
 using CottonCollector.Commands.Impls;
-using Lumina.Excel.GeneratedSheets;
 
 namespace CottonCollector.Interface
 {
     internal class ObjectTableTab : ConfigTab
     {
-        public ObjectTableTab(ref CottonCollectorConfig config) : base("ObjectTable", ref config) { }
+        public ObjectTableTab() : base("ObjectTable") { }
 
         public override void TabContent()
         {
