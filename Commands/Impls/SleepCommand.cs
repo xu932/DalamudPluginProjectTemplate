@@ -1,10 +1,10 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Newtonsoft.Json;
 
 using ImGuiNET;
 
+using CottonCollector.Util;
 using CottonCollector.Commands.Structures;
-using Newtonsoft.Json;
 
 namespace CottonCollector.Commands.Impls
 {
@@ -36,7 +36,7 @@ namespace CottonCollector.Commands.Impls
             ImGui.Text("Sleep for ");
 
             ImGui.SameLine();
-            ImGui.InputInt($"##SleepCommand__Input__{GetHashCode()}", ref mili);
+            ImGui.InputInt(Ui.Uid(), ref mili);
 
             ImGui.SameLine();
             ImGui.Text(" mili seconds");

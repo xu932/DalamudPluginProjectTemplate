@@ -1,17 +1,16 @@
-﻿using CottonCollector.Commands.Structures;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Text;
 using Newtonsoft.Json;
 
 using ImGuiNET;
 
 using Dalamud.Logging;
-
-using CottonCollector.Util;
-using System;
-using System.Runtime.InteropServices;
-using System.Text;
-
 using Dalamud.Hooking;
 using Dalamud.Game;
+
+using CottonCollector.Commands.Structures;
+using CottonCollector.Util;
 
 namespace CottonCollector.Commands.Impls
 {

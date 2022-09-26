@@ -161,33 +161,26 @@ namespace CottonCollector.Commands.Impls
 
             ImGui.Text("X:");
             ImGui.SameLine();
-            ImGui.InputFloat("##TillMovedToCommand__X", ref targetPos.X);
+            ImGui.InputFloat(Ui.Uid(), ref targetPos.X);
 
             ImGui.SameLine();
             ImGui.Text("Y:");
             ImGui.SameLine();
-            ImGui.InputFloat("##TillMovedToCommand__Y", ref targetPos.Y);
+            ImGui.InputFloat(Ui.Uid(), ref targetPos.Y);
 
             ImGui.SameLine();
             ImGui.Text("Z:");
             ImGui.SameLine();
-            ImGui.InputFloat("##TillMovedToCommand__Z", ref targetPos.Z);
+            ImGui.InputFloat(Ui.Uid(), ref targetPos.Z);
 
             ImGui.SameLine();
-            if (ImGui.Button($"GetCurrentPos##TillMovedToCommand__getpos"))
+            Vector3? currPos = Ui.GetCurrPosBtn(Ui.Uid("CurrPos"));
+            if (currPos != null)
             {
-                var localPlayer = CottonCollectorPlugin.ClientState.LocalPlayer;
-                SetTarget(localPlayer.Position);
+                targetPos = currPos.Value;
             }
 
             ImGui.PopItemWidth();
-        }
-
-        public void SetTarget(Vector3 target)
-        {
-            targetPos.X = target.X;
-            targetPos.Y = target.Y;
-            targetPos.Z = target.Z;
         }
     }
 }

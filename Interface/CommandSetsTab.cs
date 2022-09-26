@@ -193,7 +193,8 @@ namespace CottonCollector.Interface
                 {
                     ImGui.InputTextWithHint(Ui.Uid(), "New Command Set Name", ref newCommandSetName, 100);
                     ImGui.SameLine();
-                    if (ImGui.Button("Add"))
+                    ImGui.PushFont(UiBuilder.IconFont);
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Plus.ToIconString()}")))
                     {
                         if (newCommandSetName != "" && !CommandSet.CommandSetMap.ContainsKey(newCommandSetName))
                         {
@@ -201,6 +202,7 @@ namespace CottonCollector.Interface
                             config.commandSets.Add(new CommandSet(newCommandSetName));
                         }
                     }
+                    ImGui.PopFont();
                     ImGui.EndPopup();
                 }
 
@@ -209,7 +211,7 @@ namespace CottonCollector.Interface
                 {
                     if (commandSet == null)
                     {
-                        PluginLog.Log("Null CommandSet!!");
+                        PluginLog.Verbose("Null CommandSet!!");
                         continue;
                     }
                     if (!filterString.IsNullOrEmpty() && !Regex.IsMatch(commandSet.uniqueId, filterString))
@@ -246,13 +248,13 @@ namespace CottonCollector.Interface
                     }
 
                     ImGui.Separator();
-                    if (ImGui.Button("Play"))
+                    if (ImGui.Button(Ui.Uid("Play")))
                     {
                         CottonCollectorPlugin.rootCmdManager.Schedule(selectedCommandSet);
                     }
 
                     ImGui.SameLine();
-                    if (ImGui.Button("Kill Switch"))
+                    if (ImGui.Button(Ui.Uid("Kill Switch")))
                     {
                         CottonCollectorPlugin.rootCmdManager.KillSwitch();
                     }
