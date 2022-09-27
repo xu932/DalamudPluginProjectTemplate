@@ -31,14 +31,17 @@ namespace CottonCollector.Commands.Structures
         protected readonly int uid;
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }
+        protected long minRefireMili { set; get; }
 
         public bool TriggerCondition() {
-            return this.condition == null || condition.triggeringCondition();
+            return (this.condition == null || condition.triggeringCondition()) 
+                && (runnedTimes == 0 || minRefireMili < timer.ElapsedMilliseconds - lastFireTime);
         }
 
         private bool isCurrent = false;
         public bool shouldRepeat { get; protected set; } = false;
         private int runnedTimes = 0;
+        private long lastFireTime = -1;
 
         private readonly Stopwatch timer = new();
 
@@ -46,6 +49,7 @@ namespace CottonCollector.Commands.Structures
         {
             uid = nextUid++;
             minTimeMili = 0;
+            minRefireMili = 10;
             timeOutMili = 1000 * 60 * 5; // 5 mins 
         }
 
@@ -121,6 +125,7 @@ namespace CottonCollector.Commands.Structures
                 timer.Reset();
                 timer.Start();
             }
+            lastFireTime = timer.ElapsedMilliseconds; 
 
             Do();
             runnedTimes++;
