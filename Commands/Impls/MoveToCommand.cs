@@ -71,11 +71,11 @@ namespace CottonCollector.Commands.Impls
                 // if we are too close to the target, just use W/A/D without turning camera
                 v.Y = 1;
                 // use A/D when we still have good distance
-                if (dist > 5 && angle > 0)
+                if (angle > -Math.PI / 72)
                 {
                     v.X = 1;
                 }
-                else if (dist > 5 && angle < 0)
+                else if (angle > Math.PI / 72)
                 {
                     v.X = -1;
                 }
