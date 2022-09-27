@@ -117,6 +117,7 @@ namespace CottonCollector.BackgroundInputs
             {
                 PluginLog.Verbose("BAKA!! Un-Focused FFXIV!");
                 gameIsFocused = false;
+                Thread.Sleep(10);
                 foreach (VirtualKey pressedKey in  pressedKeys)
                 {
                     KeyDown(pressedKey);
