@@ -21,6 +21,7 @@ namespace CottonCollector.Commands.Impls
         [JsonProperty] public Vector3 targetPos;
 
         private bool finished = false;
+        private bool faceTarget = false;
         private int xMove = 0;
         private int yMove = 0;
         private int turn = 0; // + left - right
@@ -57,14 +58,39 @@ namespace CottonCollector.Commands.Impls
         private Vector3 Decide(double angle, double dist)
         {
             Vector3 v = new();
-            // if we are more than 60 degree away from target, just turn camera
-            if (angle > Math.PI / 3)
+            
+            if (dist < 5)   // check if we are close enough to the target
             {
-                v.Z = -1;
-            }
-            else if (angle < -Math.PI / 3)
-            {
-                v.Z = 1;
+                if (turn == 0)  // check we are turning or not, if we are not turning
+                {
+                    if (faceTarget)     // if we are facing target, then we are good
+                    {
+                        finished = true;
+                    }
+                    else        // we are close but not facing target
+                    {
+                        // start turning towards target
+                        faceTarget = true;
+                        if (angle < -Math.PI / 18)
+                        {
+                            v.Z = 1;
+                        }
+                        else if (angle > Math.PI / 18)
+                        {
+                            v.Z = -1;
+                        }
+                    }
+                }
+                else if (turn * angle > 0)
+                {
+                    // we have turn passed the target
+                    finished = true;
+                    v.Z = 0;
+                }
+                else
+                {
+                    v.Z = turn;
+                }
             }
             else if (dist < 20)
             {
@@ -146,7 +172,10 @@ namespace CottonCollector.Commands.Impls
             var dist = MyMath.dist(player.Position, targetPos);
 
             PluginLog.Log("start moving");
-            if (dist < 5)
+            
+            Vector3 next = Decide(angle, dist);
+
+            if (finished)
             {
                 UpdateMove(xMove, 0, VirtualKey.D, VirtualKey.A);
                 UpdateMove(yMove, 0, VirtualKey.W, VirtualKey.W);
@@ -154,8 +183,6 @@ namespace CottonCollector.Commands.Impls
                 finished = true;
                 return;
             }
-
-            Vector3 next = Decide(angle, dist);
 
             PluginLog.Log($"Angle: {angle}\t\tDist: {dist}");
             PluginLog.Log($"<{xMove}, {yMove}, {turn}> -> <{next.X}, {next.Y}, {next.Z}>");
