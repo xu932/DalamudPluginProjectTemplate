@@ -57,16 +57,8 @@ namespace CottonCollector.Commands.Impls
         private Vector3 Decide(double angle, double dist)
         {
             Vector3 v = new();
-            // if we are more than 60 degree away from target, just turn camera
-            if (angle > Math.PI / 3)
-            {
-                v.Z = -1;
-            }
-            else if (angle < -Math.PI / 3)
-            {
-                v.Z = 1;
-            }
-            else if (dist < 20)
+            
+            if (dist < 20)
             {
                 // if we are too close to the target, just use W/A/D without turning camera
                 v.Y = 1;
@@ -80,16 +72,25 @@ namespace CottonCollector.Commands.Impls
                     v.X = -1;
                 }
             }
+            // if we are more than 60 degree away from target, just turn camera
+            else if (angle > Math.PI / 3)
+            {
+                v.Z = -1;
+            }
+            else if (angle < -Math.PI / 3)
+            {
+                v.Z = 1;
+            }
             else
             {
                 // we are far away, we can move forward
                 // if we are 45 degree away, then turn while running forward
                 v.Y = 1;
-                if (angle > Math.PI / 4)
+                if (angle > Math.PI / 6)
                 {
                     v.Z = -1;
                 }
-                else if (angle < -Math.PI / 4)
+                else if (angle < -Math.PI / 6)
                 {
                     v.Z = 1;
                 }
