@@ -20,6 +20,16 @@ namespace CottonCollector.Commands.Impls
     {
         [JsonProperty] public Vector3 targetPos;
 
+        public enum ActionMode
+        {
+            STOP = 0,
+            LEFT = -1,
+            RIGHT = 1,
+            FORWARD = 1,
+            ROTATE_LEFT = 1,
+            ROTATE_RIGHT = -1,
+        }
+
         private bool finished = false;
         private bool faceTarget = false;
         private int xMove = 0;
@@ -73,11 +83,11 @@ namespace CottonCollector.Commands.Impls
                         faceTarget = true;
                         if (angle < -Math.PI / 18)
                         {
-                            v.Z = 1;
+                            v.Z = (int) ActionMode.ROTATE_LEFT;
                         }
                         else if (angle > Math.PI / 18)
                         {
-                            v.Z = -1;
+                            v.Z = (int) ActionMode.ROTATE_RIGHT;
                         }
                     }
                 }
@@ -85,7 +95,7 @@ namespace CottonCollector.Commands.Impls
                 {
                     // we have turn passed the target
                     finished = true;
-                    v.Z = 0;
+                    v.Z = (int) ActionMode.STOP;
                 }
                 else
                 {
@@ -95,29 +105,29 @@ namespace CottonCollector.Commands.Impls
             else if (dist < 20)
             {
                 // if we are too close to the target, just use W/A/D without turning camera
-                v.Y = 1;
+                v.Y = (int) ActionMode.FORWARD;
                 // use A/D when we still have good distance
                 if (angle > -Math.PI / 72)
                 {
-                    v.X = 1;
+                    v.X = (int) ActionMode.RIGHT;
                 }
                 else if (angle > Math.PI / 72)
                 {
-                    v.X = -1;
+                    v.X = (int) ActionMode.LEFT;
                 }
             }
             else
             {
                 // we are far away, we can move forward
                 // if we are 45 degree away, then turn while running forward
-                v.Y = 1;
+                v.Y = (int) ActionMode.FORWARD;
                 if (angle > Math.PI / 4)
                 {
-                    v.Z = -1;
+                    v.Z = (int) ActionMode.ROTATE_RIGHT;
                 }
                 else if (angle < -Math.PI / 4)
                 {
-                    v.Z = 1;
+                    v.Z = (int) ActionMode.ROTATE_LEFT;
                 }
             }
 
@@ -126,7 +136,7 @@ namespace CottonCollector.Commands.Impls
             // if we were turning before and we haven't reach target angle, keep turning in that direction
             if (dist > 15 && (angle < -Math.PI / 72 || angle > Math.PI / 72))
             {
-                if (v.Z == 0 || angle * turn < 0)
+                if (v.Z == (int) ActionMode.STOP || angle * turn < 0)
                 {
                     v.Z = turn;
                 }
