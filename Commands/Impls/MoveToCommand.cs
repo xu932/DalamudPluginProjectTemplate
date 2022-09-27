@@ -64,14 +64,14 @@ namespace CottonCollector.Commands.Impls
             {
                 v.Z = 1;
             }
-            else if (dist < 10)
+            else if (dist < 20)
             {
                 v.Y = 1;
-                if (dist > 10 && angle > 0)
+                if (dist > 5 && angle > 0)
                 {
                     v.X = 1;
                 }
-                else if (dist > 10 && angle < 0)
+                else if (dist > 5 && angle < 0)
                 {
                     v.X = -1;
                 }
@@ -141,7 +141,7 @@ namespace CottonCollector.Commands.Impls
             Vector3 next = Decide(angle, dist);
 
             // update turn logic to avoid shaking
-            if (turn != 0 && dist > 10 && (angle < -Math.PI / 72 || angle > Math.PI / 72))
+            if (turn != 0 && dist > 15 && (angle < -Math.PI / 72 || angle > Math.PI / 72))
             {
                 if (next.Z == 0 || angle * next.Z < 0)
                 {
