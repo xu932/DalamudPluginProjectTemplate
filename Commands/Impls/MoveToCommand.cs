@@ -39,10 +39,17 @@ namespace CottonCollector.Commands.Impls
             base.MinimalInfo();
             ImGui.Text($"Move to {this.targetPos:#.00}");
             ImGui.SameLine();
-            Vector3? currPos = Ui.GetCurrPosBtn(Ui.Uid("CurrPos"));
+            Vector3? currPos = Ui.GetCurrPosBtn(Ui.Uid("CurrPos", uid));
             if (currPos != null)
             {
                 targetPos = currPos.Value;
+            }
+
+            ImGui.SameLine();
+            Vector3? currTargetPos = Ui.GetTargetPosBtn(Ui.Uid("TargetPos", uid));
+            if (currTargetPos != null)
+            {
+                targetPos = currTargetPos.Value;
             }
         }
 
@@ -161,26 +168,38 @@ namespace CottonCollector.Commands.Impls
 
             ImGui.Text("X:");
             ImGui.SameLine();
-            ImGui.InputFloat(Ui.Uid(), ref targetPos.X);
+            ImGui.InputFloat(Ui.Uid(index: uid), ref targetPos.X);
 
             ImGui.SameLine();
             ImGui.Text("Y:");
             ImGui.SameLine();
-            ImGui.InputFloat(Ui.Uid(), ref targetPos.Y);
+            ImGui.InputFloat(Ui.Uid(index: uid), ref targetPos.Y);
 
             ImGui.SameLine();
             ImGui.Text("Z:");
             ImGui.SameLine();
-            ImGui.InputFloat(Ui.Uid(), ref targetPos.Z);
+            ImGui.InputFloat(Ui.Uid(index: uid), ref targetPos.Z);
 
             ImGui.SameLine();
-            Vector3? currPos = Ui.GetCurrPosBtn(Ui.Uid("CurrPos"));
+            Vector3? currPos = Ui.GetCurrPosBtn(Ui.Uid("CurrPos", uid));
             if (currPos != null)
             {
                 targetPos = currPos.Value;
             }
 
+            ImGui.SameLine();
+            Vector3? currTargetPos = Ui.GetTargetPosBtn(Ui.Uid("TargetPos", uid));
+            if (currTargetPos != null)
+            {
+                targetPos = currTargetPos.Value;
+            }
+
             ImGui.PopItemWidth();
+        }
+
+        public void SetTarget(Vector3 target)
+        {
+            targetPos = target;
         }
     }
 }

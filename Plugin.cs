@@ -54,6 +54,9 @@ namespace CottonCollector
         [PluginService]
         internal static AetheryteList AetheryteList { get; private set; }
 
+        [PluginService]
+        internal static TargetManager TargetManager { get; private set; }
+
         internal static BgInput bginput { get; private set; }
 
         internal static CommandManager rootCmdManager = new();

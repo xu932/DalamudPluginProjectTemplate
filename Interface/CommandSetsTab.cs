@@ -59,12 +59,12 @@ namespace CottonCollector.Interface
                     command.MinimalInfo();
 
                     ImGui.TableSetColumnIndex(2);
-                    var editUid = Ui.Uid("Edit Command");
+                    var editUid = Ui.Uid("Edit Command", index);
                     if (ImGui.BeginPopup(editUid))
                     {
                         command.BuilderGui();
 
-                        if (ImGui.Button("Save & Close"))
+                        if (ImGui.Button(Ui.Uid("Save & Close", index)))
                         {
                             ImGui.CloseCurrentPopup();
                             CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
@@ -73,13 +73,13 @@ namespace CottonCollector.Interface
                     }
 
                     ImGui.PushFont(UiBuilder.IconFont);
-                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Edit.ToIconString()}")))
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Edit.ToIconString()}", index)))
                     {
                         ImGui.OpenPopup(editUid);
                     }
 
                     ImGui.SameLine();
-                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Minus.ToIconString()}")))
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Minus.ToIconString()}", index)))
                     {
                         var prev = commandLN.Previous;
                         commands.Remove(commandLN);
@@ -87,26 +87,24 @@ namespace CottonCollector.Interface
                     }
 
                     ImGui.SameLine();
-                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowUp.ToIconString()}")))
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowUp.ToIconString()}", index)))
                     {
                         var prev = commandLN.Previous;
                         if (prev != null)
                         {
                             commands.Remove(commandLN);
                             commands.AddBefore(prev, commandLN);
-                            return;
                         }
                     }
 
                     ImGui.SameLine();
-                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowDown.ToIconString()}")))
+                    if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowDown.ToIconString()}", index)))
                     {
                         var next = commandLN.Next;
                         if (next != null)
                         {
                             commands.Remove(commandLN);
                             commands.AddAfter(next, commandLN);
-                            return;
                         }
                     }
                     ImGui.PopFont();
@@ -207,6 +205,8 @@ namespace CottonCollector.Interface
                 }
 
                 ImGui.BeginChild(Ui.Uid());
+
+                int setIndex = 0;
                 foreach (var commandSet in config.commandSets)
                 {
                     if (commandSet == null)
@@ -218,10 +218,13 @@ namespace CottonCollector.Interface
                     {
                         continue;
                     }
-                    if (ImGui.Selectable($"{commandSet.uniqueId}", selectedCommandSet != null && commandSet.uniqueId == selectedCommandSet.uniqueId))
+                    if (ImGui.Selectable(Ui.Uid($"{commandSet.uniqueId}", setIndex), selectedCommandSet != null && 
+                        commandSet.uniqueId == selectedCommandSet.uniqueId))
                     {
                         selectedCommandSet = commandSet;
                     }
+
+                    setIndex++;
                 }
                 ImGui.EndChild();
                 #endregion

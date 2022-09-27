@@ -147,7 +147,7 @@ namespace CottonCollector.Commands.Impls
             ImGui.SameLine();
 
             ImGui.PushItemWidth(100);
-            ImGui.InputText(Ui.Uid(), ref cmd, 100);
+            ImGui.InputText(Ui.Uid(index: uid), ref cmd, 100);
             ImGui.PopItemWidth();
         }
 

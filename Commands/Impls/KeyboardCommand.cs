@@ -67,7 +67,7 @@ namespace CottonCollector.Commands.Impls
             ImGui.SameLine();
             List<ActionType> actionTypes = Enum.GetValues(typeof(ActionType)).Cast<ActionType>().ToList();
             int newActionTypeIndex = actionTypes.IndexOf(actionType);
-            if (ImGui.Combo(Ui.Uid(), ref newActionTypeIndex,
+            if (ImGui.Combo(Ui.Uid(index: uid), ref newActionTypeIndex,
                 Enum.GetNames(typeof(ActionType)), actionTypes.Count))
             {
                 actionType = actionTypes[newActionTypeIndex];
@@ -79,7 +79,7 @@ namespace CottonCollector.Commands.Impls
             ImGui.SameLine();
             List<VirtualKey> keys = Enum.GetValues(typeof(VirtualKey)).Cast<VirtualKey>().ToList();
             int newVkIndex = keys.IndexOf(vk);
-            if (ImGui.Combo(Ui.Uid(), ref newVkIndex, Enum.GetNames(typeof(VirtualKey)), keys.Count))
+            if (ImGui.Combo(Ui.Uid(index: uid), ref newVkIndex, Enum.GetNames(typeof(VirtualKey)), keys.Count))
             {
                 vk = keys[newVkIndex];
             }

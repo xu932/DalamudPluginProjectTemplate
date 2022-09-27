@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 
-using CottonCollector.Config;
+using CottonCollector.Util;
 
 namespace CottonCollector.Interface
 {
@@ -10,9 +10,15 @@ namespace CottonCollector.Interface
 
         public override void TabContent()
         {
-            ImGui.Checkbox("Show Objects", ref config.showObjects);
-            ImGui.Checkbox("Show Camera Info", ref config.showCameraInfo);
+            ImGui.Checkbox(Ui.Uid("Show Objects"), ref config.showObjects);
+            ImGui.Checkbox(Ui.Uid("Show Camera Info"), ref config.showCameraInfo);
+            if (CottonCollectorPlugin.TargetManager.Target != null)
+            {
+                ImGui.Text("Curr Target: ");
+                ImGui.Text($"Name: {CottonCollectorPlugin.TargetManager.Target.Name}");
+                ImGui.Text($"Position: {CottonCollectorPlugin.TargetManager.Target.Position}");
+                ImGui.Text($"Address: {CottonCollectorPlugin.TargetManager.Target.Address}");
+            }
         }
-
     }
 }

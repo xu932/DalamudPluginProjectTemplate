@@ -36,7 +36,7 @@ namespace CottonCollector.Commands.Impls
             ImGui.Text("Sleep for ");
 
             ImGui.SameLine();
-            ImGui.InputInt(Ui.Uid(), ref mili);
+            ImGui.InputInt(Ui.Uid(index: uid), ref mili);
 
             ImGui.SameLine();
             ImGui.Text(" mili seconds");

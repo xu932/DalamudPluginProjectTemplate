@@ -11,6 +11,7 @@ using Dalamud.Logging;
 
 using CottonCollector.Commands.Conditions;
 using CottonCollector.Util;
+using Dalamud.Interface;
 
 namespace CottonCollector.Commands.Structures
 {
@@ -25,9 +26,9 @@ namespace CottonCollector.Commands.Structures
 
         private static int nextUid = 0;
 
-        private readonly int uid;
         private int conditionIndex = 0;
 
+        protected readonly int uid;
         protected int minTimeMili { set; get; }
         protected int timeOutMili { set; get; }
 
@@ -84,24 +85,29 @@ namespace CottonCollector.Commands.Structures
 
                 var types = Condition.AllTypes.ToArray();
                 ImGui.SetNextItemWidth(200);
-                ImGui.Combo($"##ConditionTypeSelector__Command__{uid}", ref conditionIndex,
+                ImGui.Combo(Ui.Uid(index: uid), ref conditionIndex,
                     types.Select(t => t.Name).ToArray(), types.Length);
 
                 ImGui.SameLine();
-                if (ImGui.Button($"Add##Condition__Command__{uid}"))
+                ImGui.PushFont(UiBuilder.IconFont);
+                if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Plus.ToIconString()}", uid)))
                 {
                     condition = (Condition)Activator.CreateInstance(types[conditionIndex], null);
                 }
+                ImGui.PopFont();
             } 
             else
             {
                 ImGui.Text($"On {condition.GetType().Name}");
                 ImGui.SameLine();
                 condition.SelectorGui();
+
                 ImGui.SameLine();
-                if (ImGui.Button($"Remove##Condition__Command__{uid}")) {
+                ImGui.PushFont(UiBuilder.IconFont);
+                if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Trash.ToIconString()}", uid))) {
                     condition = null;
                 }
+                ImGui.PopFont();
             }
         }
 
