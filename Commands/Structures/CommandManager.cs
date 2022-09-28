@@ -18,28 +18,28 @@ namespace CottonCollector.Commands.Structures
         {
             if (done && commands.Count > 0)
             {
-                PluginLog.Log($"Command {commands.Count}");
                 var nextCommand = commands.First.Value;
+                PluginLog.Log($"next command: {nextCommand.GetType().Name}");
                 if (nextCommand != null && nextCommand.TriggerCondition())
                 {
+                    commands.RemoveFirst();
                     currCommand = nextCommand;
                     currCommand.Execute();
                     done = false;
                 }
-                if (!nextCommand.ShouldRepeat || currCommand.IsFinished())
-                {
-                    commands.RemoveFirst();
-                }
-                else
-                {
-                    done = true;
-                }
             }
 
-            if (!done && currCommand != null && currCommand.IsFinished())
+            if (!done && currCommand != null)
             {
-                done = true;
-                currCommand = null;
+                if (currCommand.ShouldRepeat)
+                {
+                    currCommand.Execute();
+                }
+                if (currCommand.IsFinished())
+                {
+                    done = true;
+                    currCommand = null;
+                }
             }
         }
 
@@ -83,7 +83,6 @@ namespace CottonCollector.Commands.Structures
         internal void Schedule(Command newCommand)
         {
             PluginLog.Log($"Scheduling {newCommand.GetType()}");
-            PluginLog.Log($"Command set size {commands.Count}");
             commands.AddLast(newCommand);
         }
     }
