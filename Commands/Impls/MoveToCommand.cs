@@ -32,12 +32,18 @@ namespace CottonCollector.Commands.Impls
         internal override bool ShouldRepeat { get; } = true;
 
         private bool finished = false;
+        private bool shouldFaceTarget = false;
         private bool faceTarget = false;
         private int xMove = 0;
         private int yMove = 0;
         private int turn = 0; // + left - right
 
         protected override bool TerminateCondition() => finished;
+
+        internal MoveToCommand()
+        {
+            targetPos = CottonCollectorPlugin.ClientState.LocalPlayer.Position;
+        }
 
         private Vector3 Decide(double angle, double dist)
         {
@@ -178,7 +184,8 @@ namespace CottonCollector.Commands.Impls
         internal override void ResetExecutionState()
         {
             base.ResetExecutionState();
-            finished = faceTarget = false;
+            finished = false;
+            faceTarget = !shouldFaceTarget;
             xMove = yMove = turn = 0;
         }
 
@@ -204,7 +211,11 @@ namespace CottonCollector.Commands.Impls
             if (currTargetPos != null)
             {
                 targetPos = currTargetPos.Value;
+                shouldFaceTarget = true;
             }
+
+            ImGui.SameLine();
+            ImGui.Checkbox(Ui.Uid("face target?", uid), ref shouldFaceTarget);
         }
 
         internal override void SelectorGui()
