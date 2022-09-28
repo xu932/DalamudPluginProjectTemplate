@@ -40,11 +40,6 @@ namespace CottonCollector.Commands.Impls
 
         protected override bool TerminateCondition() => finished;
 
-        internal MoveToCommand()
-        {
-            targetPos = CottonCollectorPlugin.ClientState.LocalPlayer.Position;
-        }
-
         private Vector3 Decide(double angle, double dist)
         {
             Vector3 v = new();

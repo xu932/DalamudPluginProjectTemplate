@@ -134,6 +134,10 @@ namespace CottonCollector.Interface
                     {
                         commands.AddLast(newCommand);
                         newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
+                        if (newCommand is MoveToCommand moveTo)
+                        {
+                            moveTo.SetTarget(CottonCollectorPlugin.ClientState.LocalPlayer.Position);
+                        }
                     }
                     ImGui.PopFont();
                 }
