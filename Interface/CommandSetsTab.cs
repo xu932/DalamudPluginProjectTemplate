@@ -270,6 +270,7 @@ namespace CottonCollector.Interface
                     if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Trash.ToIconString()}")))
                     {
                         config.commandSets.Remove(selectedCommandSet);
+                        CommandSet.CommandSetMap.Remove(selectedCommandSet.uniqueId);
                         selectedCommandSet = null;
                     }
                     ImGui.PopFont();
