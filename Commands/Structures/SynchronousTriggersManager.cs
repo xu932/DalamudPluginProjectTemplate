@@ -15,9 +15,9 @@ namespace CottonCollector.Commands.Structures
         private bool enabled = false;
         private bool updating = false;
 
-        public bool IsFinished => !updating;
+        internal bool IsFinished => !updating;
 
-        public void Update(Framework framework)
+        internal void Update(Framework framework)
         {
             if (commandManager.IsEmpty && triggers.Count > 0 && enabled)
             {
@@ -38,12 +38,12 @@ namespace CottonCollector.Commands.Structures
             }
         }
 
-        public void Add(Command t)
+        internal void Add(Command t)
         {
             triggers.AddLast(t);
         }
 
-        public void Add(IEnumerable<Command> ts)
+        internal void Add(IEnumerable<Command> ts)
         {
             foreach (var t in ts)
             {
@@ -51,22 +51,23 @@ namespace CottonCollector.Commands.Structures
             }
         }
 
-        public void Enable()
+        internal void Enable()
         {
             enabled = true;
             updating = true;
             CottonCollectorPlugin.Framework.Update += Update;
         }
 
-        public void Disable()
+        internal void Disable()
         {
             enabled = false;
         }
 
-        public void KillSwitch()
+        internal void KillSwitch()
         {
             triggers.Clear();
             commandManager.KillSwitch();
+            enabled = updating = false;
         }
     }
 }

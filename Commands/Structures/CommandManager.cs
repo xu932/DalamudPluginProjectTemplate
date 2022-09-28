@@ -9,13 +9,12 @@ namespace CottonCollector.Commands.Structures
     internal class CommandManager
     {
         private bool done = true;
+        private readonly LinkedList<Command> commands = new();
         private Command currCommand;
 
-        private LinkedList<Command> commands = new();
+        internal bool IsEmpty => commands.Count == 0 && currCommand == null;
 
-        public bool IsEmpty => commands.Count == 0 && currCommand == null;
-
-        public void Update(Framework framework)
+        internal void Update(Framework framework)
         {
             if (done && commands.Count > 0)
             {
@@ -27,7 +26,7 @@ namespace CottonCollector.Commands.Structures
                     currCommand.Execute();
                     done = false;
                 }
-                if (!nextCommand.shouldRepeat || currCommand.IsFinished())
+                if (!nextCommand.ShouldRepeat || currCommand.IsFinished())
                 {
                     commands.RemoveFirst();
                 }
@@ -44,12 +43,16 @@ namespace CottonCollector.Commands.Structures
             }
         }
 
-        public void KillSwitch()
+        internal void KillSwitch()
         {
             PluginLog.Log($"Killed {commands.Count} commands");
-            if (currCommand != null && currCommand is CommandSet currCommandSet)
+            if (currCommand != null)
             {
-                currCommandSet.KillSwitch();
+                if (currCommand is CommandSet currCommandSet)
+                {
+                    currCommandSet.KillSwitch();
+                }
+                currCommand = null;
             }
 
             foreach (var command in commands)
@@ -65,7 +68,7 @@ namespace CottonCollector.Commands.Structures
             done = true;
         }
 
-        public void Schedule(IEnumerable<Command> newCommands)
+        internal void Schedule(IEnumerable<Command> newCommands)
         {
             foreach (var command in newCommands)
             {
@@ -74,7 +77,7 @@ namespace CottonCollector.Commands.Structures
             }
         }
 
-        public void Schedule(Command newCommand)
+        internal void Schedule(Command newCommand)
         {
             PluginLog.Log($"Scheduling {newCommand.GetType()}");
             PluginLog.Log($"Command set size {commands.Count}");

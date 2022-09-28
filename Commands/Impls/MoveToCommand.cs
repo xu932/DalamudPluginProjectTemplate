@@ -12,7 +12,6 @@ using CottonCollector.BackgroundInputs;
 using CottonCollector.Commands.Structures;
 using CottonCollector.CameraManager;
 using CottonCollector.Util;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace CottonCollector.Commands.Impls
 {
@@ -30,40 +29,15 @@ namespace CottonCollector.Commands.Impls
             ROTATE_RIGHT = -1,
         }
 
+        internal override bool ShouldRepeat { get; } = true;
+
         private bool finished = false;
         private bool faceTarget = false;
         private int xMove = 0;
         private int yMove = 0;
         private int turn = 0; // + left - right
 
-        public MoveToCommand()
-        {
-            shouldRepeat = true;
-        }
-
-        public override bool TerminateCondition()
-        {
-            return finished;
-        }
-
-        public override void MinimalInfo()
-        {
-            base.MinimalInfo();
-            ImGui.Text($"Move to {this.targetPos:#.00}");
-            ImGui.SameLine();
-            Vector3? currPos = Ui.GetCurrPosBtn(Ui.Uid("CurrPos", uid));
-            if (currPos != null)
-            {
-                targetPos = currPos.Value;
-            }
-
-            ImGui.SameLine();
-            Vector3? currTargetPos = Ui.GetTargetPosBtn(Ui.Uid("TargetPos", uid));
-            if (currTargetPos != null)
-            {
-                targetPos = currTargetPos.Value;
-            }
-        }
+        protected override bool TerminateCondition() => finished;
 
         private Vector3 Decide(double angle, double dist)
         {
@@ -144,7 +118,7 @@ namespace CottonCollector.Commands.Impls
             return v;
         }
 
-        public void UpdateMove(int cur, int next, VirtualKey pos, VirtualKey neg)
+        private void UpdateMove(int cur, int next, VirtualKey pos, VirtualKey neg)
         {
             if (cur != next)
             {
@@ -168,13 +142,7 @@ namespace CottonCollector.Commands.Impls
             }
         }
 
-        public override void OnStart()
-        {
-            finished = false;
-            xMove = yMove = turn = 0;
-        }
-
-        public override void Do()
+        protected override void Do()
         {
             var player = CottonCollectorPlugin.ClientState.LocalPlayer;
             var camera = new Vector3(CameraHelpers.collection->WorldCamera->X, CameraHelpers.collection->WorldCamera->Y, 0);
@@ -207,7 +175,39 @@ namespace CottonCollector.Commands.Impls
             turn = (int)next.Z;
         }
 
-        public override void SelectorGui()
+        internal override void ResetExecutionState()
+        {
+            base.ResetExecutionState();
+            finished = faceTarget = false;
+            xMove = yMove = turn = 0;
+        }
+
+        internal void SetTarget(Vector3 target)
+        {
+            targetPos = target;
+        }
+
+        #region GUI
+        internal override void MinimalInfo()
+        {
+            base.MinimalInfo();
+            ImGui.Text($"Move to {this.targetPos:#.00}");
+            ImGui.SameLine();
+            Vector3? currPos = Ui.GetCurrPosBtn(Ui.Uid("CurrPos", uid));
+            if (currPos != null)
+            {
+                targetPos = currPos.Value;
+            }
+
+            ImGui.SameLine();
+            Vector3? currTargetPos = Ui.GetTargetPosBtn(Ui.Uid("TargetPos", uid));
+            if (currTargetPos != null)
+            {
+                targetPos = currTargetPos.Value;
+            }
+        }
+
+        internal override void SelectorGui()
         {
             ImGui.PushItemWidth(100);
 
@@ -241,10 +241,6 @@ namespace CottonCollector.Commands.Impls
 
             ImGui.PopItemWidth();
         }
-
-        public void SetTarget(Vector3 target)
-        {
-            targetPos = target;
-        }
+        #endregion
     }
 }

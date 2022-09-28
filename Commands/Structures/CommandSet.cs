@@ -27,46 +27,40 @@ namespace CottonCollector.Commands.Structures
 
         public CommandSet(string uniqueId)
         {
-            PluginLog.Log($"new command set: {uniqueId}");
+            PluginLog.Verbose($"new command set: {uniqueId}");
             this.uniqueId = uniqueId;
-            this.timeOutMili = -1;
 
             if (CommandSetMap.ContainsKey(uniqueId))
             {
-                CommandSetMap.Remove(uniqueId);
+                throw new ArgumentException($"{uniqueId} already exists.");
             }
 
             CommandSetMap.Add(uniqueId, this);
         }
 
-        public override bool TerminateCondition() => commandManager.IsEmpty;
+        protected override bool TerminateCondition() => commandManager.IsEmpty;
 
-        public override void OnStart()
+        protected override void Do()
+        {
+            CottonCollectorPlugin.Framework.Update += commandManager.Update;
+            triggersManager.Enable();
+        }
+
+        protected override void OnStart()
         {
             PluginLog.Log($"Executing Command Set {uniqueId}");
             commandManager.Schedule(subCommands);
             triggersManager.Add(triggers);
         }
 
-        public override void Do()
-        {
-            CottonCollectorPlugin.Framework.Update += commandManager.Update;
-            triggersManager.Enable();
-        }
-
-        public override void OnFinish()
+        protected override void OnFinish()
         {
             CottonCollectorPlugin.Framework.Update -= commandManager.Update;
             triggersManager.Disable();
         }
 
 
-        public override void SelectorGui()
-        {
-            ImGui.Text($"{uniqueId}");
-        }
-
-        public void KillSwitch()
+        internal void KillSwitch()
         {
             commandManager.KillSwitch();
             triggersManager.KillSwitch();
@@ -75,10 +69,17 @@ namespace CottonCollector.Commands.Structures
             CottonCollectorPlugin.Framework.Update -= triggersManager.Update;
         }
 
-        public override void MinimalInfo()
+        #region GUI
+        internal override void MinimalInfo()
         {
             base.MinimalInfo();
             ImGui.Text($"{uniqueId}");
         }
+
+        internal override void SelectorGui()
+        {
+            ImGui.Text($"{uniqueId}");
+        }
+        #endregion
     }
 }

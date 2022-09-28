@@ -26,20 +26,11 @@ namespace CottonCollector.Commands.Impls
         [JsonProperty] public ActionType actionType = ActionType.KEY_PRESS;
         [JsonProperty] public VirtualKey vk;
 
-        public KeyboardCommand()
-        {
-            minTimeMili = 10;
-        }
+        protected override int MinTimeMili { get; } = 10;
 
-        public override bool TerminateCondition() => true;
+        protected override bool TerminateCondition() => true;
 
-        public override void MinimalInfo()
-        {
-            base.MinimalInfo();
-            ImGui.Text(actionType.ToString() + " " + vk.ToString());
-        }
-
-        public override void Do()
+        protected override void Do()
         {
             switch (actionType)
             {
@@ -58,7 +49,14 @@ namespace CottonCollector.Commands.Impls
             }
         }
 
-        public override void SelectorGui()
+        #region GUI
+        internal override void MinimalInfo()
+        {
+            base.MinimalInfo();
+            ImGui.Text(actionType.ToString() + " " + vk.ToString());
+        }
+
+        internal override void SelectorGui()
         {
             ImGui.PushItemWidth(100);
 
@@ -87,5 +85,6 @@ namespace CottonCollector.Commands.Impls
             // TODO: add key modifier selector
             ImGui.PopItemWidth();
         }
+        #endregion
     }
 }

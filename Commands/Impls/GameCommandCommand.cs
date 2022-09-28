@@ -97,14 +97,11 @@ namespace CottonCollector.Commands.Impls
         private static readonly IntPtr uiModulePtr =
             CottonCollectorPlugin.GameGui.GetUIModule();
 
-        public GameCommandCommand()
-        {
-            minTimeMili = 500;
-        }
+        protected override int MinTimeMili { get; } = 500;
 
-        public override bool TerminateCondition() => true;
+        protected override bool TerminateCondition() => true;
 
-        public override void Do()
+        protected override void Do()
         {
             if (CottonCollectorPlugin.CommandManager.ProcessCommand(cmd))
             {
@@ -141,7 +138,8 @@ namespace CottonCollector.Commands.Impls
             return mem;
         }
 
-        public override void SelectorGui()
+        #region GUI
+        internal override void SelectorGui()
         {
             ImGui.Text("Game Command:");
             ImGui.SameLine();
@@ -151,10 +149,11 @@ namespace CottonCollector.Commands.Impls
             ImGui.PopItemWidth();
         }
 
-        public override void MinimalInfo()
+        internal override void MinimalInfo()
         {
             base.MinimalInfo();
             ImGui.Text($"cmd: {cmd}");
         }
+        #endregion
     }
 }

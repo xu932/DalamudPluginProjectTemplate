@@ -19,55 +19,85 @@ namespace CottonCollector.Commands.Structures
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal abstract class Command
     {
-        public static Type[] AllTypes = Assembly.GetAssembly(typeof(Command)).GetTypes()
-                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Command))).ToArray();
-
         [JsonProperty] public Condition condition = null;
 
+        internal static Type[] AllTypes = Assembly.GetAssembly(typeof(Command)).GetTypes()
+                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Command))).ToArray();
         private static int nextUid = 0;
 
-        private int conditionIndex = 0;
+        internal bool IsCurrent { get; private set; } = false;
+        internal virtual bool ShouldRepeat { get; } = false;
+        protected virtual int MinTimeMili { get; } = 0;
+        protected virtual int TimeOutMili { get; } = 1000 * 60 * 5;
+        protected virtual long MinRefireMili { get; } = 10;
 
         protected readonly int uid;
-        protected int minTimeMili { set; get; }
-        protected int timeOutMili { set; get; }
-        protected long minRefireMili { set; get; }
-
-        public bool TriggerCondition() {
-            return (this.condition == null || condition.triggeringCondition()) 
-                && (runnedTimes == 0 || minRefireMili < timer.ElapsedMilliseconds - lastFireTime);
-        }
-
-        private bool isCurrent = false;
-        public bool shouldRepeat { get; protected set; } = false;
+        private int conditionIndex = 0;
         private int runnedTimes = 0;
         private long lastFireTime = -1;
 
         private readonly Stopwatch timer = new();
 
-        public Command()
-        {
-            uid = nextUid++;
-            minTimeMili = 0;
-            minRefireMili = 10;
-            timeOutMili = 1000 * 60 * 5; // 5 mins 
+        internal bool TriggerCondition() {
+            bool triggerCondition = condition?.triggeringCondition() ?? true;
+            bool refireCondition = runnedTimes == 0 || MinRefireMili < timer.ElapsedMilliseconds - lastFireTime;
+            return triggerCondition && refireCondition;
         }
 
-        public bool IsCommandSet() => this is CommandSet;
+        internal Command()
+        {
+            uid = nextUid++;
+        }
 
-        public bool IsCurrent() => isCurrent;
+        internal bool IsCommandSet() => this is CommandSet;
 
-        public abstract void SelectorGui();
+        protected abstract bool TerminateCondition();
+        protected abstract void Do();
+        protected virtual void OnStart() { }
+        protected virtual void OnFinish() { }
 
-        public abstract bool TerminateCondition();
+        #region wrapper methods
+        internal virtual void ResetExecutionState()
+        {
+            timer.Stop();
+            timer.Reset();
+            runnedTimes = 0;
+            lastFireTime = -1;
+            IsCurrent = false;
+        }
 
-        public virtual void OnStart() { }
+        internal void Execute()
+        {
+            if (runnedTimes == 0)
+            {
+                PluginLog.Log($"Executing Command {this.GetType()}");
+                IsCurrent = true;
+                ResetExecutionState();
+                OnStart();
+                timer.Reset();
+                timer.Start();
+            }
+            lastFireTime = timer.ElapsedMilliseconds; 
 
-        public abstract void Do();
+            Do();
+            runnedTimes++;
+        }
 
-        public virtual void OnFinish() { }
+        internal bool IsFinished()
+        {
+            bool timedout = TimeOutMili != -1 && timer.ElapsedMilliseconds >= TimeOutMili;
+            bool finished = timer.ElapsedMilliseconds >= MinTimeMili && TerminateCondition() || timedout;
 
-        public virtual void MinimalInfo()
+            if (finished)
+            {
+                OnFinish();
+                PluginLog.Log($"Finished Command {this.GetType()}");
+            }
+            return finished;
+        }
+
+        #region GUI
+        internal virtual void MinimalInfo()
         {
             if (condition != null)
             {
@@ -75,8 +105,9 @@ namespace CottonCollector.Commands.Structures
             }
         }
 
-        #region wrapper methods
-        public void BuilderGui()
+        internal abstract void SelectorGui();
+
+        internal void BuilderGui()
         {
             ImGui.Text($"{this.GetType().Name}");
             ImGui.SameLine();
@@ -114,40 +145,7 @@ namespace CottonCollector.Commands.Structures
                 ImGui.PopFont();
             }
         }
-
-        public void Execute()
-        {
-            if (runnedTimes == 0)
-            {
-                PluginLog.Log($"Executing Command {this.GetType()}");
-                isCurrent = true;
-                OnStart();
-                timer.Reset();
-                timer.Start();
-            }
-            lastFireTime = timer.ElapsedMilliseconds; 
-
-            Do();
-            runnedTimes++;
-        }
-
-        // This should be called per frame.
-        public bool IsFinished()
-        {
-            bool timedout = timeOutMili != -1 && timer.ElapsedMilliseconds >= timeOutMili;
-            bool finished = timer.ElapsedMilliseconds >= minTimeMili && TerminateCondition() || timedout;
-
-            if (finished)
-            {
-                timer.Stop();
-
-                runnedTimes = 0;
-                OnFinish();
-                isCurrent = false;
-                PluginLog.Log($"Finished Command {this.GetType()}");
-            }
-            return finished;
-        }
+        #endregion
         #endregion
     }
 }

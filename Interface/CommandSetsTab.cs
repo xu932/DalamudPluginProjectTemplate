@@ -48,7 +48,7 @@ namespace CottonCollector.Interface
 
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
-                    if (command.IsCurrent())
+                    if (command.IsCurrent)
                     {
                         ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
                         ImGui.Text("->");
