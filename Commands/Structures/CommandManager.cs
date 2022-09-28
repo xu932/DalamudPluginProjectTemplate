@@ -45,13 +45,14 @@ namespace CottonCollector.Commands.Structures
 
         internal void KillSwitch()
         {
-            PluginLog.Log($"Killed {commands.Count} commands");
             if (currCommand != null)
             {
                 if (currCommand is CommandSet currCommandSet)
                 {
                     currCommandSet.KillSwitch();
                 }
+                PluginLog.Log($"Killed current command: {currCommand.GetType().Name}");
+                currCommand.ResetExecutionState();
                 currCommand = null;
             }
 
@@ -61,7 +62,9 @@ namespace CottonCollector.Commands.Structures
                 {
                     commandSet.KillSwitch();
                 }
+                command.ResetExecutionState();
             }
+            PluginLog.Log($"Killed {commands.Count} queued commands");
             commands.Clear();
             CottonCollectorPlugin.KeyState.ClearAll();
 

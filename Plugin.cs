@@ -163,10 +163,12 @@ namespace CottonCollector
             }
         }
 
-        [Command("/kill")]
+        [Command("/cckill")]
+        [HelpMessage("Kill all current running and queued commands.")]
         public void Kill(string command, string args)
         {
             rootCmdManager.KillSwitch();
+            KeyState.ClearAll();
         }
 
         public void Dispose()
@@ -175,7 +177,7 @@ namespace CottonCollector
             DalamudPluginInterface.UiBuilder.Draw -= configWindow.Draw;
             DalamudPluginInterface.UiBuilder.OpenConfigUi -= configWindow.Open;
             Framework.Update -= rootCmdManager.Update;
-            if (pluginCommandManager != null) pluginCommandManager.Dispose();
+            pluginCommandManager?.Dispose();
             CommandSet.CommandSetMap.Clear();
 
             GC.SuppressFinalize(this);

@@ -47,6 +47,7 @@ namespace CottonCollector.Commands.Structures
         internal Command()
         {
             uid = nextUid++;
+            ResetExecutionState();
         }
 
         internal bool IsCommandSet() => this is CommandSet;
@@ -72,7 +73,6 @@ namespace CottonCollector.Commands.Structures
             {
                 PluginLog.Log($"Executing Command {this.GetType()}");
                 IsCurrent = true;
-                ResetExecutionState();
                 OnStart();
                 timer.Reset();
                 timer.Start();
@@ -91,6 +91,7 @@ namespace CottonCollector.Commands.Structures
             if (finished)
             {
                 OnFinish();
+                ResetExecutionState();
                 PluginLog.Log($"Finished Command {this.GetType()}");
             }
             return finished;

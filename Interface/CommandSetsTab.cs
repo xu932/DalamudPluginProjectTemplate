@@ -15,6 +15,7 @@ using CottonCollector.Config;
 using CottonCollector.Commands.Structures;
 using CottonCollector.Commands.Impls;
 using CottonCollector.Util;
+using CottonCollector.BackgroundInputs;
 
 namespace CottonCollector.Interface
 {
@@ -260,6 +261,8 @@ namespace CottonCollector.Interface
                     if (ImGui.Button(Ui.Uid("Kill Switch")))
                     {
                         CottonCollectorPlugin.rootCmdManager.KillSwitch();
+                        CottonCollectorPlugin.KeyState.ClearAll();
+                        BgInput.Clear();
                     }
                     ImGui.SameLine();
 

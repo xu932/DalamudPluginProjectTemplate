@@ -23,6 +23,7 @@ namespace CottonCollector.Commands.Impls
 
         internal override void ResetExecutionState()
         {
+            base.ResetExecutionState();
             stopwatch.Stop();
             stopwatch.Reset();
         }

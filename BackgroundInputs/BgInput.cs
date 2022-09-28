@@ -132,6 +132,11 @@ namespace CottonCollector.BackgroundInputs
                 SetWinEventHookFlags.WINEVENT_OUTOFCONTEXT);
         }
 
+        public static void Clear()
+        {
+            pressedKeys.Clear();
+        }
+
         public static void Dispose()
         {
             UnhookWinEvent(hFocusHook); 
