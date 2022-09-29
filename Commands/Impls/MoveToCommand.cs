@@ -94,22 +94,12 @@ namespace CottonCollector.Commands.Impls
             else
             {
                 // we are far away, we can move forward
-<<<<<<< Updated upstream
-                // if we are 22.5 degree away, then turn while running forward
-                v.Y = (int) ActionMode.FORWARD;
-                if (angle > Math.PI / 8)
-                {
-                    v.Z = (int) ActionMode.ROTATE_RIGHT;
-                }
-                else if (angle < -Math.PI / 8)
-=======
                 // if we are 45 degree away, then turn while running forward
                 if (angle > Math.PI / 12)
                 {
                     v.Z = (int) ActionMode.ROTATE_RIGHT;
                 }
                 else if (angle < -Math.PI / 12)
->>>>>>> Stashed changes
                 {
                     v.Z = (int) ActionMode.ROTATE_LEFT;
                 }
