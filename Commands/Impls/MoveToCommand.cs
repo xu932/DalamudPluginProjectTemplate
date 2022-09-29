@@ -17,7 +17,8 @@ namespace CottonCollector.Commands.Impls
 {
     internal unsafe class MoveToCommand: Command
     {
-        [JsonProperty] public Vector3 targetPos;
+        [JsonProperty] private Vector3 targetPos;
+        [JsonProperty] private bool shouldFaceTarget = false;
 
         public enum ActionMode
         {
@@ -32,7 +33,6 @@ namespace CottonCollector.Commands.Impls
         internal override bool ShouldRepeat { get; } = true;
 
         private bool finished = false;
-        private bool shouldFaceTarget = false;
         private bool faceTarget = false;
         private int xMove = 0;
         private int yMove = 0;
@@ -94,13 +94,13 @@ namespace CottonCollector.Commands.Impls
             else
             {
                 // we are far away, we can move forward
-                // if we are 45 degree away, then turn while running forward
+                // if we are 22.5 degree away, then turn while running forward
                 v.Y = (int) ActionMode.FORWARD;
-                if (angle > Math.PI / 4)
+                if (angle > Math.PI / 8)
                 {
                     v.Z = (int) ActionMode.ROTATE_RIGHT;
                 }
-                else if (angle < -Math.PI / 4)
+                else if (angle < -Math.PI / 8)
                 {
                     v.Z = (int) ActionMode.ROTATE_LEFT;
                 }

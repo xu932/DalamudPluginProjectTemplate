@@ -119,10 +119,8 @@ namespace CottonCollector
             if (selectedCommandSet != null)
             {
                 var player = ClientState.LocalPlayer;
-                var moveTo = new MoveToCommand()
-                {
-                    targetPos = player.Position,
-                };
+                var moveTo = new MoveToCommand();
+                moveTo.SetTarget(player.Position);
 
                 PluginLog.Log($"added waymark {player.Position} in {selectedCommandSet.uniqueId} at index {selectedCommandSet.subCommands.Count}");
                 selectedCommandSet.subCommands.AddLast(moveTo);
