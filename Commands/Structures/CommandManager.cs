@@ -3,6 +3,7 @@
 using Dalamud.Logging;
 using System.Linq;
 using Dalamud.Game;
+using Dalamud.Game.Gui;
 
 namespace CottonCollector.Commands.Structures
 {
@@ -11,8 +12,14 @@ namespace CottonCollector.Commands.Structures
         private bool done = true;
         private readonly LinkedList<Command> commands = new();
         private Command currCommand;
+        private bool IsRoot { get; set; } = false;
 
         internal bool IsEmpty => commands.Count == 0 && currCommand == null;
+
+        internal CommandManager(bool isRoot = false)
+        {
+            IsRoot = isRoot;
+        }
 
         internal void Update(Framework framework)
         {
@@ -37,6 +44,9 @@ namespace CottonCollector.Commands.Structures
                 }
                 if (currCommand.IsFinished())
                 {
+                    if (IsRoot) {
+                        CottonCollectorPlugin.ChatGui.Print($"{commands.Count} commands left.");
+                    }
                     done = true;
                     currCommand = null;
                 }

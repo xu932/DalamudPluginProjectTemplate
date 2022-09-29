@@ -59,7 +59,7 @@ namespace CottonCollector
 
         internal static BgInput bginput { get; private set; }
 
-        internal static CommandManager rootCmdManager = new();
+        internal static CommandManager rootCmdManager = new(true);
 
         internal static CottonCollectorConfig config { get; set; }
 
