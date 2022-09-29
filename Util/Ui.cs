@@ -27,7 +27,7 @@ namespace CottonCollector.Util
         public static string Uid(string label = "", int index = -1)
         {
             var trace = new System.Diagnostics.StackTrace();
-            string traceHash = string.Join(',', trace.GetFrames().Take(3).Select(t => t.ToString()));
+            string traceHash = string.Join(',', trace.GetFrames().Select(t => t.ToString()));
             traceHash += "__" + label;
             if (index != -1)
             {

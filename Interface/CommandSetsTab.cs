@@ -286,9 +286,8 @@ namespace CottonCollector.Interface
                     }
                     ImGui.PopFont();
                 }
-                ImGui.EndTable();
                 #endregion
-
+                ImGui.EndTable();
             }
             ImGui.EndChild();
         }
