@@ -25,7 +25,7 @@ namespace CottonCollector.Commands.Structures
             CommandSetMap = new Dictionary<string, CommandSet>();
         }
 
-        public CommandSet(string uniqueId)
+        public CommandSet(string uniqueId) : base()
         {
             PluginLog.Verbose($"new command set: {uniqueId}");
             this.uniqueId = uniqueId;
