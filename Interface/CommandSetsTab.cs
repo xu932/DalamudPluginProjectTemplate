@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -34,7 +35,9 @@ namespace CottonCollector.Interface
 
         private void CommandList(LinkedList<Command> commands)
         {
-            if (ImGui.BeginChild(Ui.Uid(), ImGui.GetContentRegionAvail(), false, ImGuiWindowFlags.AlwaysVerticalScrollbar))
+            Vector2 region = ImGui.GetContentRegionAvail();
+            region.Y -= 30;
+            if (ImGui.BeginChild(Ui.Uid(), region, false, ImGuiWindowFlags.AlwaysVerticalScrollbar))
             {
                 if (ImGui.BeginTable(Ui.Uid(), 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
                 {
