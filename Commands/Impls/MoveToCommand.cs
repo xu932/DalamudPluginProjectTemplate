@@ -15,28 +15,26 @@ using CottonCollector.Util;
 
 namespace CottonCollector.Commands.Impls
 {
-    internal unsafe class MoveToCommand: Command
+    internal unsafe class MoveToCommand : Command
     {
         [JsonProperty] private Vector3 targetPos;
         [JsonProperty] private bool shouldFaceTarget = false;
+        [JsonProperty] private bool swim = false;
 
-        public enum ActionMode
-        {
-            STOP = 0,
-            LEFT = -1,
-            RIGHT = 1,
-            FORWARD = 1,
-            ROTATE_LEFT = 1,
-            ROTATE_RIGHT = -1,
-        }
+        public const uint STOP = 0;
+        public const uint LEFT = 1;
+        public const uint RIGHT = 1 << 1;
+        public const uint FORWARD = 1 << 2;
+        public const uint ROTATE_LEFT = 1 << 4;
+        public const uint ROTATE_RIGHT = 1 << 5;
+        public const uint LOOK_UP = 1 << 6;
+        public const uint LOOK_DOWN = 1 << 7;
 
         internal override bool ShouldRepeat { get; } = true;
 
         private bool finished = false;
         private bool faceTarget = false;
-        private int xMove = 0;
-        private int yMove = 0;
-        private int turn = 0; // + left - right
+        private uint state = 0;
 
         protected override bool TerminateCondition() => finished;
 
@@ -54,13 +52,13 @@ namespace CottonCollector.Commands.Impls
             }
         }
 
-        private Vector3 Decide(double angle, double dist)
+        private uint Decide(double angle, double dist)
         {
-            Vector3 v = new();
-            
+            uint ret = 0;
+
             if (dist < 5)   // check if we are close enough to the target
             {
-                if (turn == 0)  // check we are turning or not, if we are not turning
+                if ((state & (ROTATE_LEFT | ROTATE_RIGHT)) == 0)  // check we are turning or not, if we are not turning
                 {
                     if (faceTarget)     // if we are facing target, then we are good
                     {
@@ -72,37 +70,37 @@ namespace CottonCollector.Commands.Impls
                         faceTarget = true;
                         if (angle < -Math.PI / 18)
                         {
-                            v.Z = (int) ActionMode.ROTATE_LEFT;
+                            ret |= ROTATE_LEFT;
                         }
                         else if (angle > Math.PI / 18)
                         {
-                            v.Z = (int) ActionMode.ROTATE_RIGHT;
+                            ret |= ROTATE_RIGHT;
                         }
                     }
                 }
-                else if (turn * angle > 0)
+                else if ((angle > 0 && (state & ROTATE_LEFT) > 0) || (angle < 0 && (state & ROTATE_RIGHT) > 0))
                 {
                     // we have turn passed the target
                     finished = true;
-                    v.Z = (int) ActionMode.STOP;
+                    ret = STOP;
                 }
                 else
                 {
-                    v.Z = turn;
+                    ret |= (state & (ROTATE_LEFT | ROTATE_RIGHT));
                 }
             }
             else if (dist < 20)
             {
                 // if we are too close to the target, just use W/A/D without turning camera
-                v.Y = (int) ActionMode.FORWARD;
+                ret |= FORWARD;
                 // use A/D when we still have good distance
                 if (angle > -Math.PI / 72)
                 {
-                    v.X = (int) ActionMode.RIGHT;
+                    ret |= RIGHT;
                 }
                 else if (angle > Math.PI / 72)
                 {
-                    v.X = (int) ActionMode.LEFT;
+                    ret |= LEFT;
                 }
             }
             else
@@ -111,15 +109,15 @@ namespace CottonCollector.Commands.Impls
                 // if we are 45 degree away, then turn while running forward
                 if (angle > Math.PI / 12)
                 {
-                    v.Z = (int) ActionMode.ROTATE_RIGHT;
+                    ret |= ROTATE_RIGHT;
                 }
                 else if (angle < -Math.PI / 12)
                 {
-                    v.Z = (int) ActionMode.ROTATE_LEFT;
+                    ret |= ROTATE_LEFT;
                 }
                 else
                 {
-                    v.Y = (int)ActionMode.FORWARD;
+                    ret |= FORWARD;
                 }
             }
 
@@ -128,34 +126,35 @@ namespace CottonCollector.Commands.Impls
             // if we were turning before and we haven't reach target angle, keep turning in that direction
             if (dist > 15 && (angle < -Math.PI / 72 || angle > Math.PI / 72))
             {
-                if (v.Z == (int) ActionMode.STOP || angle * turn < 0)
+                if ((state & (ROTATE_LEFT | ROTATE_RIGHT)) == 0 || (angle > 0 && (state & ROTATE_RIGHT) > 0) || (angle < 0 && (state & ROTATE_LEFT) > 0))
                 {
-                    v.Z = turn;
+                    ret |= state & (ROTATE_LEFT | ROTATE_RIGHT);
                 }
             }
-            return v;
+            return ret;
         }
 
-        private void UpdateMove(int cur, int next, VirtualKey pos, VirtualKey neg)
+        private void UpdateMove(uint cur, uint next, VirtualKey higher, VirtualKey lower)
         {
+            //PluginLog.Log($"cur: {cur}\t\tnext: {next}");
             if (cur != next)
             {
-                if (cur == -1)
+                if ((cur & 0x1) > 0)
                 {
-                    BgInput.KeyUp(neg);
+                    BgInput.KeyUp(lower);
                 }
-                else if (cur == 1)
+                else if ((cur & 0x2) > 0)
                 {
-                    BgInput.KeyUp(pos);
+                    BgInput.KeyUp(higher);
                 }
 
-                if (next == 1)
+                if ((next & 0x1) > 0)
                 {
-                    BgInput.KeyDown(pos);
+                    BgInput.KeyDown(lower);
                 }
-                else if (next == -1)
+                else if ((next & 0x2) > 0)
                 {
-                    BgInput.KeyDown(neg);
+                    BgInput.KeyDown(higher);
                 }
             }
         }
@@ -168,14 +167,14 @@ namespace CottonCollector.Commands.Impls
             var dist = MyMath.dist(player.Position, targetPos);
 
             // PluginLog.Log("start moving");
-            
-            Vector3 next = Decide(angle, dist);
 
+            uint next = Decide(angle, dist);
+            PluginLog.Log($"next: {next}");
             if (finished)
             {
-                UpdateMove(xMove, 0, VirtualKey.D, VirtualKey.A);
-                UpdateMove(yMove, 0, VirtualKey.W, VirtualKey.W);
-                UpdateMove(turn, 0, VirtualKey.LEFT, VirtualKey.RIGHT);
+                UpdateMove(state & 0x3, 0, VirtualKey.D, VirtualKey.A);
+                UpdateMove((state >> 2) & 0x3, 0, VirtualKey.W, VirtualKey.W);
+                UpdateMove((state >> 4) & 0x3, 0, VirtualKey.RIGHT, VirtualKey.LEFT);
                 finished = true;
                 return;
             }
@@ -183,14 +182,15 @@ namespace CottonCollector.Commands.Impls
             // PluginLog.Log($"Angle: {angle}\t\tDist: {dist}");
             // PluginLog.Log($"<{xMove}, {yMove}, {turn}> -> <{next.X}, {next.Y}, {next.Z}>");
 
-            UpdateMove(xMove, (int)next.X, VirtualKey.D, VirtualKey.A);
-            UpdateMove(yMove, (int)next.Y, VirtualKey.W, VirtualKey.W);
-            UpdateMove(turn, (int)next.Z, VirtualKey.LEFT, VirtualKey.RIGHT);
+            //PluginLog.Log("Left right movement");
+            UpdateMove(next & 0x3, next & 0x3, VirtualKey.D, VirtualKey.A);
+            //PluginLog.Log("forward movement");
+            UpdateMove((state >> 2) & 0x3, (next >> 2) & 0x3, VirtualKey.W, VirtualKey.W);
+            //PluginLog.Log("rotate movement");
+            UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, VirtualKey.RIGHT, VirtualKey.LEFT);
             Thread.Sleep(1);
 
-            xMove = (int)next.X;
-            yMove = (int)next.Y;
-            turn = (int)next.Z;
+            state = next;
         }
 
         internal override void ResetExecutionState()
@@ -198,7 +198,7 @@ namespace CottonCollector.Commands.Impls
             base.ResetExecutionState();
             finished = false;
             faceTarget = !shouldFaceTarget;
-            xMove = yMove = turn = 0;
+            state = 0;
         }
 
         internal void SetTarget(Vector3 target)
@@ -228,6 +228,8 @@ namespace CottonCollector.Commands.Impls
 
             ImGui.SameLine();
             ImGui.Checkbox(Ui.Uid("face target?", uid), ref shouldFaceTarget);
+            ImGui.SameLine();
+            ImGui.Checkbox(Ui.Uid("face target?", uid), ref swim);
         }
 
         internal override void SelectorGui()
