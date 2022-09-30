@@ -139,14 +139,7 @@ namespace CottonCollector.Interface
                         {
                             if (newCommand is MoveToCommand moveTo)
                             {
-                                var target = CottonCollectorPlugin.TargetManager.Target;
-                                if (target != null)
-                                {
-                                    moveTo.SetTarget(target.Position);
-                                }
-                                else {
-                                    moveTo.SetTarget(CottonCollectorPlugin.ClientState.LocalPlayer.Position);
-                                }
+                                moveTo.SetCurrOrTargetPos();
                             }
                             commands.AddLast(newCommand);
                             newCommand = (Command)Activator.CreateInstance(newCommand.GetType());

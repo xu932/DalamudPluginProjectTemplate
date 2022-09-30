@@ -40,6 +40,20 @@ namespace CottonCollector.Commands.Impls
 
         protected override bool TerminateCondition() => finished;
 
+        internal void SetCurrOrTargetPos()
+        {
+            var target = CottonCollectorPlugin.TargetManager.Target;
+            if (target != null)
+            {
+                targetPos = target.Position;
+                shouldFaceTarget = true;
+            }
+            else
+            {
+                targetPos = CottonCollectorPlugin.ClientState.LocalPlayer.Position;
+            }
+        }
+
         private Vector3 Decide(double angle, double dist)
         {
             Vector3 v = new();
