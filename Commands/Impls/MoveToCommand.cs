@@ -27,8 +27,8 @@ namespace CottonCollector.Commands.Impls
         public const uint FORWARD = 1 << 2;
         public const uint ROTATE_LEFT = 1 << 4;
         public const uint ROTATE_RIGHT = 1 << 5;
-        public const uint LOOK_UP = 1 << 6;
-        public const uint LOOK_DOWN = 1 << 7;
+        public const uint UP = 1 << 6;
+        public const uint DOWN = 1 << 7;
 
         internal override bool ShouldRepeat { get; } = true;
 
@@ -52,11 +52,11 @@ namespace CottonCollector.Commands.Impls
             }
         }
 
-        private uint Decide(double angle, double dist)
+        private uint Decide(double angle, double dist, double height)
         {
             uint ret = 0;
 
-            if (dist < 5)   // check if we are close enough to the target
+            if (dist < 5 && Math.Abs(height) < 1)   // check if we are close enough to the target
             {
                 if ((state & (ROTATE_LEFT | ROTATE_RIGHT)) == 0)  // check we are turning or not, if we are not turning
                 {
@@ -91,9 +91,11 @@ namespace CottonCollector.Commands.Impls
             }
             else if (dist < 20)
             {
-                // if we are too close to the target, just use W/A/D without turning camera
-                ret |= FORWARD;
                 // use A/D when we still have good distance
+                if (dist > 5)
+                {
+                    ret |= FORWARD;
+                }
                 if (angle > -Math.PI / 72)
                 {
                     ret |= RIGHT;
@@ -101,6 +103,14 @@ namespace CottonCollector.Commands.Impls
                 else if (angle > Math.PI / 72)
                 {
                     ret |= LEFT;
+                }
+                if (height > 1)
+                {
+                    ret |= DOWN;
+                }
+                else if (height < -1)
+                {
+                    ret |= UP;
                 }
             }
             else
@@ -118,6 +128,14 @@ namespace CottonCollector.Commands.Impls
                 else
                 {
                     ret |= FORWARD;
+                    if (height > 1)
+                    {
+                        ret |= DOWN;
+                    }
+                    else if (height < -1)
+                    {
+                        ret |= UP;
+                    }
                 }
             }
 
@@ -168,26 +186,22 @@ namespace CottonCollector.Commands.Impls
 
             // PluginLog.Log("start moving");
 
-            uint next = Decide(angle, dist);
+            uint next = Decide(angle, dist, this.targetPos.Y - player.Position.Y);
             PluginLog.Log($"next: {next}");
             if (finished)
             {
                 UpdateMove(state & 0x3, 0, VirtualKey.D, VirtualKey.A);
                 UpdateMove((state >> 2) & 0x3, 0, VirtualKey.W, VirtualKey.W);
                 UpdateMove((state >> 4) & 0x3, 0, VirtualKey.RIGHT, VirtualKey.LEFT);
+                UpdateMove((state >> 6) & 0x3, 0, VirtualKey.SPACE, VirtualKey.BACK);
                 finished = true;
                 return;
             }
 
-            // PluginLog.Log($"Angle: {angle}\t\tDist: {dist}");
-            // PluginLog.Log($"<{xMove}, {yMove}, {turn}> -> <{next.X}, {next.Y}, {next.Z}>");
-
-            //PluginLog.Log("Left right movement");
             UpdateMove(next & 0x3, next & 0x3, VirtualKey.D, VirtualKey.A);
-            //PluginLog.Log("forward movement");
             UpdateMove((state >> 2) & 0x3, (next >> 2) & 0x3, VirtualKey.W, VirtualKey.W);
-            //PluginLog.Log("rotate movement");
             UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, VirtualKey.RIGHT, VirtualKey.LEFT);
+            UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, VirtualKey.SPACE, VirtualKey.BACK);
             Thread.Sleep(1);
 
             state = next;
@@ -229,7 +243,7 @@ namespace CottonCollector.Commands.Impls
             ImGui.SameLine();
             ImGui.Checkbox(Ui.Uid("face target?", uid), ref shouldFaceTarget);
             ImGui.SameLine();
-            ImGui.Checkbox(Ui.Uid("face target?", uid), ref swim);
+            ImGui.Checkbox(Ui.Uid("swim?", uid), ref swim);
         }
 
         internal override void SelectorGui()
