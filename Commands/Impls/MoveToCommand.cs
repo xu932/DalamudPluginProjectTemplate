@@ -153,7 +153,7 @@ namespace CottonCollector.Commands.Impls
             var angle = MyMath.angle2d(player.Position, camera, this.targetPos);
             var dist = MyMath.dist(player.Position, targetPos);
 
-            PluginLog.Log("start moving");
+            // PluginLog.Log("start moving");
             
             Vector3 next = Decide(angle, dist);
 
@@ -166,8 +166,8 @@ namespace CottonCollector.Commands.Impls
                 return;
             }
 
-            PluginLog.Log($"Angle: {angle}\t\tDist: {dist}");
-            PluginLog.Log($"<{xMove}, {yMove}, {turn}> -> <{next.X}, {next.Y}, {next.Z}>");
+            // PluginLog.Log($"Angle: {angle}\t\tDist: {dist}");
+            // PluginLog.Log($"<{xMove}, {yMove}, {turn}> -> <{next.X}, {next.Y}, {next.Z}>");
 
             UpdateMove(xMove, (int)next.X, VirtualKey.D, VirtualKey.A);
             UpdateMove(yMove, (int)next.Y, VirtualKey.W, VirtualKey.W);

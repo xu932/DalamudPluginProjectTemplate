@@ -137,12 +137,19 @@ namespace CottonCollector.Interface
                         ImGui.PushFont(UiBuilder.IconFont);
                         if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Plus.ToIconString()}")))
                         {
-                            commands.AddLast(newCommand);
-                            newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
                             if (newCommand is MoveToCommand moveTo)
                             {
-                                moveTo.SetTarget(CottonCollectorPlugin.ClientState.LocalPlayer.Position);
+                                var target = CottonCollectorPlugin.TargetManager.Target;
+                                if (target != null)
+                                {
+                                    moveTo.SetTarget(target.Position);
+                                }
+                                else {
+                                    moveTo.SetTarget(CottonCollectorPlugin.ClientState.LocalPlayer.Position);
+                                }
                             }
+                            commands.AddLast(newCommand);
+                            newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
                         }
                         ImGui.PopFont();
                     }

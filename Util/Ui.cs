@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-
+using System.Runtime.CompilerServices;
 using Dalamud.Logging;
 
 using ImGuiNET;
@@ -24,11 +24,10 @@ namespace CottonCollector.Util
             CHILD = 4,
         };
 
-        public static string Uid(string label = "", int index = -1)
+        public static string Uid(string label = "", int index = -1, 
+            [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string caller = null)
         {
-            var trace = new System.Diagnostics.StackTrace();
-            string traceHash = string.Join(',', trace.GetFrames().Select(t => t.ToString()));
-            traceHash += "__" + label;
+            string traceHash = caller + "__" + lineNumber + "__" + label;
             if (index != -1)
             {
                 traceHash += "__" + index;

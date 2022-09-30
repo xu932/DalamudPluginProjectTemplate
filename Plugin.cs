@@ -166,6 +166,7 @@ namespace CottonCollector
         public void Kill(string command, string args)
         {
             rootCmdManager.KillSwitch();
+            BgInput.Clear();
             KeyState.ClearAll();
         }
 
