@@ -56,7 +56,7 @@ namespace CottonCollector.Commands.Impls
         {
             uint ret = 0;
 
-            if (dist < 5 && Math.Abs(height) < 1)   // check if we are close enough to the target
+            if (dist < 5 && Math.Abs(height) < 0.5)   // check if we are close enough to the target
             {
                 if ((state & (ROTATE_LEFT | ROTATE_RIGHT)) == 0)  // check we are turning or not, if we are not turning
                 {
@@ -104,11 +104,11 @@ namespace CottonCollector.Commands.Impls
                 {
                     ret |= LEFT;
                 }
-                if (height > 1)
+                if (height > 0.4)
                 {
                     ret |= DOWN;
                 }
-                else if (height < -1)
+                else if (height < -0.4)
                 {
                     ret |= UP;
                 }
@@ -128,11 +128,11 @@ namespace CottonCollector.Commands.Impls
                 else
                 {
                     ret |= FORWARD;
-                    if (height > 1)
+                    if (height > 5)
                     {
                         ret |= DOWN;
                     }
-                    else if (height < -1)
+                    else if (height < -5)
                     {
                         ret |= UP;
                     }
@@ -184,10 +184,7 @@ namespace CottonCollector.Commands.Impls
             var angle = MyMath.angle2d(player.Position, camera, this.targetPos);
             var dist = MyMath.dist(player.Position, targetPos);
 
-            // PluginLog.Log("start moving");
-
             uint next = Decide(angle, dist, this.targetPos.Y - player.Position.Y);
-            PluginLog.Log($"next: {next}");
             if (finished)
             {
                 UpdateMove(state & 0x3, 0, VirtualKey.D, VirtualKey.A);
