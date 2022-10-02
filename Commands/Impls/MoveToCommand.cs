@@ -149,6 +149,12 @@ namespace CottonCollector.Commands.Impls
                     ret |= state & (ROTATE_LEFT | ROTATE_RIGHT);
                 }
             }
+
+            if (((state & DOWN) > 0 && height > 0.1) || (state & UP) > 0 && height < 0.1)
+            {
+                ret |= state & (DOWN | UP);
+            }
+
             return ret;
         }
 
