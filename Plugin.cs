@@ -19,6 +19,7 @@ using CottonCollector.Interface;
 using CottonCollector.Commands.Impls;
 using CottonCollector.Commands.Structures;
 using CottonCollector.BackgroundInputs;
+using CottonCollector.Commands.Conditions;
 
 namespace CottonCollector
 {
@@ -57,7 +58,8 @@ namespace CottonCollector
         [PluginService]
         internal static TargetManager TargetManager { get; private set; }
 
-        internal static BgInput bginput { get; private set; }
+        [PluginService]
+        internal static Dalamud.Game.ClientState.Conditions.Condition GameCondition { get; private set; }
 
         internal static CommandManager rootCmdManager = new(true);
 

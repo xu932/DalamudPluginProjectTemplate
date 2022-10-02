@@ -1,5 +1,7 @@
 ﻿using ImGuiNET;
 
+using Dalamud.Game.ClientState.Conditions;
+
 using CottonCollector.Util;
 
 namespace CottonCollector.Interface
@@ -19,6 +21,8 @@ namespace CottonCollector.Interface
                 ImGui.Text($"Position: {CottonCollectorPlugin.TargetManager.Target.Position}");
                 ImGui.Text($"Address: {CottonCollectorPlugin.TargetManager.Target.Address}");
             }
+
+            ImGui.Text($"Is Diving? {CottonCollectorPlugin.GameCondition[ConditionFlag.Diving]}");
         }
     }
 }

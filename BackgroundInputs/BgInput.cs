@@ -12,10 +12,21 @@ using Dalamud.Logging;
 
 namespace CottonCollector.BackgroundInputs
 {
-    internal class BgInput
+    internal static class BgInput
     {
 
         #region user32 imports
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MSG
+        {
+            public IntPtr handle;
+            public uint msg;
+            public IntPtr wParam;
+            public IntPtr lParam;
+            public uint time;
+            public System.Drawing.Point p;
+        }
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
@@ -26,14 +37,20 @@ namespace CottonCollector.BackgroundInputs
         [DllImport("user32.dll", SetLastError = true)]
         static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern IntPtr SetWinEventHook(int eventMin, int eventMax, IntPtr hmodWinEventProc, 
+        static extern IntPtr SetWinEventHook(int eventMin, int eventMax, IntPtr hmodWinEventProc, 
             WinEventProc lpfnWinEventProc, int idProcess, int idThread, SetWinEventHookFlags dwflags);
         [DllImport("user32.dll")]
         static extern bool UnhookWinEvent(IntPtr hWinEventHook);
         [DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
         [DllImport("user32.dll")]
         static extern bool PostMessage(IntPtr hWnd, UInt32 Msg, Int32 wParam, Int32 lParam);
+        [DllImport("user32.dll")]
+        private static extern bool PeekMessage(out MSG lpMsg, IntPtr hwnd, uint wMsgFilterMin, uint wMsgFilterMax, uint wRemoveMsg);
+        [DllImport("user32.dll")]
+        private static extern bool TranslateMessage(ref MSG lpMsg);
+        [DllImport("user32.dll")]
+        private static extern IntPtr DispatchMessage(ref MSG lpMsg);
         #endregion
 
         #region delegates
@@ -101,24 +118,51 @@ namespace CottonCollector.BackgroundInputs
 
         private static IntPtr hWndGame = FindFFXIVWindow();
         private static IntPtr hFocusHook = IntPtr.Zero;
-        private static WinEventProc listener = new(ForegroundChangedCallback);
+        private static WinEventProc focusListener = new(ForegroundChangedCallback);
         private static bool gameIsFocused = true;
+        private static bool disposing = false;
+        private static Thread t;
+
         private static HashSet<VirtualKey> pressedKeys = new();
 
-        private static void ForegroundChangedCallback(IntPtr hWinEventHook, int iEvent, IntPtr hWnd, int idObject, 
+        private static void ThreadProc ()
+        {
+            PluginLog.Verbose($"Initializing BgInput hWndGame {hWndGame}");
+            hFocusHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero,
+                focusListener, 0, 0, SetWinEventHookFlags.WINEVENT_OUTOFCONTEXT);
+            PluginLog.Verbose($"hFocusHook {hFocusHook}");
+            MSG msg;
+            while(!disposing)
+            {
+                if (PeekMessage(out msg, IntPtr.Zero, 0, 0, 1))
+                {
+                    TranslateMessage(ref msg);
+                    DispatchMessage(ref msg);
+                }
+                Thread.Sleep(0);
+            }
+            var ret = UnhookWinEvent(hFocusHook);
+            PluginLog.Verbose($"Unhook BgInput {hFocusHook}? {ret}");
+        }
+
+        internal static void ForegroundChangedCallback(IntPtr hWinEventHook, int iEvent, IntPtr hWnd, int idObject, 
             int idChild, int dwEventThread, int dwmsEventTime)
         {
+            PluginLog.Log($"Something Happened hWnd {hWnd}, hWndGame {hWndGame}");
             if (hWnd == hWndGame)
             {
-                PluginLog.Verbose("BAKA!! Re-Focused FFXIV!");
+                CottonCollectorPlugin.ChatGui.Print("Re-Focused FFXIV!");
+                PluginLog.Log("Re-Focused FFXIV!");
                 gameIsFocused = true;
             }
             else if (gameIsFocused)
             {
-                PluginLog.Verbose("BAKA!! Un-Focused FFXIV!");
+                CottonCollectorPlugin.ChatGui.Print("Un-Focused FFXIV!");
+                PluginLog.Log("Un-Focused FFXIV!");
                 gameIsFocused = false;
                 foreach (VirtualKey pressedKey in  pressedKeys)
                 {
+                    KeyDown(pressedKey);
                     while (!CottonCollectorPlugin.KeyState[pressedKey])
                     {
                         Thread.Sleep(5);
@@ -130,9 +174,8 @@ namespace CottonCollector.BackgroundInputs
 
         public static void Initialize()
         {
-            PluginLog.Log("Initializing BgInput");
-            hFocusHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, listener, 0, 0,
-                SetWinEventHookFlags.WINEVENT_OUTOFCONTEXT);
+            t = new(new ThreadStart(ThreadProc));
+            t.Start();
         }
 
         public static void Clear()
@@ -142,7 +185,8 @@ namespace CottonCollector.BackgroundInputs
 
         public static void Dispose()
         {
-            UnhookWinEvent(hFocusHook); 
+            disposing = true;
+            t.Join();
         }
 
         public static void KeyDown(VirtualKey vk)
