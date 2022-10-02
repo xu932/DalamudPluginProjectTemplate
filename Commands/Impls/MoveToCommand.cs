@@ -56,7 +56,7 @@ namespace CottonCollector.Commands.Impls
         {
             uint ret = 0;
 
-            if (dist < 5 && Math.Abs(height) < 0.5)   // check if we are close enough to the target
+            if (dist < 5 && (!swim || Math.Abs(height) < 0.5))   // check if we are close enough to the target
             {
                 if ((state & (ROTATE_LEFT | ROTATE_RIGHT)) == 0)  // check we are turning or not, if we are not turning
                 {
