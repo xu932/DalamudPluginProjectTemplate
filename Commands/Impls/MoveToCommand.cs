@@ -193,7 +193,10 @@ namespace CottonCollector.Commands.Impls
                 UpdateMove(state & 0x3, 0, VirtualKey.D, VirtualKey.A);
                 UpdateMove((state >> 2) & 0x3, 0, VirtualKey.W, VirtualKey.W);
                 UpdateMove((state >> 4) & 0x3, 0, VirtualKey.RIGHT, VirtualKey.LEFT);
-                UpdateMove((state >> 6) & 0x3, 0, VirtualKey.SPACE, VirtualKey.BACK);
+                if (swim)
+                {
+                    UpdateMove((state >> 6) & 0x3, 0, VirtualKey.SPACE, VirtualKey.BACK);
+                }
                 finished = true;
                 return;
             }
@@ -201,7 +204,10 @@ namespace CottonCollector.Commands.Impls
             UpdateMove(next & 0x3, next & 0x3, VirtualKey.D, VirtualKey.A);
             UpdateMove((state >> 2) & 0x3, (next >> 2) & 0x3, VirtualKey.W, VirtualKey.W);
             UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, VirtualKey.RIGHT, VirtualKey.LEFT);
-            UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, VirtualKey.SPACE, VirtualKey.BACK);
+            if (swim)
+            {
+                UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, VirtualKey.SPACE, VirtualKey.BACK);
+            }
             Thread.Sleep(1);
 
             state = next;
