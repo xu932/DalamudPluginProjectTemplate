@@ -33,11 +33,11 @@ namespace CottonCollector.Interface
 
         public CommandSetsTab() : base("CommandSets") { }
 
-        private void CommandList(LinkedList<Command> commands)
+        private void CommandList(LinkedList<Command> commands, int tabIndex)
         {
             Vector2 region = ImGui.GetContentRegionAvail();
             region.Y -= 30;
-            if (ImGui.BeginChild(Ui.Uid(), region, false, ImGuiWindowFlags.AlwaysVerticalScrollbar))
+            if (ImGui.BeginChild(Ui.Uid(index: tabIndex), region, false, ImGuiWindowFlags.AlwaysVerticalScrollbar))
             {
                 if (ImGui.BeginTable(Ui.Uid(), 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
                 {
@@ -250,13 +250,13 @@ namespace CottonCollector.Interface
                     {
                         if (ImGui.BeginTabItem(Ui.Uid("Command Sequence")))
                         {
-                            CommandList(selectedCommandSet.subCommands);
+                            CommandList(selectedCommandSet.subCommands, 0);
                             ImGui.EndTabItem();
                         }
 
                         if (ImGui.BeginTabItem(Ui.Uid("Triggers")))
                         {
-                            CommandList(selectedCommandSet.triggers);
+                            CommandList(selectedCommandSet.triggers, 1);
                             ImGui.EndTabItem();
                         }
                         ImGui.EndTabBar();

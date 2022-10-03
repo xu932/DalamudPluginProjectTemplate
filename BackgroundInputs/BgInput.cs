@@ -145,30 +145,34 @@ namespace CottonCollector.BackgroundInputs
             PluginLog.Verbose($"Unhook BgInput {hFocusHook}? {ret}");
         }
 
+        private static void ResumePressedKeys()
+        {
+            foreach (VirtualKey pressedKey in pressedKeys)
+            {
+                KeyDown(pressedKey);
+                while (!CottonCollectorPlugin.KeyState[pressedKey])
+                {
+                    Thread.Sleep(5);
+                    KeyDown(pressedKey);
+                }
+            }
+        }
+
         internal static void ForegroundChangedCallback(IntPtr hWinEventHook, int iEvent, IntPtr hWnd, int idObject, 
             int idChild, int dwEventThread, int dwmsEventTime)
         {
             PluginLog.Log($"Something Happened hWnd {hWnd}, hWndGame {hWndGame}");
             if (hWnd == hWndGame)
             {
-                CottonCollectorPlugin.ChatGui.Print("Re-Focused FFXIV!");
                 PluginLog.Log("Re-Focused FFXIV!");
                 gameIsFocused = true;
+                ResumePressedKeys();
             }
             else if (gameIsFocused)
             {
-                CottonCollectorPlugin.ChatGui.Print("Un-Focused FFXIV!");
                 PluginLog.Log("Un-Focused FFXIV!");
                 gameIsFocused = false;
-                foreach (VirtualKey pressedKey in  pressedKeys)
-                {
-                    KeyDown(pressedKey);
-                    while (!CottonCollectorPlugin.KeyState[pressedKey])
-                    {
-                        Thread.Sleep(5);
-                        KeyDown(pressedKey);
-                    }
-                }
+                ResumePressedKeys();
             }
         }
 
