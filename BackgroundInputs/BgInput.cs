@@ -193,23 +193,66 @@ namespace CottonCollector.BackgroundInputs
             t.Join();
         }
 
-        public static void KeyDown(VirtualKey vk)
+        internal enum Modifier
         {
+            NONE = 0,
+            SHIFT = 1,
+            CTRL = 2,
+            ALT = 3,
+        }
+
+        private static VirtualKey? ModifierToVk(Modifier mod)
+        {
+            if (mod == Modifier.NONE) return null;
+            switch (mod)
+            {
+                case Modifier.SHIFT:
+                    return VirtualKey.LSHIFT;
+                case Modifier.CTRL:
+                    return VirtualKey.LCONTROL;
+                default:
+                    return VirtualKey.LMENU;
+            }
+        }
+
+        public static void KeyDown(VirtualKey vk, Modifier mod = Modifier.NONE)
+        {
+            var modVk = ModifierToVk(mod);
+            if (modVk != null)
+            {
+                pressedKeys.Add(modVk.Value);
+                SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)modVk, (IntPtr)0);
+            }
             pressedKeys.Add(vk);
             SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)vk, (IntPtr)0);
         }
 
-        public static void KeyUp(VirtualKey vk)
+        public static void KeyUp(VirtualKey vk, Modifier mod = Modifier.NONE)
         {
-            pressedKeys.Remove(vk);
             SendMessage(hWndGame, WM_KEYUP, (IntPtr)vk, (IntPtr)0);
+            pressedKeys.Remove(vk);
+            var modVk = ModifierToVk(mod);
+            if (modVk != null)
+            {
+                SendMessage(hWndGame, WM_KEYUP, (IntPtr)modVk, (IntPtr)0);
+                pressedKeys.Remove(modVk.Value);
+            }
         }
 
-        public static void KeyPress(VirtualKey vk)
+        public static void KeyPress(VirtualKey vk, Modifier mod = Modifier.NONE)
         {
+            var modVk = ModifierToVk(mod);
+            if (modVk != null)
+            {
+                SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)modVk, (IntPtr)0);
+            }
             SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)vk, (IntPtr)0);
             Thread.Sleep(10);
             SendMessage(hWndGame, WM_KEYUP, (IntPtr)vk, (IntPtr)0);
+            if (modVk != null)
+            {
+                SendMessage(hWndGame, WM_KEYUP, (IntPtr)modVk, (IntPtr)0);
+            }
         }
     }
 }

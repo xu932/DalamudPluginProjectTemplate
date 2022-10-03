@@ -158,27 +158,27 @@ namespace CottonCollector.Commands.Impls
             return ret;
         }
 
-        private void UpdateMove(uint cur, uint next, VirtualKey higher, VirtualKey lower)
+        private void UpdateMove(uint cur, uint next, VirtualKey higher, VirtualKey lower, 
+            BgInput.Modifier higherMod = BgInput.Modifier.NONE, BgInput.Modifier lowerMod = BgInput.Modifier.NONE)
         {
-            //PluginLog.Log($"cur: {cur}\t\tnext: {next}");
             if (cur != next)
             {
                 if ((cur & 0x1) > 0)
                 {
-                    BgInput.KeyUp(lower);
+                    BgInput.KeyUp(lower, lowerMod);
                 }
                 else if ((cur & 0x2) > 0)
                 {
-                    BgInput.KeyUp(higher);
+                    BgInput.KeyUp(higher, higherMod);
                 }
 
                 if ((next & 0x1) > 0)
                 {
-                    BgInput.KeyDown(lower);
+                    BgInput.KeyDown(lower, lowerMod);
                 }
                 else if ((next & 0x2) > 0)
                 {
-                    BgInput.KeyDown(higher);
+                    BgInput.KeyDown(higher, higherMod);
                 }
             }
         }
@@ -198,7 +198,8 @@ namespace CottonCollector.Commands.Impls
                 UpdateMove((state >> 4) & 0x3, 0, VirtualKey.RIGHT, VirtualKey.LEFT);
                 if (swim)
                 {
-                    UpdateMove((state >> 6) & 0x3, 0, VirtualKey.SPACE, VirtualKey.BACK);
+                    UpdateMove((state >> 6) & 0x3, 0, VirtualKey.SPACE, 
+                        VirtualKey.SPACE, lowerMod: BgInput.Modifier.CTRL);
                 }
                 finished = true;
                 return;
@@ -209,7 +210,8 @@ namespace CottonCollector.Commands.Impls
             UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, VirtualKey.RIGHT, VirtualKey.LEFT);
             if (swim)
             {
-                UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, VirtualKey.SPACE, VirtualKey.BACK);
+                UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, VirtualKey.SPACE, 
+                    VirtualKey.SPACE, lowerMod: BgInput.Modifier.CTRL);
             }
             Thread.Sleep(1);
 
