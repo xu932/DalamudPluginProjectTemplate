@@ -21,6 +21,8 @@ namespace CottonCollector.Commands.Impls
         [JsonProperty] private bool shouldFaceTarget = false;
         [JsonProperty] private bool swim = false;
 
+        private Random rand = new();
+
         public const uint STOP = 0;
         public const uint LEFT = 1;
         public const uint RIGHT = 1 << 1;
@@ -29,6 +31,7 @@ namespace CottonCollector.Commands.Impls
         public const uint ROTATE_RIGHT = 1 << 5;
         public const uint UP = 1 << 6;
         public const uint DOWN = 1 << 7;
+        public const uint JUMP = 1 << 8;
 
         internal override bool ShouldRepeat { get; } = true;
 
@@ -155,6 +158,16 @@ namespace CottonCollector.Commands.Impls
                 ret |= state & (DOWN | UP);
             }
 
+            if (!swim)
+            {
+                int r = rand.Next(1000);
+                if (r == 0)
+                {
+                    PluginLog.Log("register jump!");
+                    ret |= JUMP;
+                }
+            }
+
             return ret;
         }
 
@@ -213,6 +226,7 @@ namespace CottonCollector.Commands.Impls
                 UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, VirtualKey.SPACE, 
                     VirtualKey.SPACE, lowerMod: BgInput.Modifier.CTRL);
             }
+            UpdateMove((state >> 8) & 0x1, (next >> 8) & 0x1, VirtualKey.SPACE, VirtualKey.SPACE);
             Thread.Sleep(1);
 
             state = next;

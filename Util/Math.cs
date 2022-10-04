@@ -31,5 +31,16 @@ namespace CottonCollector
             double dir_x = target.X - player.X, dir_y = target.Z - player.Z;
             return dir_x * dir_x + dir_y * dir_y;
         }
+
+        public static double phi(Vector3 v)
+        {
+            var dot = (v.X * v.X + v.Z * v.Z) / (Math.Sqrt(v.X * v.X + v.Z * v.Z) * Math.Sqrt(v.X * v.X + v.Z * v.Z + v.Y * v.Y));
+            var phi = Math.Acos(dot);
+            if (v.Y > 0)
+            {
+                return phi;
+            }
+            return -phi;
+        }
     }
 }
