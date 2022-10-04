@@ -116,6 +116,7 @@ namespace CottonCollector.BackgroundInputs
         }
         #endregion
 
+        #region ResumeOnFocusChange
         private static IntPtr hWndGame = FindFFXIVWindow();
         private static IntPtr hFocusHook = IntPtr.Zero;
         private static WinEventProc focusListener = new(ForegroundChangedCallback);
@@ -175,6 +176,7 @@ namespace CottonCollector.BackgroundInputs
                 ResumePressedKeys();
             }
         }
+        #endregion
 
         public static void Initialize()
         {
@@ -207,52 +209,78 @@ namespace CottonCollector.BackgroundInputs
             switch (mod)
             {
                 case Modifier.SHIFT:
-                    return VirtualKey.LSHIFT;
+                    return VirtualKey.SHIFT;
                 case Modifier.CTRL:
-                    return VirtualKey.LCONTROL;
+                    return VirtualKey.CONTROL;
                 default:
-                    return VirtualKey.LMENU;
+                    return VirtualKey.MENU;
             }
         }
 
-        public static void KeyDown(VirtualKey vk, Modifier mod = Modifier.NONE)
+        private static object LOCK = new();
+        internal static void KeyDown(VirtualKey vk, Modifier mod = Modifier.NONE)
         {
-            var modVk = ModifierToVk(mod);
-            if (modVk != null)
-            {
-                pressedKeys.Add(modVk.Value);
-                SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)modVk, (IntPtr)0);
-            }
-            pressedKeys.Add(vk);
-            SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)vk, (IntPtr)0);
+            Thread keyboardMsgThread = new(new ThreadStart(() => {
+                lock (LOCK)
+                {
+                    var modVk = ModifierToVk(mod);
+                    PluginLog.Log($"KEY_DOWN! {modVk} + {vk}");
+                    if (modVk != null)
+                    {
+                        pressedKeys.Add(modVk.Value);
+                        SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)modVk, (IntPtr)0);
+                        Thread.Sleep(10);
+                    }
+                    pressedKeys.Add(vk);
+                    SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)vk, (IntPtr)0);
+                }
+            }));
+            keyboardMsgThread.Start();
         }
 
-        public static void KeyUp(VirtualKey vk, Modifier mod = Modifier.NONE)
+        internal static void KeyUp(VirtualKey vk, Modifier mod = Modifier.NONE)
         {
-            SendMessage(hWndGame, WM_KEYUP, (IntPtr)vk, (IntPtr)0);
-            pressedKeys.Remove(vk);
-            var modVk = ModifierToVk(mod);
-            if (modVk != null)
+            Thread keyboardMsgThread = new(new ThreadStart(() =>
             {
-                SendMessage(hWndGame, WM_KEYUP, (IntPtr)modVk, (IntPtr)0);
-                pressedKeys.Remove(modVk.Value);
-            }
+                lock (LOCK) {
+                    var modVk = ModifierToVk(mod);
+                    PluginLog.Log($"KEY_UP! {modVk} + {vk}");
+                    SendMessage(hWndGame, WM_KEYUP, (IntPtr)vk, (IntPtr)0);
+                    pressedKeys.Remove(vk);
+                    if (modVk != null)
+                    {
+                        Thread.Sleep(10);
+                        SendMessage(hWndGame, WM_KEYUP, (IntPtr)modVk, (IntPtr)0);
+                        pressedKeys.Remove(modVk.Value);
+                    }
+                }
+            }));
+            keyboardMsgThread.Start();
         }
 
-        public static void KeyPress(VirtualKey vk, Modifier mod = Modifier.NONE)
+        internal static void KeyPress(VirtualKey vk, Modifier mod = Modifier.NONE)
         {
-            var modVk = ModifierToVk(mod);
-            if (modVk != null)
+            Thread keyboardMsgThread = new(new ThreadStart(() =>
             {
-                SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)modVk, (IntPtr)0);
-            }
-            SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)vk, (IntPtr)0);
-            Thread.Sleep(10);
-            SendMessage(hWndGame, WM_KEYUP, (IntPtr)vk, (IntPtr)0);
-            if (modVk != null)
-            {
-                SendMessage(hWndGame, WM_KEYUP, (IntPtr)modVk, (IntPtr)0);
-            }
+                lock (LOCK)
+                {
+                    var modVk = ModifierToVk(mod);
+                    if (modVk != null)
+                    {
+                        SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)modVk, (IntPtr)0);
+                        Thread.Sleep(10);
+                    }
+                    SendMessage(hWndGame, WM_KEYDOWN, (IntPtr)vk, (IntPtr)0);
+                    Thread.Sleep(10);
+                    SendMessage(hWndGame, WM_KEYUP, (IntPtr)vk, (IntPtr)0);
+                    if (modVk != null)
+                    {
+                        Thread.Sleep(10);
+                        SendMessage(hWndGame, WM_KEYUP, (IntPtr)modVk, (IntPtr)0);
+                    }
+                }
+            }));
+            keyboardMsgThread.Start();
         }
     }
 }

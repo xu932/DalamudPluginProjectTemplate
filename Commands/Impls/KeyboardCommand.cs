@@ -23,8 +23,9 @@ namespace CottonCollector.Commands.Impls
             KEY_PRESS = 2,
         }
 
-        [JsonProperty] public ActionType actionType = ActionType.KEY_PRESS;
-        [JsonProperty] public VirtualKey vk;
+        [JsonProperty] private ActionType actionType = ActionType.KEY_PRESS;
+        [JsonProperty] private VirtualKey vk;
+        [JsonProperty] private BgInput.Modifier mod = BgInput.Modifier.NONE;
 
         protected override int MinTimeMili { get; } = 10;
 
@@ -35,16 +36,16 @@ namespace CottonCollector.Commands.Impls
             switch (actionType)
             {
                 case ActionType.KEY_DOWN:
-                    PluginLog.Verbose($"KeyDown {vk}");
-                    BgInput.KeyDown(vk);
+                    PluginLog.Verbose($"KeyDown {mod} {vk}");
+                    BgInput.KeyDown(vk, mod);
                     break;
                 case ActionType.KEY_UP:
-                    PluginLog.Verbose($"KeyUp {vk}");
-                    BgInput.KeyUp(vk);
+                    PluginLog.Verbose($"KeyUp {mod} {vk}");
+                    BgInput.KeyUp(vk, mod);
                     break;
                 case ActionType.KEY_PRESS:
-                    PluginLog.Verbose($"KeyPress {vk}");
-                    BgInput.KeyPress(vk);
+                    PluginLog.Verbose($"KeyPress {mod} {vk}");
+                    BgInput.KeyPress(vk, mod);
                     break;
             }
         }
@@ -53,7 +54,14 @@ namespace CottonCollector.Commands.Impls
         internal override void MinimalInfo()
         {
             base.MinimalInfo();
-            ImGui.Text(actionType.ToString() + " " + vk.ToString());
+            var info = $"{actionType} ";
+            if (mod != BgInput.Modifier.NONE)
+            {
+                info += $"{mod}+";
+            }
+            info += vk.ToString();
+
+            ImGui.Text(info);
         }
 
         internal override void SelectorGui()
@@ -71,18 +79,27 @@ namespace CottonCollector.Commands.Impls
                 actionType = actionTypes[newActionTypeIndex];
             }
 
+            ImGui.SameLine();
+            ImGui.Text("Modifier:");
+            ImGui.SameLine();
+            List<BgInput.Modifier> mods = Enum.GetValues(typeof(BgInput.Modifier)).Cast<BgInput.Modifier>().ToList();
+            int newModIndex = mods.IndexOf(mod);
+            if (ImGui.Combo(Ui.Uid(index: uid), ref newModIndex, mods.Select(t=>Enum.GetName(t)).ToArray(), mods.Count))
+            {
+                mod = mods[newModIndex];
+            }
+
             // Key Selector
             ImGui.SameLine();
             ImGui.Text("Key:");
             ImGui.SameLine();
-            List<VirtualKey> keys = Enum.GetValues(typeof(VirtualKey)).Cast<VirtualKey>().ToList();
+            List<VirtualKey> keys = CottonCollectorPlugin.KeyState.GetValidVirtualKeys().ToList();
             int newVkIndex = keys.IndexOf(vk);
-            if (ImGui.Combo(Ui.Uid(index: uid), ref newVkIndex, Enum.GetNames(typeof(VirtualKey)), keys.Count))
+            if (ImGui.Combo(Ui.Uid(index: uid), ref newVkIndex, keys.Select(t=>Enum.GetName(t)).ToArray(), keys.Count))
             {
                 vk = keys[newVkIndex];
             }
 
-            // TODO: add key modifier selector
             ImGui.PopItemWidth();
         }
         #endregion
