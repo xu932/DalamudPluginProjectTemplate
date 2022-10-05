@@ -171,27 +171,27 @@ namespace CottonCollector.Commands.Impls
             return ret;
         }
 
-        private void UpdateMove(uint cur, uint next, VirtualKey higher, VirtualKey lower, 
-            BgInput.Modifier higherMod = BgInput.Modifier.NONE, BgInput.Modifier lowerMod = BgInput.Modifier.NONE)
+        private void UpdateMove(uint cur, uint next, Tuple<BgInput.Modifier, VirtualKey> higher, 
+            Tuple<BgInput.Modifier, VirtualKey> lower)
         {
             if (cur != next)
             {
                 if ((cur & 0x1) > 0)
                 {
-                    BgInput.KeyUp(lower, lowerMod);
+                    BgInput.KeyUp(lower.Item2, lower.Item1);
                 }
                 else if ((cur & 0x2) > 0)
                 {
-                    BgInput.KeyUp(higher, higherMod);
+                    BgInput.KeyUp(higher.Item2, higher.Item1);
                 }
 
                 if ((next & 0x1) > 0)
                 {
-                    BgInput.KeyDown(lower, lowerMod);
+                    BgInput.KeyDown(lower.Item2, lower.Item1);
                 }
                 else if ((next & 0x2) > 0)
                 {
-                    BgInput.KeyDown(higher, higherMod);
+                    BgInput.KeyDown(higher.Item2, higher.Item1);
                 }
             }
         }
@@ -202,32 +202,33 @@ namespace CottonCollector.Commands.Impls
             var camera = new Vector3(CameraHelpers.collection->WorldCamera->X, CameraHelpers.collection->WorldCamera->Y, 0);
             var angle = MyMath.angle2d(player.Position, camera, this.targetPos);
             var dist = MyMath.dist(player.Position, targetPos);
+            var keybind = CottonCollectorPlugin.config.keybind;
 
             uint next = Decide(angle, dist, this.targetPos.Y - player.Position.Y);
             if (finished)
             {
-                UpdateMove(state & 0x3, 0, VirtualKey.D, VirtualKey.A);
-                UpdateMove((state >> 2) & 0x3, 0, VirtualKey.W, VirtualKey.W);
-                UpdateMove((state >> 4) & 0x3, 0, VirtualKey.RIGHT, VirtualKey.LEFT);
+                UpdateMove(state & 0x3, 0, keybind.moveRight, keybind.moveLeft);
+                UpdateMove((state >> 2) & 0x3, 0, keybind.moveForward, keybind.moveForward);
+                UpdateMove((state >> 4) & 0x3, 0, keybind.moveRight, keybind.moveLeft);
                 if (swim)
                 {
-                    UpdateMove((state >> 6) & 0x3, 0, VirtualKey.SPACE, 
-                        VirtualKey.SPACE, lowerMod: BgInput.Modifier.CTRL);
+                    UpdateMove((state >> 6) & 0x3, 0, keybind.moveUpward, keybind.moveDownward);
                 }
                 finished = true;
                 return;
             }
 
-            UpdateMove(next & 0x3, next & 0x3, VirtualKey.D, VirtualKey.A);
-            UpdateMove((state >> 2) & 0x3, (next >> 2) & 0x3, VirtualKey.W, VirtualKey.W);
-            UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, VirtualKey.RIGHT, VirtualKey.LEFT);
+            UpdateMove(next & 0x3, next & 0x3, keybind.moveRight, keybind.moveLeft);
+            UpdateMove((state >> 2) & 0x3, (next >> 2) & 0x3, keybind.moveForward, keybind.moveForward);
+            UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, keybind.moveRight, keybind.moveLeft);
             if (swim)
             {
-                UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, VirtualKey.SPACE, 
-                    VirtualKey.SPACE, lowerMod: BgInput.Modifier.CTRL);
+                UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, keybind.moveUpward, keybind.moveDownward);
             }
-            UpdateMove((state >> 8) & 0x1, (next >> 8) & 0x1, VirtualKey.SPACE, VirtualKey.SPACE);
-            Thread.Sleep(1);
+            else
+            {
+                UpdateMove((state >> 8) & 0x1, (next >> 8) & 0x1, keybind.jump, keybind.jump);
+            }
 
             state = next;
         }

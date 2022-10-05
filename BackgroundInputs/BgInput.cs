@@ -132,10 +132,9 @@ namespace CottonCollector.BackgroundInputs
             hFocusHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero,
                 focusListener, 0, 0, SetWinEventHookFlags.WINEVENT_OUTOFCONTEXT);
             PluginLog.Verbose($"hFocusHook {hFocusHook}");
-            MSG msg;
-            while(!disposing)
+            while (!disposing)
             {
-                if (PeekMessage(out msg, IntPtr.Zero, 0, 0, 1))
+                if (PeekMessage(out MSG msg, IntPtr.Zero, 0, 0, 1))
                 {
                     TranslateMessage(ref msg);
                     DispatchMessage(ref msg);
@@ -165,13 +164,13 @@ namespace CottonCollector.BackgroundInputs
             PluginLog.Log($"Something Happened hWnd {hWnd}, hWndGame {hWndGame}");
             if (hWnd == hWndGame)
             {
-                PluginLog.Log("Re-Focused FFXIV!");
+                PluginLog.Debug("Re-Focused FFXIV!");
                 gameIsFocused = true;
                 ResumePressedKeys();
             }
             else if (gameIsFocused)
             {
-                PluginLog.Log("Un-Focused FFXIV!");
+                PluginLog.Debug("Un-Focused FFXIV!");
                 gameIsFocused = false;
                 ResumePressedKeys();
             }

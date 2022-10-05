@@ -68,7 +68,7 @@ namespace CottonCollector.Commands.Impls
         {
             ImGui.PushItemWidth(100);
 
-            // Type selector
+            // Type Selector
             ImGui.Text("Type:");
             ImGui.SameLine();
             List<ActionType> actionTypes = Enum.GetValues(typeof(ActionType)).Cast<ActionType>().ToList();
@@ -79,6 +79,7 @@ namespace CottonCollector.Commands.Impls
                 actionType = actionTypes[newActionTypeIndex];
             }
 
+            // Modifier Selector
             ImGui.SameLine();
             ImGui.Text("Modifier:");
             ImGui.SameLine();
