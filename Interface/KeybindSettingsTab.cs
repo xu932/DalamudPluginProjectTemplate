@@ -10,9 +10,9 @@ using CottonCollector.Commands.Impls;
 
 namespace CottonCollector.Interface
 {
-    internal class KeyBindSetting : ConfigTab
+    internal class KeybindSettingsTab : ConfigTab
     {
-        internal KeyBindSetting() : base("KeyBindSetting") { }
+        internal KeybindSettingsTab() : base("KeyBindSetting") { }
 
         private void KeyInput(ref Tuple<BgInput.Modifier, VirtualKey> keybind, string name)
         {

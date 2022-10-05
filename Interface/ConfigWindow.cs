@@ -16,6 +16,7 @@ namespace CottonCollector.Interface
         private static ObjectTableTab objectTableTab;
         private static CameraInfoTab cameraInfoTab;
         private static CommandSetsTab commandSetsTab;
+        private static KeybindSettingsTab keybindTab;
 
         public ConfigWindow()
         {
@@ -40,11 +41,11 @@ namespace CottonCollector.Interface
                     settingsTab.Draw();
                     objectTableTab.Draw(config.showObjects);
                     cameraInfoTab.Draw(config.showCameraInfo);
+                    keybindTab.Draw();
                     commandSetsTab.Draw();
 
                     ImGui.EndTabBar();  
                 }
-
             }
 
             if (ImGui.Button("Save"))
