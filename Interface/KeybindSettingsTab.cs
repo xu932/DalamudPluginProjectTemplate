@@ -94,13 +94,13 @@ namespace CottonCollector.Interface
 
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(0);
-                ImGui.Text("Camera Move Left");
+                ImGui.Text("Rotate Camera Left");
                 ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.rotateCameraLeft, "RotateLeft");
 
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(0);
-                ImGui.Text("Camera Move Right");
+                ImGui.Text("Rotate Camera Right");
                 ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.rotateCameraRight, "RotateRight");
 

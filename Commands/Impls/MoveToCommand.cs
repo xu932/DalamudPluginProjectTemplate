@@ -220,7 +220,7 @@ namespace CottonCollector.Commands.Impls
 
             UpdateMove(next & 0x3, next & 0x3, keybind.moveRight, keybind.moveLeft);
             UpdateMove((state >> 2) & 0x3, (next >> 2) & 0x3, keybind.moveForward, keybind.moveForward);
-            UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, keybind.moveRight, keybind.moveLeft);
+            UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, keybind.rotateCameraRight, keybind.rotateCameraLeft);
             if (swim)
             {
                 UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, keybind.moveUpward, keybind.moveDownward);
