@@ -48,49 +48,66 @@ namespace CottonCollector.Interface
         public override void TabContent()
         {
             var config = CottonCollectorPlugin.config;
-            ImGui.Text("Move To Command KeyBind");
+            ImGui.Text("Move To Command");
             ImGui.Separator();
 
             if (ImGui.BeginTable("##MoveToCommandKeyBind", 2))
             {
-                ImGui.TableSetColumnIndex(0);
-                ImGui.TableNextRow();
-                ImGui.Text("Move Forward");
-                ImGui.TableNextRow();
-                ImGui.Text("Move Backward");
-                ImGui.TableNextRow();
-                ImGui.Text("Move Left");
-                ImGui.TableNextRow();
-                ImGui.Text("Move Right");
-                ImGui.TableNextRow();
-                ImGui.Text("Move Up");
-                ImGui.TableNextRow();
-                ImGui.Text("Move Down");
-                ImGui.TableNextRow();
-                ImGui.Text("Camera Move Left");
-                ImGui.TableNextRow();
-                ImGui.Text("Camera Move Right");
-                ImGui.TableNextRow();
-                ImGui.Text("Jump");
+                ImGui.TableSetupColumn("##Label", ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 200);
+                ImGui.TableSetupColumn("##Selector", ImGuiTableColumnFlags.None);
 
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Move Forward");
                 ImGui.TableSetColumnIndex(1);
-                ImGui.TableNextRow();
                 KeyInput(ref config.keybind.moveForward, "Forward");
+
                 ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Move Backward");
+                ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.moveBackward, "Backward");
+
                 ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Move Left");
+                ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.moveLeft, "Left");
+
                 ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Move Right");
+                ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.moveRight, "Right");
+
                 ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Move Up");
+                ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.moveUpward, "Upward");
+
                 ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Move Down");
+                ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.moveDownward, "Downward");
+
                 ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Camera Move Left");
+                ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.rotateCameraLeft, "RotateLeft");
+
                 ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Camera Move Right");
+                ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.rotateCameraRight, "RotateRight");
+
                 ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Jump");
+                ImGui.TableSetColumnIndex(1);
                 KeyInput(ref config.keybind.jump, "Jump");
 
                 ImGui.EndTable();

@@ -12,19 +12,15 @@ namespace CottonCollector.Interface
         private bool IsOpen = false;
         private CottonCollectorConfig config;
 
-        private static SettingsTab settingsTab;
-        private static ObjectTableTab objectTableTab;
-        private static CameraInfoTab cameraInfoTab;
-        private static CommandSetsTab commandSetsTab;
-        private static KeybindSettingsTab keybindTab;
+        private static SettingsTab settingsTab = new();
+        private static ObjectTableTab objectTableTab = new();
+        private static CameraInfoTab cameraInfoTab = new();
+        private static CommandSetsTab commandSetsTab = new();
+        private static KeybindSettingsTab keybindTab = new();
 
         public ConfigWindow()
         {
             config = CottonCollectorPlugin.config;
-            settingsTab = new();
-            objectTableTab = new();
-            cameraInfoTab = new();
-            commandSetsTab = new();
         }
 
         public void Draw()
