@@ -101,11 +101,11 @@ namespace CottonCollector.Commands.Impls
                 }
                 if (angle < -Math.PI / 72)
                 {
-                    ret |= RIGHT;
+                    ret |= LEFT;
                 }
                 else if (angle > Math.PI / 72)
                 {
-                    ret |= LEFT;
+                    ret |= RIGHT;
                 }
                 if (swim && height > 0.4)
                 {
@@ -122,11 +122,11 @@ namespace CottonCollector.Commands.Impls
                 // if we are 45 degree away, then turn while running forward
                 if (angle > Math.PI / 12)
                 {
-                    ret |= ROTATE_LEFT;
+                    ret |= ROTATE_RIGHT;
                 }
                 else if (angle < -Math.PI / 12)
                 {
-                    ret |= ROTATE_RIGHT;
+                    ret |= ROTATE_LEFT;
                 }
                 else
                 {
