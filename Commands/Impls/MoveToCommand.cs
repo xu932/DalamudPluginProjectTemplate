@@ -95,7 +95,7 @@ namespace CottonCollector.Commands.Impls
             else if (dist < 20)
             {
                 // use A/D when we still have good distance
-                if (dist > 5)
+                if (dist > 5 && angle > -Math.PI / 4 && angle < Math.PI / 4)
                 {
                     ret |= FORWARD;
                 }
@@ -107,11 +107,11 @@ namespace CottonCollector.Commands.Impls
                 {
                     ret |= LEFT;
                 }
-                if (height > 0.4)
+                if (swim && height > 0.4)
                 {
                     ret |= DOWN;
                 }
-                else if (height < -0.4)
+                else if (swim && height < -0.4)
                 {
                     ret |= UP;
                 }
@@ -122,11 +122,11 @@ namespace CottonCollector.Commands.Impls
                 // if we are 45 degree away, then turn while running forward
                 if (angle > Math.PI / 12)
                 {
-                    ret |= ROTATE_RIGHT;
+                    ret |= ROTATE_LEFT;
                 }
                 else if (angle < -Math.PI / 12)
                 {
-                    ret |= ROTATE_LEFT;
+                    ret |= ROTATE_RIGHT;
                 }
                 else
                 {
@@ -138,6 +138,16 @@ namespace CottonCollector.Commands.Impls
                     else if (height < -5)
                     {
                         ret |= UP;
+                    }
+                }
+
+                if (!swim)
+                {
+                    int r = rand.Next(1000);
+                    if (r == 0)
+                    {
+                        PluginLog.Log("register jump!");
+                        ret |= JUMP;
                     }
                 }
             }
@@ -156,16 +166,6 @@ namespace CottonCollector.Commands.Impls
             if (((state & DOWN) > 0 && height > 0.1) || (state & UP) > 0 && height < 0.1)
             {
                 ret |= state & (DOWN | UP);
-            }
-
-            if (!swim)
-            {
-                int r = rand.Next(1000);
-                if (r == 0)
-                {
-                    PluginLog.Log("register jump!");
-                    ret |= JUMP;
-                }
             }
 
             return ret;
@@ -218,9 +218,10 @@ namespace CottonCollector.Commands.Impls
                 return;
             }
 
-            UpdateMove(next & 0x3, next & 0x3, keybind.moveRight, keybind.moveLeft);
+            UpdateMove(state & 0x3, next & 0x3, keybind.moveRight, keybind.moveLeft);
             UpdateMove((state >> 2) & 0x3, (next >> 2) & 0x3, keybind.moveForward, keybind.moveForward);
             UpdateMove((state >> 4) & 0x3, (next >> 4) & 0x3, keybind.rotateCameraRight, keybind.rotateCameraLeft);
+
             if (swim)
             {
                 UpdateMove((state >> 6) & 0x3, (next >> 6) & 0x3, keybind.moveUpward, keybind.moveDownward);
