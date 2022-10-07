@@ -99,7 +99,7 @@ namespace CottonCollector.Commands.Impls
                 {
                     ret |= FORWARD;
                 }
-                if (angle > -Math.PI / 72)
+                if (angle < -Math.PI / 72)
                 {
                     ret |= RIGHT;
                 }
