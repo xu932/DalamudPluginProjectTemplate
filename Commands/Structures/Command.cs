@@ -104,14 +104,6 @@ namespace CottonCollector.Commands.Structures
             {
                 ImGui.Text(condition.Description());
             }
-            if (this is not CommandSet)
-            {
-                if (ImGui.Button(Ui.Uid("Play", uid)))
-                {
-                    CottonCollectorPlugin.rootCmdManager.Schedule(this);
-                }
-                ImGui.SameLine();
-            }
         }
 
         internal abstract void SelectorGui();

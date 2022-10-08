@@ -14,8 +14,8 @@ namespace CottonCollector.Commands.Structures
         static public Dictionary<string, CommandSet> CommandSetMap { get; private set; }
 
         [JsonProperty] public string uniqueId { get; private set; }
-        [JsonProperty] public LinkedList<Command> subCommands = new();
-        [JsonProperty] public LinkedList<Command> triggers = new();
+        [JsonProperty] public List<Command> subCommands = new();
+        [JsonProperty] public List<Command> triggers = new();
 
         private readonly CommandManager commandManager = new();
         private readonly SynchronousTriggersManager triggersManager = new();

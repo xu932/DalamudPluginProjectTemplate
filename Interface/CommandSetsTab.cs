@@ -27,19 +27,83 @@ namespace CottonCollector.Interface
         internal static int selectedNewCommandIndex = 0;
         internal static int selectedNewTriggerIndex = 0;
         internal static int selectedCommandSetLinkIndex = 0;
+        internal static int selectedCommandIndex = 0;
         internal static int selectedTriggerLinkIndex = 0;
         internal static Command newCommand = new KeyboardCommand();
         internal static Command newTrigger = new KeyboardCommand();
 
         public CommandSetsTab() : base("CommandSets") { }
 
-        private void CommandList(LinkedList<Command> commands, int tabIndex)
+        private void ToolBelt(List<Command> commands, int tabIndex)
         {
+            ImGui.PushFont(UiBuilder.IconFont);
+            if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.PlayCircle.ToIconString()}", tabIndex)))
+            {
+                CottonCollectorPlugin.rootCmdManager.Schedule(commands[selectedCommandIndex]);
+            }
+            ImGui.PopFont();
+
+            ImGui.SameLine();
+            ImGui.PushFont(UiBuilder.IconFont);
+            if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Minus.ToIconString()}", tabIndex)))
+            {
+                commands.Remove(commands[selectedCommandIndex]);
+            }
+            ImGui.PopFont();
+
+            ImGui.SameLine();
+            ImGui.PushFont(UiBuilder.IconFont);
+            var disableUp = selectedCommandIndex == 0;
+            if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowUp.ToIconString()}", tabIndex)) && !disableUp)
+            {
+                var temp = commands[selectedCommandIndex];
+                commands.Remove(commands[selectedCommandIndex]);
+                commands.Insert(--selectedCommandIndex, temp);
+            }
+            ImGui.PopFont();
+
+            ImGui.SameLine();
+            ImGui.PushFont(UiBuilder.IconFont);
+            var disableDown = selectedCommandIndex == commands.Count - 1;
+            if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowDown.ToIconString()}", tabIndex)) && !disableDown)
+            {
+                var temp = commands[selectedCommandIndex];
+                commands.Remove(commands[selectedCommandIndex]);
+                commands.Insert(++selectedCommandIndex, temp);
+            }
+            ImGui.PopFont();
+
+            var editUid = Ui.Uid("Edit Command");
+            if (ImGui.BeginPopup(editUid))
+            {
+                commands[selectedCommandIndex].BuilderGui();
+
+                if (ImGui.Button(Ui.Uid("Save & Close")))
+                {
+                    ImGui.CloseCurrentPopup();
+                    CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
+                }
+                ImGui.EndPopup();
+            }
+
+            ImGui.SameLine();
+            ImGui.PushFont(UiBuilder.IconFont);
+            if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Edit.ToIconString()}")))
+            {
+                ImGui.OpenPopup(editUid);
+            }
+            ImGui.PopFont();
+        }
+
+        private void CommandList(List<Command> commands, int tabIndex)
+        {
+            ToolBelt(commands, tabIndex);
+
             Vector2 region = ImGui.GetContentRegionAvail();
             region.Y -= 30;
             if (ImGui.BeginChild(Ui.Uid(index: tabIndex), region, false, ImGuiWindowFlags.AlwaysVerticalScrollbar))
             {
-                if (ImGui.BeginTable(Ui.Uid(), 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
+                if (ImGui.BeginTable(Ui.Uid(), 2, ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg))
                 {
                     ImGui.TableSetupColumn(Ui.Uid(), ImGuiTableColumnFlags.NoResize | ImGuiTableColumnFlags.WidthFixed, 10);
                     ImGui.TableSetupColumn(Ui.Uid(), ImGuiTableColumnFlags.NoResize, 400);
@@ -47,11 +111,8 @@ namespace CottonCollector.Interface
                     ImGui.TableHeadersRow();
 
                     int index = 0;
-                    for (var commandLN = commands.First;
-                        commandLN != null; commandLN = commandLN.Next, index++)
+                    foreach (var command in commands)
                     {
-                        var command = commandLN.Value;
-
                         ImGui.TableNextRow();
                         ImGui.TableSetColumnIndex(0);
                         if (command.IsCurrent)
@@ -62,58 +123,16 @@ namespace CottonCollector.Interface
                         }
 
                         ImGui.TableSetColumnIndex(1);
+                        if(ImGui.Selectable(Ui.Uid(index: index), index == selectedCommandIndex, 
+                            ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowItemOverlap)) {
+                            PluginLog.Log($"SELECT index: {index}");
+                            selectedCommandIndex = index;
+                        }
+
+                        ImGui.SameLine();
                         command.MinimalInfo();
 
-                        ImGui.TableSetColumnIndex(2);
-                        var editUid = Ui.Uid("Edit Command", index);
-                        if (ImGui.BeginPopup(editUid))
-                        {
-                            command.BuilderGui();
-
-                            if (ImGui.Button(Ui.Uid("Save & Close", index)))
-                            {
-                                ImGui.CloseCurrentPopup();
-                                CottonCollectorPlugin.DalamudPluginInterface.SavePluginConfig(config);
-                            }
-                            ImGui.EndPopup();
-                        }
-
-                        ImGui.PushFont(UiBuilder.IconFont);
-                        if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Edit.ToIconString()}", index)))
-                        {
-                            ImGui.OpenPopup(editUid);
-                        }
-
-                        ImGui.SameLine();
-                        if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Minus.ToIconString()}", index)))
-                        {
-                            var prev = commandLN.Previous;
-                            commands.Remove(commandLN);
-                            commandLN = prev;
-                        }
-
-                        ImGui.SameLine();
-                        if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowUp.ToIconString()}", index)))
-                        {
-                            var prev = commandLN.Previous;
-                            if (prev != null)
-                            {
-                                commands.Remove(commandLN);
-                                commands.AddBefore(prev, commandLN);
-                            }
-                        }
-
-                        ImGui.SameLine();
-                        if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.ArrowDown.ToIconString()}", index)))
-                        {
-                            var next = commandLN.Next;
-                            if (next != null)
-                            {
-                                commands.Remove(commandLN);
-                                commands.AddAfter(next, commandLN);
-                            }
-                        }
-                        ImGui.PopFont();
+                        index++;
                     }
 
                     ImGui.TableNextRow();
@@ -131,9 +150,9 @@ namespace CottonCollector.Interface
                         newCommand = (Command)Activator.CreateInstance(commandTypes[selectedNewCommandIndex]);
                     }
 
-                    ImGui.TableSetColumnIndex(2);
                     if (newCommand != null)
                     {
+                        ImGui.SameLine();
                         ImGui.PushFont(UiBuilder.IconFont);
                         if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Plus.ToIconString()}")))
                         {
@@ -141,7 +160,7 @@ namespace CottonCollector.Interface
                             {
                                 moveTo.SetCurrOrTargetPos();
                             }
-                            commands.AddLast(newCommand);
+                            commands.Add(newCommand);
                             newCommand = (Command)Activator.CreateInstance(newCommand.GetType());
                         }
                         ImGui.PopFont();
@@ -158,11 +177,11 @@ namespace CottonCollector.Interface
                     ImGui.Combo(Ui.Uid(), ref selectedCommandSetLinkIndex,
                         commandSetKeys, CommandSet.CommandSetMap.Count);
 
-                    ImGui.TableSetColumnIndex(2);
+                    ImGui.SameLine();
                     ImGui.PushFont(UiBuilder.IconFont);
                     if (ImGui.Button(Ui.Uid($"{FontAwesomeIcon.Plus.ToIconString()}")))
                     {
-                        commands.AddLast(CommandSet.CommandSetMap[commandSetKeys[selectedCommandSetLinkIndex]]);
+                        commands.Add(CommandSet.CommandSetMap[commandSetKeys[selectedCommandSetLinkIndex]]);
                     }
                     ImGui.PopFont();
 
